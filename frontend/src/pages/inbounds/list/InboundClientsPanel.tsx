@@ -16,12 +16,12 @@ import type { ColumnsType } from 'antd/es/table';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import dayjs, { type Dayjs } from 'dayjs';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 
 import { HttpUtil, SizeFormatter } from '@/utils';
 import { coerceInboundJsonField } from '@/models/dbinbound';
 import { useClients } from '@/hooks/useClients';
 import ClientFormModal from '@/pages/clients/ClientFormModal';
+import ClientEditModal from '@/pages/clients/ClientEditModal';
 
 import type { DBInboundRecord } from './types';
 
@@ -52,11 +52,11 @@ type SaveFn = ComponentProps<typeof ClientFormModal>['save'];
 
 export default function InboundClientsPanel({ inbound, onChanged }: Props) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { message } = App.useApp();
   const { create, setExternalLinks, inbounds, allGroups, tgBotEnable } = useClients();
   const [busy, setBusy] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [editEmail, setEditEmail] = useState<string | null>(null);
   const [expiryEdit, setExpiryEdit] = useState<{ email: string; value: Dayjs | null } | null>(null);
 
   const clients = useMemo<RawClient[]>(() => {
@@ -211,7 +211,7 @@ export default function InboundClientsPanel({ inbound, onChanged }: Props) {
               size="small"
               icon={<EditOutlined aria-hidden />}
               aria-label={t('edit')}
-              onClick={() => navigate(`/panel/clients?search=${encodeURIComponent(client.email)}`)}
+              onClick={() => setEditEmail(client.email)}
             />
           </Tooltip>
           <Popconfirm
@@ -260,6 +260,21 @@ export default function InboundClientsPanel({ inbound, onChanged }: Props) {
           emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('noData')} />,
         }}
       />
+
+      {editEmail ? (
+        <ClientEditModal
+          key={editEmail}
+          open={!!editEmail}
+          email={editEmail}
+          inbounds={inbounds}
+          groups={allGroups}
+          tgBotEnable={tgBotEnable}
+          onOpenChange={(next) => {
+            if (!next) setEditEmail(null);
+          }}
+          onSaved={onChanged}
+        />
+      ) : null}
 
       <ClientFormModal
         open={addOpen}
