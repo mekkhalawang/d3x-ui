@@ -2,6 +2,7 @@ package dispatcher
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"sync"
 	"sync/atomic"
@@ -29,6 +30,10 @@ type rateLimitFile struct {
 }
 
 type tokenBucket struct {
+	label  string
+	bytes  int64
+	start  time.Time
+	waits  int64
 	mu     sync.Mutex
 	rate   float64
 	burst  float64
@@ -36,13 +41,16 @@ type tokenBucket struct {
 	last   time.Time
 }
 
-func newTokenBucket(bytesPerSecond int64) *tokenBucket {
+func newTokenBucket(label string, bytesPerSecond int64) *tokenBucket {
+	if os.Getenv("XRAY_RATELIMIT_DEBUG") != "" {
+		fmt.Fprintf(os.Stderr, "D3XDEBUG bucket %s rate=%d\n", label, bytesPerSecond)
+	}
 	rate := float64(bytesPerSecond)
 	burst := rate / 4
 	if burst < 64*1024 {
 		burst = 64 * 1024
 	}
-	return &tokenBucket{rate: rate, burst: burst, tokens: burst, last: time.Now()}
+	return &tokenBucket{label: label, rate: rate, burst: burst, tokens: burst, last: time.Now(), start: time.Now()}
 }
 
 // wait blocks until n bytes fit in the bucket. Concurrent connections of the
@@ -62,12 +70,23 @@ func (b *tokenBucket) wait(n int) {
 		}
 		if b.tokens >= float64(n) {
 			b.tokens -= float64(n)
+			b.bytes += int64(n)
+			b.waits++
+			if os.Getenv("XRAY_RATELIMIT_DEBUG") != "" && b.waits%2000 == 0 {
+				elapsed := time.Since(b.start).Seconds()
+				fmt.Fprintf(os.Stderr, "D3XDEBUG %s waits=%d bytes=%d elapsed=%.1fs achieved=%.0f B/s\n", b.label, b.waits, b.bytes, elapsed, float64(b.bytes)/elapsed)
+			}
 			b.mu.Unlock()
 			return
 		}
 		deficit := float64(n) - b.tokens
 		b.tokens = 0
+		b.bytes += int64(n)
+		b.waits++
 		b.mu.Unlock()
+		if os.Getenv("XRAY_RATELIMIT_DEBUG") != "" && b.waits%1000 == 0 {
+			fmt.Fprintf(os.Stderr, "D3XDEBUG waits=%d n=%d rate=%.0f\n", b.waits, n, b.rate)
+		}
 		time.Sleep(time.Duration(deficit / b.rate * float64(time.Second)))
 	}
 }
@@ -144,10 +163,10 @@ func loadRateLimitFile(path string) {
 	for email, entry := range parsed.Users {
 		limit := &userRateLimit{}
 		if entry.Up > 0 {
-			limit.up = newTokenBucket(entry.Up)
+			limit.up = newTokenBucket("up", entry.Up)
 		}
 		if entry.Down > 0 {
-			limit.down = newTokenBucket(entry.Down)
+			limit.down = newTokenBucket("down", entry.Down)
 		}
 		if limit.up != nil || limit.down != nil {
 			users[email] = limit
@@ -175,6 +194,28 @@ func (w *rateLimitWriter) WriteMultiBuffer(mb buf.MultiBuffer) error {
 		}
 	}
 	return nil
+}
+
+// rateLimitReader shapes the download direction of a DispatchLink link.
+type rateLimitReader struct {
+	reader buf.Reader
+	bucket *tokenBucket
+}
+
+func newRateLimitReader(reader buf.Reader, bucket *tokenBucket) *rateLimitReader {
+	return &rateLimitReader{reader: reader, bucket: bucket}
+}
+
+func (r *rateLimitReader) ReadMultiBuffer() (buf.MultiBuffer, error) {
+	mb, err := r.reader.ReadMultiBuffer()
+	if mb != nil {
+		r.bucket.wait(int(mb.Len()))
+	}
+	return mb, err
+}
+
+func (r *rateLimitReader) Interrupt() {
+	common.Interrupt(r.reader)
 }
 
 func (w *rateLimitWriter) Interrupt() {

@@ -1,5 +1,7 @@
 # D3X-UI 单客户限速：Xray 内核补丁说明
 
+> **状态（2026-11-19）**：面板侧已完成（字段 / UI / 落库 / 写文件 / 发布链路），**内核端整形尚未验证通过**，默认关闭。开启方式：环境变量 `XUI_RATELIMIT_ENABLE=1`。实测结论、待办见 `docs/d3x-handoff.md` 的 P0 条目。
+
 这份文档只讲一件事：**我们给 Xray 内核加了什么、为什么这么加、以后升级内核要怎么把补丁重新打上**。
 
 面板侧的字段、接口、UI 不在这里展开。
@@ -17,8 +19,9 @@
 
 | 文件 | 改动 |
 |---|---|
-| `app/dispatcher/ratelimit.go` | 新增。读取限速文件、维护每用户令牌桶、实现限速 Writer |
-| `app/dispatcher/default.go` | 在 `Dispatch()` 里给上行/下行两个 Writer 套上限速器，共 10 行 |
+| `app/dispatcher/ratelimit.go` | 新增。读取限速文件、维护每用户令牌桶 |
+| `app/dispatcher/shaper.go` | 新增。方向整形器：攒批 + 令牌桶放行 |
+| `app/dispatcher/default.go` | 在 `Dispatch()` 与 `WrapLink()`（VLESS/Trojan 走这里）两处挂 hook |
 | `app/dispatcher/ratelimit_test.go` | 新增。文件加载、热更新、令牌桶速率三个用例 |
 
 ### 数据流
@@ -48,7 +51,7 @@ Xray 的 `policy` 是 protobuf 消息。要在 `policy.levels` 里加 `rateLimit
 
 ### 作用范围
 
-- 只影响 **`Dispatch()` 走的连接**（VLESS / VMess / Trojan / Shadowsocks / Hysteria / WireGuard 等正常代理流量都走这里）。
+- 挂载点有两处：`Dispatch()`（VMess 等）与 `WrapLink()`（**VLESS / Trojan 在 v26.11.9 走的是 DispatchLink，只挂 Dispatch 会完全不生效**）。
 - `WrapLink()`（部分隧道/内部链路）没有套限速器，这部分流量不限速。
 - 限速按 **email** 聚合：同一用户开多条连接共用一个桶，不能靠多开连接绕过。
 - 只对**新建立的连接**生效；已在传输中的连接要断开重连才会用上新限额。

@@ -189,7 +189,7 @@ func (d *DefaultDispatcher) getLink(ctx context.Context) (*transport.Link, *tran
 				inboundLink.Writer = newRateLimitWriter(inboundLink.Writer, limit.up)
 			}
 			if limit.down != nil {
-				outboundLink.Writer = newRateLimitWriter(outboundLink.Writer, limit.down)
+				outboundLink.Writer = newShaperWriter(outboundLink.Writer, limit.down)
 			}
 		}
 	}
@@ -225,6 +225,18 @@ func WrapLink(ctx context.Context, policyManager policy.Manager, statsManager st
 		}
 		if p.Stats.UserOnline {
 			trackOnlineIP(ctx, statsManager, user.Email, sessionInbound.Source.Address.String())
+		}
+
+		// D3X-UI: VLESS/Trojan reach the network through DispatchLink, so the
+		// shaping has to wrap this link too, not just Dispatch's.
+		if limit := lookupRateLimit(user.Email); limit != nil {
+			// link.Reader carries the client's upload, link.Writer the download.
+			if limit.up != nil {
+				link.Reader = newShaperReader(link.Reader, limit.up)
+			}
+			if limit.down != nil {
+				link.Writer = newShaperWriter(link.Writer, limit.down)
+			}
 		}
 	}
 
