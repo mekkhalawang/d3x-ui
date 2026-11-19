@@ -1673,8 +1673,10 @@ func (s *SubService) genHysteriaLink(inbound *model.Inbound, email string) strin
 		}
 		// Xray dropped allowInsecure for its own clients; Hysteria's still read
 		// insecure=1, which is the only way a self-signed cert imports by QR.
-		if ai, ok := tlsSettings["allowInsecure"].(bool); ok && ai {
-			params["insecure"] = "1"
+		if ai, ok := searchKey(tlsSettings, "allowInsecure"); ok {
+			if enabled, _ := ai.(bool); enabled {
+				params["insecure"] = "1"
+			}
 		}
 	}
 
