@@ -803,7 +803,9 @@
         "peerNumberConfig": "پیکربندی Peer {n}"
       },
       "sniffingDestOverride": "بازنویسی مقصد",
-      "advancedTitle": "تنظیمات پیشرفته"
+      "advancedTitle": "تنظیمات پیشرفته",
+      "speedLimit": "Speed limit",
+      "deleteClientConfirm": "Delete this client?"
     },
     "clients": {
       "tabBasics": "پایه",
@@ -1065,7 +1067,10 @@
       "renewsUsed": "تمدیدهای استفاده‌شده",
       "bulkAdTagHint": "یک برچسب هگز ۳۲ کاراکتری برای تنظیم وارد کنید، یا 'none' برای پاک کردن در MTProto.",
       "renewIntervalDesc": "پس از انقضا، تعداد روزهای تعیین‌شده (هر روز ۲۴ ساعت) به مهلت قبلی اضافه و ترافیک کاربر بازنشانی می‌شود. بازنشانی مستقل ترافیک را غیرفعال نگه دارید، مگر اینکه بازنشانی دیگری می‌خواهید.",
-      "renewWeeklyDesc": "تمدید تقویمی در نیمه‌شب به وقت پنل انجام می‌شود و ترافیک کاربر را نیز بازنشانی می‌کند. بازنشانی مستقل ترافیک را غیرفعال نگه دارید، مگر اینکه بازنشانی دیگری می‌خواهید."
+      "renewWeeklyDesc": "تمدید تقویمی در نیمه‌شب به وقت پنل انجام می‌شود و ترافیک کاربر را نیز بازنشانی می‌کند. بازنشانی مستقل ترافیک را غیرفعال نگه دارید، مگر اینکه بازنشانی دیگری می‌خواهید.",
+      "speedLimitUp": "Upload limit (Mbps)",
+      "speedLimitDown": "Download limit (Mbps)",
+      "speedLimitDesc": "Per-client shaping enforced by the patched Xray core. 0 = unlimited; applies to new connections."
     },
     "groups": {
       "name": "نام",

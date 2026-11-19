@@ -41,6 +41,11 @@ func GetConfigPath() string {
 	return config.GetBinFolderPath() + "/config.json"
 }
 
+// GetRateLimitPath is the side file the patched core reads per-user limits from.
+func GetRateLimitPath() string {
+	return config.GetBinFolderPath() + "/ratelimit.json"
+}
+
 // GetGeositePath returns the path to the geosite data file used by Xray.
 func GetGeositePath() string {
 	return config.GetBinFolderPath() + "/geosite.dat"
@@ -683,6 +688,8 @@ func (p *process) Start() (err error) {
 	cmd := exec.CommandContext(context.Background(), GetBinaryPath(), "-c", configPath)
 	cmd.Stdout = p.logWriter
 	cmd.Stderr = p.logWriter
+	// The core reads per-user shaping from this side file (D3X-UI patch).
+	cmd.Env = append(os.Environ(), "XRAY_RATELIMIT_FILE="+GetRateLimitPath())
 
 	err = p.startCommand(cmd)
 	if err != nil {

@@ -34,6 +34,7 @@ import { buildRowActionsMenu } from './RowActions';
 import { useInboundColumns } from './useInboundColumns';
 import { buildHostRemarksByInboundId, formatHostRemarksLabel } from './helpers';
 import InboundStatsModal from './InboundStatsModal';
+import InboundClientsPanel, { canExpandInbound } from './InboundClientsPanel';
 import type { DBInboundRecord, GeneralAction, InboundListProps, RowAction } from './types';
 import './InboundList.css';
 
@@ -64,6 +65,7 @@ export default function InboundList({
   onGeneralAction,
   onRowAction,
   onBulkDelete,
+  onRefresh,
 }: InboundListProps) {
   const { t } = useTranslation();
   const [statsRecord, setStatsRecord] = useState<DBInboundRecord | null>(null);
@@ -374,6 +376,13 @@ export default function InboundList({
             rowSelection={{
               selectedRowKeys,
               onChange: (keys: Key[]) => setSelectedRowKeys(keys as number[]),
+            }}
+            expandable={{
+              expandedRowRender: (record) => (
+                <InboundClientsPanel inbound={record} onChanged={onRefresh} />
+              ),
+              rowExpandable: (record) => canExpandInbound(record),
+              expandIconColumnIndex: 0,
             }}
             pagination={paginationFor(visibleInbounds)}
             scroll={{ x: tableScrollX }}

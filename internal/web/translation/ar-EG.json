@@ -803,7 +803,9 @@
         "peerNumberConfig": "تكوين Peer {n}"
       },
       "sniffingDestOverride": "تجاوز الوجهة",
-      "advancedTitle": "الإعدادات المتقدمة"
+      "advancedTitle": "الإعدادات المتقدمة",
+      "speedLimit": "Speed limit",
+      "deleteClientConfirm": "Delete this client?"
     },
     "clients": {
       "tabBasics": "أساسي",
@@ -1065,7 +1067,10 @@
       "renewsUsed": "التجديدات المستخدمة",
       "bulkAdTagHint": "أدخل علامة من 32 حرفًا ست عشريًا للتعيين، أو 'none' للمسح في منافذ MTProto.",
       "renewIntervalDesc": "بعد انتهاء الصلاحية، يُضاف عدد الأيام المحدد (24 ساعة لكل يوم) إلى الموعد النهائي السابق ويُعاد تعيين استهلاك العميل. أبقِ إعادة تعيين الاستهلاك المستقلة معطلة ما لم تكن تريد إعادة تعيين إضافية.",
-      "renewWeeklyDesc": "يتم التجديد التقويمي عند منتصف الليل بتوقيت اللوحة ويُعاد أيضًا تعيين استهلاك العميل. أبقِ إعادة تعيين الاستهلاك المستقلة معطلة ما لم تكن تريد إعادة تعيين إضافية."
+      "renewWeeklyDesc": "يتم التجديد التقويمي عند منتصف الليل بتوقيت اللوحة ويُعاد أيضًا تعيين استهلاك العميل. أبقِ إعادة تعيين الاستهلاك المستقلة معطلة ما لم تكن تريد إعادة تعيين إضافية.",
+      "speedLimitUp": "Upload limit (Mbps)",
+      "speedLimitDown": "Download limit (Mbps)",
+      "speedLimitDesc": "Per-client shaping enforced by the patched Xray core. 0 = unlimited; applies to new connections."
     },
     "groups": {
       "name": "الاسم",

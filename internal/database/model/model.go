@@ -974,6 +974,10 @@ type Client struct {
 	TotalGB             int64            `json:"totalGB" form:"totalGB"`           // Total traffic limit in GB
 	ExpiryTime          int64            `json:"expiryTime" form:"expiryTime"`     // Expiration timestamp
 	Enable              bool             `json:"enable" form:"enable"`             // Whether the client is enabled
+	// Panel-only shaping (kbps, 0 = unlimited). These ride the client JSON but
+	// reach the core through XRAY_RATELIMIT_FILE, not the Xray config.
+	SpeedLimitUp   int `json:"speedLimitUp,omitempty" form:"speedLimitUp"`
+	SpeedLimitDown int `json:"speedLimitDown,omitempty" form:"speedLimitDown"`
 	TgID                int64            `json:"tgId" form:"tgId"`                 // Telegram user ID for notifications
 	SubID               string           `json:"subId" form:"subId"`               // Subscription identifier
 	Group               string           `json:"group,omitempty" form:"group"`     // Logical grouping label
@@ -1015,6 +1019,8 @@ type ClientRecord struct {
 	TotalGB           int64          `json:"totalGB" gorm:"column:total_gb"`
 	ExpiryTime        int64          `json:"expiryTime" gorm:"column:expiry_time"`
 	Enable            bool           `json:"enable" gorm:"default:true"`
+	SpeedLimitUp      int            `json:"speedLimitUp" gorm:"column:speed_limit_up;default:0"`
+	SpeedLimitDown    int            `json:"speedLimitDown" gorm:"column:speed_limit_down;default:0"`
 	TgID              int64          `json:"tgId" gorm:"column:tg_id;index:idx_clients_tg_id"`
 	Group             string         `json:"group" gorm:"column:group_name;default:'';index:idx_client_record_group"`
 	Comment           string         `json:"comment"`
@@ -1319,6 +1325,8 @@ func (c *Client) ToRecord() *ClientRecord {
 		TotalGB:           c.TotalGB,
 		ExpiryTime:        c.ExpiryTime,
 		Enable:            c.Enable,
+		SpeedLimitUp:      c.SpeedLimitUp,
+		SpeedLimitDown:    c.SpeedLimitDown,
 		TgID:              c.TgID,
 		Group:             strings.TrimSpace(c.Group),
 		Comment:           c.Comment,
@@ -1379,6 +1387,8 @@ func (r *ClientRecord) ToClient() *Client {
 		TotalGB:           r.TotalGB,
 		ExpiryTime:        r.ExpiryTime,
 		Enable:            r.Enable,
+		SpeedLimitUp:      r.SpeedLimitUp,
+		SpeedLimitDown:    r.SpeedLimitDown,
 		TgID:              r.TgID,
 		Group:             r.Group,
 		Comment:           r.Comment,

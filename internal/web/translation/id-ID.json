@@ -803,7 +803,9 @@
         "peerNumberConfig": "Konfig Peer {n}"
       },
       "sniffingDestOverride": "Penggantian tujuan",
-      "advancedTitle": "Pengaturan Lanjutan"
+      "advancedTitle": "Pengaturan Lanjutan",
+      "speedLimit": "Speed limit",
+      "deleteClientConfirm": "Delete this client?"
     },
     "clients": {
       "tabBasics": "Dasar",
@@ -1065,7 +1067,10 @@
       "renewsUsed": "Perpanjangan terpakai",
       "bulkAdTagHint": "Masukkan tag heksadesimal 32 karakter untuk mengatur, atau 'none' untuk menghapus pada MTProto.",
       "renewIntervalDesc": "Setelah kedaluwarsa, menambahkan jumlah hari yang ditentukan (24 jam per hari) ke batas waktu sebelumnya dan mereset trafik klien. Nonaktifkan reset trafik terpisah kecuali Anda menginginkan reset tambahan.",
-      "renewWeeklyDesc": "Perpanjangan kalender dilakukan pada tengah malam menurut zona waktu panel dan juga mereset trafik klien. Nonaktifkan reset trafik terpisah kecuali Anda menginginkan reset tambahan."
+      "renewWeeklyDesc": "Perpanjangan kalender dilakukan pada tengah malam menurut zona waktu panel dan juga mereset trafik klien. Nonaktifkan reset trafik terpisah kecuali Anda menginginkan reset tambahan.",
+      "speedLimitUp": "Upload limit (Mbps)",
+      "speedLimitDown": "Download limit (Mbps)",
+      "speedLimitDesc": "Per-client shaping enforced by the patched Xray core. 0 = unlimited; applies to new connections."
     },
     "groups": {
       "name": "Nama",

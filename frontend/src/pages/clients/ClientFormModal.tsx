@@ -171,6 +171,8 @@ const EMPTY: Values = {
   trafficResetDay: 1,
   limitIp: 0,
   limitHwid: 0,
+  speedLimitUp: 0,
+  speedLimitDown: 0,
   tgId: 0,
   group: '',
   comment: '',
@@ -382,6 +384,8 @@ export default function ClientFormModal({
           ),
         ],
         totalGB: bytesToGB(client.totalGB || 0),
+        speedLimitUp: (Number(client.speedLimitUp) || 0) / 1000,
+        speedLimitDown: (Number(client.speedLimitDown) || 0) / 1000,
         reset: Number(client.reset) || 0,
         resetDay: Number(client.resetDay) || 0,
         resetWeekday: Number(client.resetWeekday) || 0,
@@ -755,6 +759,8 @@ export default function ClientFormModal({
       trafficResetDay: values.trafficResetDay,
       limitIp: values.limitIp,
       limitHwid: values.limitHwid,
+      speedLimitUp: Math.round((values.speedLimitUp || 0) * 1000),
+      speedLimitDown: Math.round((values.speedLimitDown || 0) * 1000),
       tgId: values.tgId,
       group: values.group,
       comment: values.comment,
@@ -793,6 +799,8 @@ export default function ClientFormModal({
       trafficResetDay: Number(values.trafficResetDay) || 1,
       limitIp: Number(values.limitIp) || 0,
       limitHwid: Number(values.limitHwid) || 0,
+      speedLimitUp: Math.round((Number(values.speedLimitUp) || 0) * 1000),
+      speedLimitDown: Math.round((Number(values.speedLimitDown) || 0) * 1000),
       tgId: Number(values.tgId) || 0,
       group: values.group,
       comment: values.comment,
@@ -1056,6 +1064,36 @@ export default function ClientFormModal({
                               {t('pages.clients.limitHwidDesc')}
                             </span>
                           </Form.Item>
+                        </Col>
+                        <Col xs={24} md={12}>
+                          <FormField
+                            name="speedLimitUp"
+                            label={t('pages.clients.speedLimitUp')}
+                            tooltip={t('pages.clients.speedLimitDesc')}
+                            transform={{ output: (v) => Number(v) || 0 }}
+                          >
+                            <InputNumber
+                              min={0}
+                              step={0.1}
+                              addonAfter="Mbps"
+                              style={{ width: '100%' }}
+                            />
+                          </FormField>
+                        </Col>
+                        <Col xs={24} md={12}>
+                          <FormField
+                            name="speedLimitDown"
+                            label={t('pages.clients.speedLimitDown')}
+                            tooltip={t('pages.clients.speedLimitDesc')}
+                            transform={{ output: (v) => Number(v) || 0 }}
+                          >
+                            <InputNumber
+                              min={0}
+                              step={0.1}
+                              addonAfter="Mbps"
+                              style={{ width: '100%' }}
+                            />
+                          </FormField>
                         </Col>
                       </Row>
 

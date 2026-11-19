@@ -803,7 +803,9 @@
         "peerNumberConfig": "Config Peer {n}"
       },
       "sniffingDestOverride": "Anulación de destino",
-      "advancedTitle": "Configuración avanzada"
+      "advancedTitle": "Configuración avanzada",
+      "speedLimit": "Speed limit",
+      "deleteClientConfirm": "Delete this client?"
     },
     "clients": {
       "tabBasics": "Básico",
@@ -1065,7 +1067,10 @@
       "renewsUsed": "Renovaciones usadas",
       "bulkAdTagHint": "Introduce una etiqueta hexadecimal de 32 caracteres para asignar, o 'none' para borrarla en MTProto.",
       "renewIntervalDesc": "Tras expirar, añade el número configurado de días de 24 horas al vencimiento anterior y reinicia el tráfico del cliente. Mantén desactivados los reinicios de tráfico independientes salvo que quieras un reinicio adicional.",
-      "renewWeeklyDesc": "La renovación por calendario se realiza a medianoche en la zona horaria del panel y también reinicia el tráfico del cliente. Mantén desactivados los reinicios de tráfico independientes salvo que quieras un reinicio adicional."
+      "renewWeeklyDesc": "La renovación por calendario se realiza a medianoche en la zona horaria del panel y también reinicia el tráfico del cliente. Mantén desactivados los reinicios de tráfico independientes salvo que quieras un reinicio adicional.",
+      "speedLimitUp": "Upload limit (Mbps)",
+      "speedLimitDown": "Download limit (Mbps)",
+      "speedLimitDesc": "Per-client shaping enforced by the patched Xray core. 0 = unlimited; applies to new connections."
     },
     "groups": {
       "name": "Nombre",

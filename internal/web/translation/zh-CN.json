@@ -803,7 +803,9 @@
         "peerNumberConfig": "Peer {n} 配置"
       },
       "sniffingDestOverride": "目标覆盖",
-      "advancedTitle": "高级设置"
+      "advancedTitle": "高级设置",
+      "speedLimit": "限速",
+      "deleteClientConfirm": "确定删除这个客户？"
     },
     "clients": {
       "tabBasics": "基本",
@@ -1065,7 +1067,10 @@
       "renewsUsed": "已用续期次数",
       "bulkAdTagHint": "输入 32 位十六进制标签以设置，或输入 'none' 清除 MTProto 赞助频道。",
       "renewIntervalDesc": "到期后从上次截止时间增加指定天数（每天 24 小时），并重置客户端流量。若不需要额外重置，请关闭独立的流量重置。",
-      "renewWeeklyDesc": "日历续期按面板时区的午夜执行，并重置客户端流量。若不需要额外重置，请关闭独立的流量重置。"
+      "renewWeeklyDesc": "日历续期按面板时区的午夜执行，并重置客户端流量。若不需要额外重置，请关闭独立的流量重置。",
+      "speedLimitUp": "上行限速（Mbps）",
+      "speedLimitDown": "下行限速（Mbps）",
+      "speedLimitDesc": "按客户限速，由打过补丁的 Xray 内核执行；0 表示不限速，对新连接生效。"
     },
     "groups": {
       "name": "名称",

@@ -52,10 +52,17 @@ if [ -z "$MTG_MULTI_VER" ]; then
 fi
 mkdir -p build/bin
 cd build/bin
-curl -sfLRO "https://github.com/XTLS/Xray-core/releases/download/v26.11.9/Xray-linux-${XRAY_ZIP}.zip"
-unzip "Xray-linux-${XRAY_ZIP}.zip"
-rm -f "Xray-linux-${XRAY_ZIP}.zip" geoip.dat geosite.dat
-mv xray "${XRAY_BIN}"
+# Build the patched core in-tree; a downloaded upstream binary has no limiter.
+case $PLATFORM in
+    amd64) GOARCH=amd64; GOARM="" ;;
+    arm64) GOARCH=arm64; GOARM="" ;;
+    armv7) GOARCH=arm; GOARM=7 ;;
+    armv6) GOARCH=arm; GOARM=6 ;;
+    386) GOARCH=386; GOARM="" ;;
+esac
+( cd /app/third_party/xray-core && CGO_ENABLED=0 GOOS=linux GOARCH="$GOARCH" GOARM="$GOARM" \
+    go build -trimpath -ldflags "-s -w" -o "/app/build/bin/${XRAY_BIN}" ./main )
+rm -f geoip.dat geosite.dat
 # mtg-multi (MTProto sidecar) ships prebuilt release binaries for every target
 # we package, so download and unpack the matching one instead of compiling.
 MTG_PKG="mtg-multi-${MTG_MULTI_VER#v}-linux-${PLATFORM}"

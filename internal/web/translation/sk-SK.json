@@ -803,7 +803,9 @@
         "peerNumber": "Peer {n}",
         "peerNumberConfig": "Konfigurácia peeru {n}"
       },
-      "sniffingDestOverride": "Prepísať cieľ"
+      "sniffingDestOverride": "Prepísať cieľ",
+      "speedLimit": "Speed limit",
+      "deleteClientConfirm": "Delete this client?"
     },
     "clients": {
       "tabBasics": "Základné údaje",
@@ -1065,7 +1067,10 @@
       "renewsUsed": "Použité obnovenia",
       "bulkAdTagHint": "Zadajte 32-znakovú hexadecimálnu značku alebo 'none' na odstránenie sponzorovaného kanála zo vstupov MTProto.",
       "renewIntervalDesc": "Po skončení platnosti pridá nastavený počet 24-hodinových dní k predchádzajúcemu koncu platnosti a vynuluje spotrebu klienta. Samostatné nulovanie spotreby nechajte vypnuté, ak nechcete ďalšie nulovanie navyše.",
-      "renewWeeklyDesc": "Kalendárne obnovenie prebieha o polnoci v časovom pásme panelu a vynuluje aj spotrebu klienta. Samostatné nulovanie spotreby nechajte vypnuté, ak nechcete ďalšie nulovanie navyše."
+      "renewWeeklyDesc": "Kalendárne obnovenie prebieha o polnoci v časovom pásme panelu a vynuluje aj spotrebu klienta. Samostatné nulovanie spotreby nechajte vypnuté, ak nechcete ďalšie nulovanie navyše.",
+      "speedLimitUp": "Upload limit (Mbps)",
+      "speedLimitDown": "Download limit (Mbps)",
+      "speedLimitDesc": "Per-client shaping enforced by the patched Xray core. 0 = unlimited; applies to new connections."
     },
     "groups": {
       "name": "Názov",

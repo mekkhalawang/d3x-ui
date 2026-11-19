@@ -36,6 +36,7 @@ export interface DBInboundRecord extends ProtocolFlags {
   nodeId?: number | null;
   settings: unknown;
   streamSettings: unknown;
+  clientStats?: { email: string; up: number; down: number; total: number }[];
 }
 
 export interface ClientCountEntry {
@@ -83,4 +84,5 @@ export interface InboundListProps {
   onGeneralAction: (key: GeneralAction) => void;
   onRowAction: (action: { key: RowAction; dbInbound: DBInboundRecord }) => void;
   onBulkDelete: (ids: number[]) => Promise<boolean>;
+  onRefresh?: () => void;
 }

@@ -76,6 +76,12 @@ func fillAbsentClientFields(rec *model.ClientRecord, updated *model.Client, limi
 	if !keys.has("enable") {
 		updated.Enable = stored.Enable
 	}
+	if !keys.has("speedLimitUp") {
+		updated.SpeedLimitUp = stored.SpeedLimitUp
+	}
+	if !keys.has("speedLimitDown") {
+		updated.SpeedLimitDown = stored.SpeedLimitDown
+	}
 	if !keys.has("tgId") {
 		updated.TgID = stored.TgID
 	}

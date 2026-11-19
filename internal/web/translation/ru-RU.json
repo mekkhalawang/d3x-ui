@@ -803,7 +803,9 @@
         "peerNumber": "Peer {n}",
         "peerNumberConfig": "Конфиг Peer {n}"
       },
-      "sniffingDestOverride": "Переопределение назначения"
+      "sniffingDestOverride": "Переопределение назначения",
+      "speedLimit": "Speed limit",
+      "deleteClientConfirm": "Delete this client?"
     },
     "clients": {
       "tabBasics": "Основные",
@@ -1065,7 +1067,10 @@
       "renewsUsed": "Продлений израсходовано",
       "bulkAdTagHint": "Введите 32-значный hex-тег для установки или 'none' для очистки спонсорского канала на MTProto.",
       "renewIntervalDesc": "После истечения срока добавляет указанное число 24-часовых дней к предыдущему сроку и сбрасывает трафик клиента. Оставьте независимый сброс трафика выключенным, если дополнительный сброс не нужен.",
-      "renewWeeklyDesc": "Календарное продление выполняется в полночь по часовому поясу панели и также сбрасывает трафик клиента. Оставьте независимый сброс трафика выключенным, если дополнительный сброс не нужен."
+      "renewWeeklyDesc": "Календарное продление выполняется в полночь по часовому поясу панели и также сбрасывает трафик клиента. Оставьте независимый сброс трафика выключенным, если дополнительный сброс не нужен.",
+      "speedLimitUp": "Upload limit (Mbps)",
+      "speedLimitDown": "Download limit (Mbps)",
+      "speedLimitDesc": "Per-client shaping enforced by the patched Xray core. 0 = unlimited; applies to new connections."
     },
     "groups": {
       "name": "Имя",

@@ -797,6 +797,7 @@ export default function InboundsPage() {
                       subEnable={subSettings.enable}
                       nodesById={nodesById}
                       hasActiveNode={showNodeInfo}
+                      onRefresh={refresh}
                       hosts={hosts}
                       onAddInbound={onAddInbound}
                       onGeneralAction={onGeneralAction}

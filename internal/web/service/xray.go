@@ -499,6 +499,7 @@ func (s *XrayService) GetXrayConfig() (*xray.Config, error) {
 	if excludedClients > 0 {
 		logger.Infof("Xray config generated: excluded %d disabled client entries across %d inbounds", excludedClients, excludedInbounds)
 	}
+	syncRateLimitFile()
 	return xrayConfig, nil
 }
 
