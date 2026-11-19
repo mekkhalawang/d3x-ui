@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ComponentProps } from 'react';
 import {
   App,
@@ -57,14 +57,32 @@ export default function InboundClientsPanel({ inbound, onChanged }: Props) {
   const [busy, setBusy] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [editEmail, setEditEmail] = useState<string | null>(null);
+  // The list endpoint is slim: it drops expiryTime and the speed limits from
+  // settings.clients, so the expanded row re-reads the full inbound once.
+  const [fullSettings, setFullSettings] = useState<unknown>(null);
   const [expiryEdit, setExpiryEdit] = useState<{ email: string; value: Dayjs | null } | null>(null);
 
+  useEffect(() => {
+    let alive = true;
+    HttpUtil.get(`/panel/api/inbounds/get/${inbound.id}`)
+      .then((msg) => {
+        if (alive && msg?.success && msg.obj && typeof msg.obj === 'object') {
+          const obj = msg.obj as { settings?: unknown };
+          if (obj.settings !== undefined) setFullSettings(obj.settings);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [inbound.id]);
+
   const clients = useMemo<RawClient[]>(() => {
-    const settings = coerceInboundJsonField(inbound.settings);
+    const settings = coerceInboundJsonField(fullSettings ?? inbound.settings);
     const list = settings.clients;
     if (!Array.isArray(list)) return [];
     return list.filter((c): c is RawClient => !!c && typeof c === 'object' && 'email' in c);
-  }, [inbound.settings]);
+  }, [fullSettings, inbound.settings]);
 
   const statsByEmail = useMemo(() => {
     const map = new Map<string, { up: number; down: number; total: number }>();

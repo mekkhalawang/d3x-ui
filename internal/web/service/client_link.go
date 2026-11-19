@@ -73,6 +73,8 @@ func applyClientRecordMerge(row *model.ClientRecord, incoming *model.ClientRecor
 	row.TotalGB = incoming.TotalGB
 	row.ExpiryTime = incoming.ExpiryTime
 	row.Enable = incoming.Enable
+	row.SpeedLimitUp = incoming.SpeedLimitUp
+	row.SpeedLimitDown = incoming.SpeedLimitDown
 	row.TgID = incoming.TgID
 	if incoming.Group != "" {
 		row.Group = incoming.Group

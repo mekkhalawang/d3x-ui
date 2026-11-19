@@ -931,6 +931,8 @@ func (s *ClientService) update(inboundSvc *InboundService, id int, updated model
 				"limit_ip":             merged.LimitIP,
 				"total_gb":             merged.TotalGB,
 				"expiry_time":          merged.ExpiryTime,
+				"speed_limit_up":       merged.SpeedLimitUp,
+				"speed_limit_down":     merged.SpeedLimitDown,
 				"tg_id":                merged.TgID,
 				"comment":              merged.Comment,
 				"reset":                merged.Reset,
