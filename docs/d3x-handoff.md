@@ -1,5 +1,15 @@
 # D3X-UI 二次开发交接说明
 
+## 明天从哪开始（5 分钟）
+
+1. `cd E://D3X-UI//repo && git checkout feat/d3x-ui`（本地已与远端一致，12 个提交）
+2. 读本文件的「三、未完成」三段，再看 `docs/d3x-xray-ratelimit.md` 的内核补丁原理
+3. **P0 限速**：用 `/root/ratetest.sh`（VPS）在 `127.0.0.1:8092` 面板上复现；
+   验收标准 = 单线程 ≈ 设定值，且 4 条并发总和 ≈ 设定值
+4. **发布**：仓库 Settings 开启 Actions → 打 tag `v3.11.0-d3.1` → 服务器执行
+   `bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh)`
+5. 推 GitHub 记得带 SOCKS：`git -c http.proxy=socks5h://127.0.0.1:3066 push`
+
 > 状态快照：2026-11-19 21:30。本文件写给「下一个接手的任务」，避免重复考古。
 
 ## 一、项目现状
