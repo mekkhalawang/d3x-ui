@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/util/json_util"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/json_util"
 )
 
 // ForceUserspaceWireGuardTun sets noKernelTun on every WireGuard outbound and returns the tags

@@ -7,11 +7,11 @@ import (
 	"flag"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/config"
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/dbtest"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/service/panel"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/config"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/dbtest"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/service/panel"
 )
 
 func newTokenCLIEnv(t *testing.T) {

@@ -17,14 +17,14 @@ tmp/
 # Ignore build and distribution directories
 backup/
 bin/
-x-ui/
+d3x-ui/
 dist/
 release/
 node_modules/
 
 # Ignore compiled binaries
 main
-3x-ui
+d3x-ui
 
 # Ignore OS specific files
 .DS_Store
@@ -33,9 +33,9 @@ Thumbs.db
 # Ignore Go build files
 *.exe
 *.syso
-x-ui.db
-x-ui.db-shm
-x-ui.db-wal
+d3x-ui.db
+d3x-ui.db-shm
+d3x-ui.db-wal
 system_metrics.gob
 *.dump
 

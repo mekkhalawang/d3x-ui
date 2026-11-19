@@ -10,11 +10,11 @@ import (
 
 	"github.com/op/go-logging"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/amneziawgnet"
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/dbtest"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	xuilogger "github.com/mhsanaei/3x-ui/v3/internal/logger"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/amneziawgnet"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/dbtest"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
+	xuilogger "github.com/mekkhalawang/d3x-ui/v3/internal/logger"
 )
 
 // the panel logger is a process-wide singleton. init it once per test
@@ -30,7 +30,7 @@ func setupConflictDB(t *testing.T) {
 
 	dbDir := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", dbDir)
-	dbtest.InitDB(t, filepath.Join(dbDir, "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(dbDir, "d3x-ui.db"))
 }
 
 func seedInboundConflict(t *testing.T, tag, listen string, port int, protocol model.Protocol, streamSettings, settings string) {

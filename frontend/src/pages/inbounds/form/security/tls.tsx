@@ -322,6 +322,7 @@ export default function TlsForm({
   const { t } = useTranslation();
   const uid = useId();
   const { control } = useFormContext();
+  const protocol = useWatch({ control, name: 'protocol' });
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'streamSettings.tlsSettings.certificates',
@@ -506,6 +507,16 @@ export default function TlsForm({
           {t('pages.inbounds.form.pinnedPeerCertSha256Tip')}
         </span>
       </Form.Item>
+      {protocol === 'hysteria' && (
+        <FormField
+          name={['streamSettings', 'tlsSettings', 'settings', 'allowInsecure']}
+          label={t('pages.inbounds.form.allowInsecure')}
+          tooltip={t('pages.inbounds.form.allowInsecureTip')}
+          valueProp="checked"
+        >
+          <Switch />
+        </FormField>
+      )}
       <FormField
         name={['streamSettings', 'tlsSettings', 'settings', 'verifyPeerCertByName']}
         label={t('pages.inbounds.form.verifyPeerCertByName')}

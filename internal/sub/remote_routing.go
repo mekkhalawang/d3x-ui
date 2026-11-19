@@ -16,11 +16,11 @@ import (
 
 	yaml "github.com/goccy/go-yaml"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/logger"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/common"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/netsafe"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/logger"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/common"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/netsafe"
 )
 
 // Remote sources reuse the existing settings fields (one HTTPS URL = remote,
@@ -272,7 +272,7 @@ func (r *remoteRoutingResolver) fetch(key remoteRoutingKey, previous remoteRouti
 	if err != nil {
 		return remoteRoutingCacheEntry{}, err
 	}
-	req.Header.Set("User-Agent", "3x-ui-remote-routing/1.0")
+	req.Header.Set("User-Agent", "d3x-ui-remote-routing/1.0")
 	if hasPrevious {
 		if previous.ETag != "" {
 			req.Header.Set("If-None-Match", previous.ETag)

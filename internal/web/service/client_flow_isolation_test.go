@@ -4,9 +4,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/dbtest"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/dbtest"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
 )
 
 func TestClientWithInboundFlow_GatesByInboundCapability(t *testing.T) {
@@ -46,7 +46,7 @@ func TestClientWithInboundFlow_GatesByInboundCapability(t *testing.T) {
 func TestFlowIsolation_VisionDoesNotLeakToWsInbound(t *testing.T) {
 	dbDir := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", dbDir)
-	dbtest.InitDB(t, filepath.Join(dbDir, "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(dbDir, "d3x-ui.db"))
 
 	db := database.GetDB()
 
@@ -92,7 +92,7 @@ func TestFlowIsolation_VisionDoesNotLeakToWsInbound(t *testing.T) {
 func TestEffectiveFlow_NonFlowInboundSyncedLastDoesNotHideVision(t *testing.T) {
 	dbDir := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", dbDir)
-	dbtest.InitDB(t, filepath.Join(dbDir, "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(dbDir, "d3x-ui.db"))
 
 	db := database.GetDB()
 	reality := &model.Inbound{Tag: "vless-reality", Enable: true, Port: 40001, Protocol: model.VLESS, StreamSettings: `{"network":"tcp","security":"reality"}`}
@@ -139,7 +139,7 @@ func TestEffectiveFlow_NonFlowInboundSyncedLastDoesNotHideVision(t *testing.T) {
 func TestEffectiveFlow_ClearedFlowStaysCleared(t *testing.T) {
 	dbDir := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", dbDir)
-	dbtest.InitDB(t, filepath.Join(dbDir, "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(dbDir, "d3x-ui.db"))
 
 	db := database.GetDB()
 	reality := &model.Inbound{Tag: "vless-reality", Enable: true, Port: 41001, Protocol: model.VLESS, StreamSettings: `{"network":"tcp","security":"reality"}`}
@@ -182,7 +182,7 @@ func TestEffectiveFlow_ClearedFlowStaysCleared(t *testing.T) {
 func TestAttach_PreservesVisionFlowWhenCanonicalColumnZeroed(t *testing.T) {
 	dbDir := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", dbDir)
-	dbtest.InitDB(t, filepath.Join(dbDir, "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(dbDir, "d3x-ui.db"))
 
 	db := database.GetDB()
 
@@ -255,7 +255,7 @@ func TestAttach_PreservesVisionFlowWhenCanonicalColumnZeroed(t *testing.T) {
 func TestBulkAttach_PreservesVisionFlowWhenCanonicalColumnZeroed(t *testing.T) {
 	dbDir := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", dbDir)
-	dbtest.InitDB(t, filepath.Join(dbDir, "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(dbDir, "d3x-ui.db"))
 
 	db := database.GetDB()
 
@@ -330,7 +330,7 @@ func TestBulkAttach_PreservesVisionFlowWhenCanonicalColumnZeroed(t *testing.T) {
 func TestRecordFlow_DetachedFromLastInboundKeepsFlow(t *testing.T) {
 	dbDir := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", dbDir)
-	dbtest.InitDB(t, filepath.Join(dbDir, "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(dbDir, "d3x-ui.db"))
 
 	reality := &model.Inbound{Tag: "vless-reality", Enable: true, Port: 43001, Protocol: model.VLESS, StreamSettings: `{"network":"tcp","security":"reality"}`}
 	if err := database.GetDB().Create(reality).Error; err != nil {

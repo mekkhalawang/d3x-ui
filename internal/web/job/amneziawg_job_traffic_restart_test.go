@@ -5,13 +5,13 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/amneziawg"
-	"github.com/mhsanaei/3x-ui/v3/internal/amneziawgkern"
-	"github.com/mhsanaei/3x-ui/v3/internal/amneziawgnet"
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/service"
-	"github.com/mhsanaei/3x-ui/v3/internal/xray"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/amneziawg"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/amneziawgkern"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/amneziawgnet"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/service"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/xray"
 )
 
 type kernelTrafficTestManager struct {

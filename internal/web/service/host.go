@@ -7,11 +7,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/common"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/random"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/entity"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/common"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/random"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/entity"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"

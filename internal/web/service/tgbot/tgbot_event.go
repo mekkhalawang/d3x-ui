@@ -7,7 +7,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/eventbus"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/eventbus"
 )
 
 var cachedHostname string

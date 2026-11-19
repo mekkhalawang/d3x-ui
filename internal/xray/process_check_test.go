@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/util/json_util"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/json_util"
 )
 
 // A kernel-TUN WireGuard outbound in `run -test` adds a second wg device and IPv6 policy

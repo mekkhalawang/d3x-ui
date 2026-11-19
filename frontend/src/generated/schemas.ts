@@ -3596,7 +3596,7 @@ export const SCHEMAS: Record<string, unknown> = {
     "type": "object"
   },
   "Node": {
-    "description": "Node represents a remote 3x-ui panel registered with the central panel.\nThe central panel polls each node's existing /panel/api/server/status\nendpoint over HTTP using the per-node ApiToken to populate the runtime\nstatus fields below.",
+    "description": "Node represents a remote d3x-ui panel registered with the central panel.\nThe central panel polls each node's existing /panel/api/server/status\nendpoint over HTTP using the per-node ApiToken to populate the runtime\nstatus fields below.",
     "properties": {
       "activeCount": {
         "example": 23,
@@ -4339,7 +4339,7 @@ export const SCHEMAS: Record<string, unknown> = {
         "type": "array"
       },
       "installCommand": {
-        "example": "sudo /usr/local/x-ui/x-ui install-awg-kernel",
+        "example": "sudo /usr/local/d3x-ui/d3x-ui install-awg-kernel",
         "type": "string"
       },
       "ready": {
@@ -4619,7 +4619,7 @@ export const SCHEMAS: Record<string, unknown> = {
     "type": "object"
   },
   "Setting": {
-    "description": "Setting stores key-value configuration settings for the 3x-ui panel.",
+    "description": "Setting stores key-value configuration settings for the d3x-ui panel.",
     "properties": {
       "id": {
         "type": "integer"
@@ -4657,7 +4657,7 @@ export const SCHEMAS: Record<string, unknown> = {
         "type": "string"
       },
       "link": {
-        "example": "https://acme.example/?utm_source=3x-ui",
+        "example": "https://acme.example/?utm_source=d3x-ui",
         "type": "string"
       },
       "logo": {
@@ -4931,7 +4931,7 @@ export const SCHEMAS: Record<string, unknown> = {
     "type": "object"
   },
   "User": {
-    "description": "User represents a user account in the 3x-ui panel.",
+    "description": "User represents a user account in the d3x-ui panel.",
     "properties": {
       "id": {
         "type": "integer"

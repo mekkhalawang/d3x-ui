@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/amneziawg"
-	"github.com/mhsanaei/3x-ui/v3/internal/amneziawgnet"
-	json_util "github.com/mhsanaei/3x-ui/v3/internal/util/json_util"
-	"github.com/mhsanaei/3x-ui/v3/internal/xray"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/amneziawg"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/amneziawgnet"
+	json_util "github.com/mekkhalawang/d3x-ui/v3/internal/util/json_util"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/xray"
 )
 
 // transformAmneziaWGOutbounds swaps each template "amneziawg" outbound for

@@ -13,17 +13,17 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/dbtest"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/locale"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/dbtest"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/locale"
 )
 
 func TestWarpIntervalReportsClockPersistenceFailure(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	dbDir := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", dbDir)
-	dbtest.InitDB(t, filepath.Join(dbDir, "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(dbDir, "d3x-ui.db"))
 	db := database.GetDB()
 	for _, setting := range []*model.Setting{
 		{Key: "warpUpdateInterval", Value: "0"},
@@ -73,7 +73,7 @@ func TestWarpIntervalReportsClockPersistenceFailure(t *testing.T) {
 // must schedule a reload like the sibling handlers do.
 func TestUpdateOutboundSubSchedulesXrayReload(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	dbtest.InitDB(t, filepath.Join(t.TempDir(), "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(t.TempDir(), "d3x-ui.db"))
 	sub := &model.OutboundSubscription{Url: "https://provider.example/sub", TagPrefix: "p-", Enabled: true}
 	if err := database.GetDB().Create(sub).Error; err != nil {
 		t.Fatalf("seed subscription: %v", err)

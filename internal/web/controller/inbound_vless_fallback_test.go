@@ -14,18 +14,18 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/xtls/xray-core/infra/conf"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/dbtest"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/crypto"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/runtime"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/dbtest"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/crypto"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/runtime"
 )
 
 func TestVlessFallbackHTTPAndImportValidation(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	folder := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", folder)
-	dbtest.InitDB(t, filepath.Join(folder, "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(folder, "d3x-ui.db"))
 	previous := runtime.GetManager()
 	runtime.SetManager(runtime.NewManager(runtime.LocalDeps{APIPort: func() int { return 0 }, SetNeedRestart: func() {}}))
 	t.Cleanup(func() { runtime.SetManager(previous) })

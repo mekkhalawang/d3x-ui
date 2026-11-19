@@ -11,13 +11,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database/dbtest"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/dbtest"
 )
 
 func setupSubBalancerRouter(t *testing.T) *gin.Engine {
 	t.Helper()
 	t.Setenv("XUI_DB_FOLDER", t.TempDir())
-	dbtest.InitDB(t, filepath.Join(t.TempDir(), "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(t.TempDir(), "d3x-ui.db"))
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	NewSubBalancerController(router.Group("/panel/api"))

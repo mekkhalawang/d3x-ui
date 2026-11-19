@@ -18,17 +18,17 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/amneziawg"
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/logger"
-	"github.com/mhsanaei/3x-ui/v3/internal/tuic"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/common"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/maskcompat"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/random"
-	wgutil "github.com/mhsanaei/3x-ui/v3/internal/util/wireguard"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/service"
-	"github.com/mhsanaei/3x-ui/v3/internal/xray"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/amneziawg"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/logger"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/tuic"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/common"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/maskcompat"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/random"
+	wgutil "github.com/mekkhalawang/d3x-ui/v3/internal/util/wireguard"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/service"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/xray"
 )
 
 // salamanderWarningSeen maps an inbound id to a digest of the setting names
@@ -1670,6 +1670,11 @@ func (s *SubService) genHysteriaLink(inbound *model.Inbound, email string) strin
 				pins[i] = hysteriaPinHex(p)
 			}
 			params["pinSHA256"] = strings.Join(pins, ",")
+		}
+		// Xray dropped allowInsecure for its own clients; Hysteria's still read
+		// insecure=1, which is the only way a self-signed cert imports by QR.
+		if ai, ok := tlsSettings["allowInsecure"].(bool); ok && ai {
+			params["insecure"] = "1"
 		}
 	}
 

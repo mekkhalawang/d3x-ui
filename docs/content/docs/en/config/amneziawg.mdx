@@ -1,6 +1,6 @@
 ---
 title: AmneziaWG
-description: Configure embedded or optional Linux kernel AmneziaWG inbounds in 3x-ui.
+description: Configure embedded or optional Linux kernel AmneziaWG inbounds in d3x-ui.
 icon: Lock
 ---
 
@@ -130,20 +130,20 @@ AmneziaWG kernel module, configures it with `awg setconf`, and masquerades
 peer traffic out of the host NIC with an nftables table of its own
 (`xui_awg<id>`). Peer traffic bypasses Xray. Nothing runs through a shell:
 every step is a direct `ip`, `awg` or `nft` command, and the interface's
-config lives in a panel-private directory (`/etc/x-ui/amneziawg` on a standard
+config lives in a panel-private directory (`/etc/d3x-ui/amneziawg` on a standard
 install), never next to your own `awg-quick` configs.
 
 Kernel mode requires a Linux host running the panel as root, with the
 `amneziawg` module installed and `awg`, `ip` and `nft` available. The
 readiness panel reports missing host requirements and provides the install
 command. On a standard install, run
-`sudo /usr/local/x-ui/x-ui install-awg-kernel`. The bundled command builds a
+`sudo /usr/local/d3x-ui/d3x-ui install-awg-kernel`. The bundled command builds a
 pinned, commit-verified release of the module and tools on Debian and Ubuntu;
 kernel headers and, when Secure Boot is enabled, module signing must be
 available. Review the script and host changes before running it.
 
 The panel enables IPv4 forwarding and, when `iptables` is installed, adds two
-`FORWARD` accept rules per interface (commented `3x-ui:xui-awg<id>`), so a host
+`FORWARD` accept rules per interface (commented `d3x-ui:xui-awg<id>`), so a host
 whose `FORWARD` policy is `DROP` — as Docker and ufw set it — still forwards
 the tunnel. A firewall that drops forwarded traffic in its own nftables table,
 such as firewalld, still needs a rule from you.

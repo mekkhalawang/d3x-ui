@@ -13,8 +13,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/amneziawg"
-	"github.com/mhsanaei/3x-ui/v3/internal/logger"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/amneziawg"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/logger"
 )
 
 // commandTimeout bounds every awg/ip/nft/iptables invocation.
@@ -291,7 +291,7 @@ func (m *Manager) removeForwardRules(name string) {
 	}
 }
 
-func forwardComment(name string) string { return "3x-ui:" + name }
+func forwardComment(name string) string { return "d3x-ui:" + name }
 
 func hasCommentTag(fields []string, tag string) bool {
 	for i := 0; i+1 < len(fields); i++ {

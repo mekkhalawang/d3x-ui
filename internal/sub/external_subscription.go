@@ -12,12 +12,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/logger"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/common"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/netsafe"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/service"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/logger"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/common"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/netsafe"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/service"
 )
 
 // External subscription fetching: a remote URL whose body is a share-link
@@ -197,7 +197,7 @@ func doFetchSubscriptionLinks(rawURL string) ([]string, error) {
 	req = req.WithContext(netsafe.ContextWithAllowPrivate(req.Context(), operatorChosePrivateHost(req.URL)))
 	// Some providers gate the link body on a known client User-Agent.
 	req.Header.Set("User-Agent", externalSubUserAgent())
-	// A 3x-ui donor with an HWID limit answers 404 when the header is empty (#6559).
+	// A d3x-ui donor with an HWID limit answers 404 when the header is empty (#6559).
 	if hwid := service.ExternalSubscriptionHwid(); hwid != "" {
 		req.Header.Set("X-HWID", hwid)
 	}

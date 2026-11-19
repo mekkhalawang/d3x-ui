@@ -90,7 +90,7 @@ new_case() {
     : > "$CASE_DIR/events"
     xui_folder="$CASE_DIR/bin"
     mkdir -p "$xui_folder"
-    cat > "$xui_folder/x-ui" <<'MOCK'
+    cat > "$xui_folder/d3x-ui" <<'MOCK'
 #!/usr/bin/env bash
 set -eu
 if [[ "${1:-}" == migrate ]]; then
@@ -118,7 +118,7 @@ case "${2:-}" in
     *) echo 'Unexpected configuration command' >&2; exit 1 ;;
 esac
 MOCK
-    chmod +x "$xui_folder/x-ui"
+    chmod +x "$xui_folder/d3x-ui"
     export red='' green='' blue='' yellow='' plain='' release=ubuntu
     export XUI_USERNAME=test-user XUI_PASSWORD=test-pass XUI_WEB_BASE_PATH=test-path
     unset XUI_PANEL_PORT SETTING_FAILURE BUSY_PORT RANDOM_NEXT SHUF_FAIL

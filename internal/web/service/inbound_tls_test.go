@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
 )
 
 func TestValidateInboundTLSCertificates(t *testing.T) {
@@ -238,7 +238,7 @@ func TestAddInboundRefusesPushedFieldsThatReachThisHost(t *testing.T) {
 		"tun inbound":                {Enable: true, Port: 44401, Protocol: model.Protocol("tun"), Settings: `{}`},
 		"fallback to the core API":   vless(`{"clients":[],"fallbacks":[{"dest":62789}]}`, `{"network":"tcp"}`),
 		"REALITY target on loopback": vless(`{"clients":[]}`, `{"network":"tcp","security":"reality","realitySettings":{"target":"127.0.0.1:2053"}}`),
-		"local xdrive storage":       vless(`{"clients":[]}`, `{"network":"xdrive","xdriveSettings":{"service":"local","remoteFolder":"/etc/x-ui"}}`),
+		"local xdrive storage":       vless(`{"clients":[]}`, `{"network":"xdrive","xdriveSettings":{"service":"local","remoteFolder":"/etc/d3x-ui"}}`),
 	} {
 		if _, _, err := push.AddInbound(ib); err == nil {
 			t.Errorf("%s: pushed inbound accepted", name)

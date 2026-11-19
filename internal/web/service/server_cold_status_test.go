@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database/dbtest"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/dbtest"
 )
 
 // A panel restarts with an empty snapshot until the @2s ticker fires, and a
@@ -13,7 +13,7 @@ import (
 func TestCurrentStatusSamplesBeforeFirstTick(t *testing.T) {
 	dbDir := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", dbDir)
-	dbtest.InitDB(t, filepath.Join(dbDir, "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(dbDir, "d3x-ui.db"))
 
 	// A settled IP cache keeps GetStatus from starting a public-IP resolver that
 	// outlives this test and races http.DefaultTransport in later ones.

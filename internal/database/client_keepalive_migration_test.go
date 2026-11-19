@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/xray"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/xray"
 )
 
 type legacyKeepAliveClient struct {
@@ -21,7 +21,7 @@ func (legacyKeepAliveClient) TableName() string { return "clients" }
 
 func TestClientKeepAliveSQLiteMigrationPreservesLegacyScalarsAndAddsRanges(t *testing.T) {
 	dbDir := t.TempDir()
-	dbPath := filepath.Join(dbDir, "x-ui.db")
+	dbPath := filepath.Join(dbDir, "d3x-ui.db")
 	legacy, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		t.Fatal(err)

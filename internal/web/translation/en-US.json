@@ -122,9 +122,7 @@
     "routing": "Routing",
     "outbounds": "Outbounds",
     "apiDocs": "API Docs",
-    "donate": "Donate",
     "sponsors": "Sponsors",
-    "docs": "Documentation",
     "openMenu": "Open menu",
     "pinSidebar": "Pin sidebar",
     "unpinSidebar": "Unpin sidebar",
@@ -160,7 +158,7 @@
       "xrayUpdates": "Xray Updates",
       "xraySwitchClickDesk": "Choose carefully, as older versions may not be compatible with current configurations.",
       "updatePanel": "Update Panel",
-      "panelUpdateDesc": "This will update 3X-UI itself to the latest release and restart the panel service.",
+      "panelUpdateDesc": "This will update D3X-UI itself to the latest release and restart the panel service.",
       "currentPanelVersion": "Current panel version",
       "latestPanelVersion": "Latest panel version",
       "panelUpToDate": "Panel is up to date",
@@ -224,10 +222,10 @@
       "xraySwitchVersionDialogDesc": "This will change the Xray version to #version#.",
       "xraySwitchVersionPopover": "Xray updated successfully",
       "panelUpdateDialog": "Do you really want to update the panel?",
-      "panelUpdateDialogDesc": "This will update 3X-UI to #version# and restart the panel service.",
+      "panelUpdateDialogDesc": "This will update D3X-UI to #version# and restart the panel service.",
       "panelUpdateStartedPopover": "Panel update started",
       "panelUpdateFailedTitle": "Panel update failed",
-      "panelUpdateFailedDesc": "The update did not finish successfully. Check the server logs, or run 'x-ui update' from the command line.",
+      "panelUpdateFailedDesc": "The update did not finish successfully. Check the server logs, or run 'd3x-ui update' from the command line.",
       "panelUpdateUnknownTitle": "Couldn't confirm the update finished",
       "panelUpdateUnknownDesc": "The panel didn't report a result in time. Reload to check the current version, or check the server logs.",
       "geofileUpdateDialog": "Do you really want to update the geofile?",
@@ -784,7 +782,9 @@
         "autoSystemWfpBlockLeakTooltip": "Windows only, with Auto system routes: all blocks everything outside the TUN, allexceptlan does the same but keeps the local network reachable; dns keeps DNS (ports 53 and 853 and the DNS Client service) inside the TUN; windnsclient covers only that service; tcp, udp and icmp block a whole protocol; type tcp/PORT, udp/PORT, a bare PORT or a LOW-HIGH range for specific ports; a CIDR in front (1.1.1.0/24:53, [::/0]:all) limits a value to those addresses; misconfigtun blocks an IP version that no route sends into the TUN. Any value that covers port 53 needs DNS servers.",
         "maxVersion": "Max version",
         "headerName": "Header name",
-        "headerValue": "Header value"
+        "headerValue": "Header value",
+        "allowInsecure": "Allow insecure (Hysteria2)",
+        "allowInsecureTip": "Adds insecure=1 to hysteria2 links so a self-signed certificate imports by QR. Xray-based clients ignore it."
       },
       "info": {
         "mode": "Mode",
@@ -874,7 +874,7 @@
       "deleteHwidConfirm": "Remove this device? It will need to re-register on its next subscription fetch.",
       "hwidDeleted": "Device removed.",
       "clearHwidsConfirm": "Remove all registered devices? Every device will need to re-register on its next subscription fetch.",
-      "limitIpFail2banMissing": "Fail2ban is not installed, so the IP limit cannot be enforced. Install Fail2ban from the x-ui bash menu to enable this option.",
+      "limitIpFail2banMissing": "Fail2ban is not installed, so the IP limit cannot be enforced. Install Fail2ban from the d3x-ui bash menu to enable this option.",
       "limitIpFail2banWindows": "Fail2ban is not available on Windows, so the IP limit cannot be enforced.",
       "limitIpDisabled": "The IP limit feature is disabled on this server.",
       "password": "Password",
@@ -1467,7 +1467,7 @@
       "subAnnounce": "Announce",
       "subAnnounceDesc": "The announcement text displayed in the VPN client. Supports client identity tokens: {{EMAIL}}, {{ID}}, {{SHORT_ID}}, {{SUB_ID}}, {{TELEGRAM_ID}}.",
       "subThemeDir": "Sub Theme Directory",
-      "subThemeDirDesc": "Absolute path to a folder containing a custom index.html/sub.html subscription page template (e.g. /etc/3x-ui/sub_templates/my-theme/). Leave empty to use the default page.",
+      "subThemeDirDesc": "Absolute path to a folder containing a custom index.html/sub.html subscription page template (e.g. /etc/d3x-ui/sub_templates/my-theme/). Leave empty to use the default page.",
       "subThemeDirDocs": "Template guide ↗",
       "subEnableRouting": "Enable routing",
       "happLinkEnable": "Encrypted subscription links",
@@ -2516,12 +2516,12 @@
     },
     "sponsors": {
       "title": "Sponsors",
-      "intro": "Companies that support 3X-UI development. Sponsored links open in a new tab.",
+      "intro": "Companies that support D3X-UI development. Sponsored links open in a new tab.",
       "become": "Become a sponsor",
       "tag": "Sponsor",
       "visit": "Visit",
       "yourBrand": "Your brand here",
-      "yourBrandText": "Put your company in front of thousands of server admins who open 3X-UI every day."
+      "yourBrandText": "Put your company in front of thousands of server admins who open D3X-UI every day."
     }
   },
   "tgbot": {
@@ -2565,7 +2565,7 @@
       "report": "🕰 Scheduled Reports: {{ .RunTime }}\r\n",
       "datetime": "⏰ Date&Time: {{ .DateTime }}\r\n",
       "hostname": "💻 Host: {{ .Hostname }}\r\n",
-      "version": "🚀 3X-UI Version: {{ .Version }}\r\n",
+      "version": "🚀 D3X-UI Version: {{ .Version }}\r\n",
       "xrayVersion": "📡 Xray Version: {{ .XrayVersion }}\r\n",
       "ipv6": "🌐 IPv6: {{ .IPv6 }}\r\n",
       "ipv4": "🌐 IPv4: {{ .IPv4 }}\r\n",
@@ -2772,10 +2772,10 @@
   },
   "discord": {
     "test": {
-      "title": "3x-ui Discord Notification Test",
+      "title": "d3x-ui Discord Notification Test",
       "body": "This is a test notification confirming that Discord notifications are configured correctly."
     },
-    "footer": "3x-ui Panel",
+    "footer": "d3x-ui Panel",
     "fields": {
       "panelVersion": "Panel Version",
       "xrayCore": "Xray Core",
@@ -2810,13 +2810,13 @@
       "loginFailed": "Login Failed"
     },
     "report": {
-      "title": "📊 3x-ui Status Report",
+      "title": "📊 d3x-ui Status Report",
       "summary": "Periodic server and proxy status report for **{{ .Host }}**",
-      "footer": "3x-ui Scheduled Report • Schedule: {{ .RunTime }}"
+      "footer": "d3x-ui Scheduled Report • Schedule: {{ .RunTime }}"
     },
     "commands": {
-      "helpTitle": "🤖 3x-ui Discord Bot Commands",
-      "helpDescription": "Available commands for monitoring and managing the 3x-ui server:",
+      "helpTitle": "🤖 d3x-ui Discord Bot Commands",
+      "helpDescription": "Available commands for monitoring and managing the d3x-ui server:",
       "helpStatus": "Display system load, RAM, CPU, connections, and online users",
       "helpReport": "Generate a full status report (with DB backup if configured)",
       "helpBackup": "Send the database backup file immediately",
@@ -2824,10 +2824,10 @@
       "helpInbounds": "List all configured inbounds with ports and client stats",
       "helpRestart": "Restart the Xray core",
       "helpHelp": "Display this list of available commands",
-      "statusTitle": "⚡ 3x-ui Server Status",
+      "statusTitle": "⚡ d3x-ui Server Status",
       "statusDescription": "Current operational metrics for **{{ .Host }}**",
       "backupTitle": "🗄️ Database Backup",
-      "backupDescription": "Backup archive for 3x-ui generated at `{{ .Time }}`",
+      "backupDescription": "Backup archive for d3x-ui generated at `{{ .Time }}`",
       "backupUnavailable": "❌ Backup service unavailable",
       "backupFailed": "❌ Failed to read database backup: {{ .Error }}",
       "usageHint": "⚠️ Usage: `!usage <email>` or `/usage <email>`",

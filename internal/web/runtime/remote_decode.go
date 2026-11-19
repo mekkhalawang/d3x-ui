@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"unicode/utf8"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/util/json_util"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/json_util"
 )
 
 // Per-endpoint caps on node-reported lists: each "{}" decodes into a whole struct, so the

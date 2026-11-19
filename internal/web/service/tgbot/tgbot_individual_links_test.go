@@ -10,12 +10,12 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/dbtest"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/sub"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/service"
-	"github.com/mhsanaei/3x-ui/v3/internal/xray"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/dbtest"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/sub"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/service"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/xray"
 )
 
 // recordingBotServer answers sendMessage and records every text it was asked to send.
@@ -52,7 +52,7 @@ func recordingBotServer(t *testing.T) func() []string {
 // name, which need not resolve; the links must not depend on reaching it.
 func TestIndividualLinksDoNotNeedAResolvableHost(t *testing.T) {
 	sent := recordingBotServer(t)
-	dbtest.InitDB(t, filepath.Join(t.TempDir(), "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(t.TempDir(), "d3x-ui.db"))
 	service.RegisterSubLinkProvider(sub.NewLinkProvider())
 
 	const uuid = "11111111-2222-4333-8444-555555555555"
@@ -92,7 +92,7 @@ func TestIndividualLinksDoNotNeedAResolvableHost(t *testing.T) {
 // be looked up as one, or it selects every other client stored without a subId.
 func TestIndividualLinksOfBlankSubIdClientExposeNoOtherClient(t *testing.T) {
 	sent := recordingBotServer(t)
-	dbtest.InitDB(t, filepath.Join(t.TempDir(), "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(t.TempDir(), "d3x-ui.db"))
 	service.RegisterSubLinkProvider(sub.NewLinkProvider())
 
 	const ownerUUID = "11111111-2222-4333-8444-555555555555"

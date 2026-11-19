@@ -5,16 +5,16 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/dbtest"
-	"github.com/mhsanaei/3x-ui/v3/internal/tuic"
-	"github.com/mhsanaei/3x-ui/v3/internal/xray"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/dbtest"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/tuic"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/xray"
 )
 
 func TestTuicShutdownJournalSurvivesDatabaseFailureAndReplaysOnce(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", dir)
-	dbtest.InitDB(t, filepath.Join(dir, "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(dir, "d3x-ui.db"))
 	db := database.GetDB()
 	row := xray.ClientTraffic{Email: "journal@x", Enable: true}
 	if err := db.Create(&row).Error; err != nil {

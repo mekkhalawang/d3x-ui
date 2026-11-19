@@ -13,7 +13,7 @@ import (
 	"testing/synctest"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database/dbtest"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/dbtest"
 )
 
 // A box with no IPv6 route spends 3s per lookup service, and a status sample
@@ -21,7 +21,7 @@ import (
 func TestStatusSampleDoesNotWaitOnPublicIPLookup(t *testing.T) {
 	dbDir := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", dbDir)
-	dbtest.InitDB(t, filepath.Join(dbDir, "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(dbDir, "d3x-ui.db"))
 
 	release := make(chan struct{})
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -286,7 +286,7 @@ func TestPublicIPRefreshIsSingleFlightAndKeepsCachedReadsAvailable(t *testing.T)
 func TestPublicIPStatusUsesRefreshedAddressWithoutBlocking(t *testing.T) {
 	dbDir := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", dbDir)
-	dbtest.InitDB(t, filepath.Join(dbDir, "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(dbDir, "d3x-ui.db"))
 	savedHistory := systemMetrics
 	systemMetrics = newMetricHistory()
 	t.Cleanup(func() { systemMetrics = savedHistory })

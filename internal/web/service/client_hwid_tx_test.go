@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/dbtest"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/dbtest"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
 
 	"gorm.io/gorm"
 )
@@ -236,7 +236,7 @@ func TestSetClientLimitHwidIsSerializedWithSyncInbound(t *testing.T) {
 func BenchmarkSetClientLimitHwidSerialized(b *testing.B) {
 	dbDir := b.TempDir()
 	b.Setenv("XUI_DB_FOLDER", dbDir)
-	dbtest.InitDB(b, filepath.Join(dbDir, "x-ui.db"))
+	dbtest.InitDB(b, filepath.Join(dbDir, "d3x-ui.db"))
 	StartTrafficWriter()
 	b.Cleanup(StopTrafficWriter)
 	db := database.GetDB()

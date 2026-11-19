@@ -13,8 +13,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/robfig/cron/v3"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database/dbtest"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/global"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/dbtest"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/global"
 )
 
 /*
@@ -46,7 +46,7 @@ func inContractScope(method, path string) bool {
 // newTestEngine builds the real panel router on a throwaway database.
 func newTestEngine(t *testing.T) *gin.Engine {
 	t.Helper()
-	dbtest.InitDB(t, filepath.Join(t.TempDir(), "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(t.TempDir(), "d3x-ui.db"))
 
 	previous := global.GetWebServer()
 	s := NewServer(nil)

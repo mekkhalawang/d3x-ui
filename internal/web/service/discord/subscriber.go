@@ -8,9 +8,9 @@ import (
 	"time"
 	"unicode/utf16"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/eventbus"
-	"github.com/mhsanaei/3x-ui/v3/internal/logger"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/service"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/eventbus"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/logger"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/service"
 )
 
 // Subscriber handles event bus messages and forwards them to Discord.
@@ -153,7 +153,7 @@ func (s *Subscriber) FormatEmbed(e eventbus.Event) (Embed, bool) {
 	}
 
 	footer := &EmbedFooter{
-		Text: truncateUnits("3x-ui • "+h, 2048),
+		Text: truncateUnits("d3x-ui • "+h, 2048),
 	}
 	tr := translator(s.settingService)
 

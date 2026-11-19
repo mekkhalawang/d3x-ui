@@ -122,9 +122,7 @@
     "routing": "Smerovanie",
     "outbounds": "Výstupy",
     "apiDocs": "Dokumentácia API",
-    "donate": "Podporiť projekt",
     "sponsors": "Sponzori",
-    "docs": "Dokumentácia",
     "openMenu": "Otvoriť menu",
     "pinSidebar": "Pripnúť bočné menu",
     "unpinSidebar": "Odopnúť bočné menu",
@@ -160,7 +158,7 @@
       "xrayUpdates": "Aktualizácie Xray",
       "xraySwitchClickDesk": "Verziu vyberajte opatrne. Staršie verzie nemusia podporovať aktuálnu konfiguráciu.",
       "updatePanel": "Aktualizovať panel",
-      "panelUpdateDesc": "Aktualizuje sa samotný 3X-UI na najnovšie vydanie a reštartuje sa služba panelu.",
+      "panelUpdateDesc": "Aktualizuje sa samotný D3X-UI na najnovšie vydanie a reštartuje sa služba panelu.",
       "currentPanelVersion": "Aktuálna verzia panelu",
       "latestPanelVersion": "Najnovšia verzia panelu",
       "panelUpToDate": "Panel je aktuálny",
@@ -224,10 +222,10 @@
       "xraySwitchVersionDialogDesc": "Verzia Xray sa zmení na #version#.",
       "xraySwitchVersionPopover": "Xray bol úspešne aktualizovaný",
       "panelUpdateDialog": "Naozaj chcete aktualizovať panel?",
-      "panelUpdateDialogDesc": "3X-UI sa aktualizuje na #version# a reštartuje sa služba panelu.",
+      "panelUpdateDialogDesc": "D3X-UI sa aktualizuje na #version# a reštartuje sa služba panelu.",
       "panelUpdateStartedPopover": "Aktualizácia panelu sa začala",
       "panelUpdateFailedTitle": "Aktualizácia panelu zlyhala",
-      "panelUpdateFailedDesc": "Aktualizácia sa nedokončila úspešne. Skontrolujte záznamy servera alebo spustite príkaz 'x-ui update'.",
+      "panelUpdateFailedDesc": "Aktualizácia sa nedokončila úspešne. Skontrolujte záznamy servera alebo spustite príkaz 'd3x-ui update'.",
       "panelUpdateUnknownTitle": "Nepodarilo sa potvrdiť dokončenie aktualizácie",
       "panelUpdateUnknownDesc": "Panel neoznámil výsledok včas. Obnovte stránku a skontrolujte aktuálnu verziu alebo si pozrite záznamy servera.",
       "geofileUpdateDialog": "Naozaj chcete aktualizovať geodáta?",
@@ -784,7 +782,9 @@
         "autoSystemWfpBlockLeakTooltip": "Iba pre Windows s automatickými systémovými trasami: all zablokuje všetko mimo TUN, allexceptlan tiež, ale ponechá dostupnú lokálnu sieť; dns ponechá DNS (porty 53 a 853 a službu DNS Client) v TUN; windnsclient pokrýva iba túto službu; tcp, udp a icmp blokujú celý protokol; pre konkrétne porty zadajte tcp/PORT, udp/PORT, samotný PORT alebo rozsah OD-DO; CIDR na začiatku (1.1.1.0/24:53, [::/0]:all) obmedzí hodnotu na tieto adresy; misconfigtun zablokuje verziu IP, pre ktorú nevedie žiadna trasa do TUN. Každá hodnota pokrývajúca port 53 vyžaduje DNS servery.",
         "maxVersion": "Maximálna verzia",
         "headerName": "Názov hlavičky",
-        "headerValue": "Hodnota hlavičky"
+        "headerValue": "Hodnota hlavičky",
+        "allowInsecure": "Allow insecure (Hysteria2)",
+        "allowInsecureTip": "Adds insecure=1 to hysteria2 links so a self-signed certificate imports by QR. Xray-based clients ignore it."
       },
       "info": {
         "mode": "Režim",
@@ -874,7 +874,7 @@
       "deleteHwidConfirm": "Odstrániť toto zariadenie? Pri ďalšom načítaní odberu sa bude musieť znova zaregistrovať.",
       "hwidDeleted": "Zariadenie bolo odstránené.",
       "clearHwidsConfirm": "Odstrániť všetky registrované zariadenia? Pri ďalšom načítaní odberu sa bude každé zariadenie musieť znova zaregistrovať.",
-      "limitIpFail2banMissing": "Fail2ban nie je nainštalovaný, preto nemožno vynútiť limit IP adries. Na zapnutie tejto možnosti nainštalujte Fail2ban z ponuky príkazu x-ui.",
+      "limitIpFail2banMissing": "Fail2ban nie je nainštalovaný, preto nemožno vynútiť limit IP adries. Na zapnutie tejto možnosti nainštalujte Fail2ban z ponuky príkazu d3x-ui.",
       "limitIpFail2banWindows": "Fail2ban nie je vo Windows dostupný, preto nemožno vynútiť limit IP adries.",
       "limitIpDisabled": "Funkcia limitu IP adries je na tomto serveri vypnutá.",
       "password": "Heslo",
@@ -1467,7 +1467,7 @@
       "subAnnounce": "Oznámenie",
       "subAnnounceDesc": "Text oznámenia vo VPN klientovi. Podporuje premenné identity klienta: {{EMAIL}}, {{ID}}, {{SHORT_ID}}, {{SUB_ID}}, {{TELEGRAM_ID}}.",
       "subThemeDir": "Priečinok vzhľadu odberu",
-      "subThemeDirDesc": "Absolútna cesta k priečinku s vlastnou šablónou klientskej stránky index.html/sub.html (napr. /etc/3x-ui/sub_templates/my-theme/). Prázdne pole použije predvolenú stránku.",
+      "subThemeDirDesc": "Absolútna cesta k priečinku s vlastnou šablónou klientskej stránky index.html/sub.html (napr. /etc/d3x-ui/sub_templates/my-theme/). Prázdne pole použije predvolenú stránku.",
       "subThemeDirDocs": "Návod na šablóny ↗",
       "subEnableRouting": "Zapnúť smerovanie",
       "happLinkEnable": "Šifrované odkazy na odber",
@@ -2516,12 +2516,12 @@
     },
     "sponsors": {
       "title": "Sponzori",
-      "intro": "Spoločnosti podporujúce vývoj 3X-UI. Sponzorované odkazy sa otvoria na novej karte.",
+      "intro": "Spoločnosti podporujúce vývoj D3X-UI. Sponzorované odkazy sa otvoria na novej karte.",
       "become": "Stať sa sponzorom",
       "tag": "Sponzor",
       "visit": "Navštíviť",
       "yourBrand": "Miesto pre vašu značku",
-      "yourBrandText": "Predstavte svoju spoločnosť tisícom správcov serverov, ktorí denne otvárajú 3X-UI."
+      "yourBrandText": "Predstavte svoju spoločnosť tisícom správcov serverov, ktorí denne otvárajú D3X-UI."
     }
   },
   "tgbot": {
@@ -2565,7 +2565,7 @@
       "report": "🕰 Plánované správy: {{ .RunTime }}\r\n",
       "datetime": "⏰ Dátum a čas: {{ .DateTime }}\r\n",
       "hostname": "💻 Hostiteľ: {{ .Hostname }}\r\n",
-      "version": "🚀 Verzia 3X-UI: {{ .Version }}\r\n",
+      "version": "🚀 Verzia D3X-UI: {{ .Version }}\r\n",
       "xrayVersion": "📡 Verzia Xray: {{ .XrayVersion }}\r\n",
       "ipv6": "🌐 IPv6: {{ .IPv6 }}\r\n",
       "ipv4": "🌐 IPv4: {{ .IPv4 }}\r\n",
@@ -2772,10 +2772,10 @@
   },
   "discord": {
     "test": {
-      "title": "Skúška upozornení Discordu v 3x-ui",
+      "title": "Skúška upozornení Discordu v d3x-ui",
       "body": "Toto je skúšobné upozornenie na overenie správneho nastavenia upozornení Discordu."
     },
-    "footer": "Panel 3x-ui",
+    "footer": "Panel d3x-ui",
     "fields": {
       "panelVersion": "Verzia panelu",
       "xrayCore": "Jadro Xray",
@@ -2810,13 +2810,13 @@
       "loginFailed": "Neúspešné prihlásenie"
     },
     "report": {
-      "title": "📊 Správa o stave 3x-ui",
+      "title": "📊 Správa o stave d3x-ui",
       "summary": "Pravidelná správa o stave servera a proxy **{{ .Host }}**",
-      "footer": "Plánovaná správa 3x-ui • Plán: {{ .RunTime }}"
+      "footer": "Plánovaná správa d3x-ui • Plán: {{ .RunTime }}"
     },
     "commands": {
-      "helpTitle": "🤖 Príkazy Discord bota 3x-ui",
-      "helpDescription": "Dostupné príkazy na sledovanie a správu servera 3x-ui:",
+      "helpTitle": "🤖 Príkazy Discord bota d3x-ui",
+      "helpDescription": "Dostupné príkazy na sledovanie a správu servera d3x-ui:",
       "helpStatus": "Zobraziť záťaž systému, RAM, CPU, spojenia a pripojených používateľov",
       "helpReport": "Vytvoriť úplnú správu o stave, prípadne aj so zálohou databázy",
       "helpBackup": "Okamžite poslať súbor so zálohou databázy",
@@ -2824,10 +2824,10 @@
       "helpInbounds": "Zobraziť všetky nastavené vstupy s portmi a štatistikami klientov",
       "helpRestart": "Reštartovať jadro Xray",
       "helpHelp": "Zobraziť tento zoznam dostupných príkazov",
-      "statusTitle": "⚡ Stav servera 3x-ui",
+      "statusTitle": "⚡ Stav servera d3x-ui",
       "statusDescription": "Aktuálne prevádzkové údaje pre **{{ .Host }}**",
       "backupTitle": "🗄️ Záloha databázy",
-      "backupDescription": "Záloha 3x-ui vytvorená o `{{ .Time }}`",
+      "backupDescription": "Záloha d3x-ui vytvorená o `{{ .Time }}`",
       "backupUnavailable": "❌ Služba zálohovania nie je dostupná",
       "backupFailed": "❌ Nepodarilo sa načítať zálohu databázy: {{ .Error }}",
       "usageHint": "⚠️ Použitie: `!usage <email>` alebo `/usage <email>`",

@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/xray"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/xray"
 )
 
 func pollReport(ds scaleDataset, k int) ([]*xray.Traffic, []*xray.ClientTraffic) {

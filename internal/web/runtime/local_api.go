@@ -3,7 +3,7 @@ package runtime
 import (
 	"sync"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/xray"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/xray"
 )
 
 // One pooled gRPC client serves local runtime operations; never use it for traffic stats, whose

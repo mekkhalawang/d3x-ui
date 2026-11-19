@@ -3,7 +3,7 @@ package service
 import (
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
 )
 
 // seedDualProtocolClient creates a WireGuard inbound and an AmneziaWG inbound

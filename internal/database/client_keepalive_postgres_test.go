@@ -12,7 +12,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
 )
 
 func TestClientKeepAlivePostgresMigrationPreservesLegacyScalars(t *testing.T) {

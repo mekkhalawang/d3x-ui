@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database/dbtest"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/sys"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/dbtest"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/sys"
 )
 
 func TestContainerStatusOnlyOverridesCPUSwapAndUptime(t *testing.T) {

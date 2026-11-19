@@ -1,8 +1,8 @@
 package job
 
 import (
-	"github.com/mhsanaei/3x-ui/v3/internal/eventbus"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/sys"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/eventbus"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/sys"
 
 	"github.com/shirou/gopsutil/v4/cpu"
 )

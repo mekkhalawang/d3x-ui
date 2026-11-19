@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/util/link"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/link"
 )
 
 // TestValidateOutboundConfig_RejectsUnencryptedPublicVless covers xray-core

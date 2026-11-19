@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/xray"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/xray"
 )
 
 func (s *SubService) subscriptionUserinfo(traffic xray.ClientTraffic) string {

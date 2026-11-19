@@ -328,7 +328,7 @@ jobs:
       - name: shellcheck
         run: |
           shellcheck --severity=style DockerInit.sh DockerEntrypoint.sh deploy/test/smoke-noninteractive.sh deploy/test/installer-panel-port.sh
-          shellcheck --severity=error install.sh update.sh x-ui.sh
+          shellcheck --severity=error install.sh update.sh d3x-ui.sh
       - name: Installer panel port regression tests
         run: bash deploy/test/installer-panel-port.sh
 

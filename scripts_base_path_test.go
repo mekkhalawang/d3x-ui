@@ -97,8 +97,8 @@ func runScriptConfig(t *testing.T, script, path string, defaults bool, mode stri
 	}
 	for name, value := range map[string]string{
 		"path": path, "username": username, "password": password,
-		"default": fmt.Sprint(defaults), "port": "54321", "x-ui": settingsCLIMock,
-		"writes": "", "path-writes": "", "restarts": "", "lifecycle": "", "x-ui.service": "test unit",
+		"default": fmt.Sprint(defaults), "port": "54321", "d3x-ui": settingsCLIMock,
+		"writes": "", "path-writes": "", "restarts": "", "lifecycle": "", "d3x-ui.service": "test unit",
 	} {
 		if err := os.WriteFile(filepath.Join(dir, name), []byte(value), 0o700); err != nil {
 			t.Fatal(err)
@@ -137,9 +137,9 @@ setup_fail2ban() { printf 'fail2ban\n' >> "$TEST_SETTINGS_DIR/lifecycle"; }
 		}
 	}
 	if continueSetup {
-		parent := "update_x-ui"
+		parent := "update_d3x-ui"
 		if script == "install.sh" {
-			parent = "install_x-ui"
+			parent = "install_d3x-ui"
 		}
 		body := scriptFunction(t, script, parent)
 		start := strings.Index(body, "\n    "+function)
@@ -214,7 +214,7 @@ func TestScriptConfigPreservesCustomBasePaths(t *testing.T) {
 					}
 					wantRestarts := ""
 					if initialize && script == "update.sh" {
-						wantRestarts = "restart x-ui\n"
+						wantRestarts = "restart d3x-ui\n"
 					}
 					if actual := readScriptState(t, dir, "restarts"); actual != wantRestarts {
 						t.Errorf("path-related restarts = %q, want %q", actual, wantRestarts)
@@ -272,7 +272,7 @@ func TestScriptConfigReadFailureKeepsServiceSetup(t *testing.T) {
 			wantLifecycle, wantServices := "fail2ban\n", ""
 			if script == "install.sh" {
 				wantLifecycle = "unit\nfail2ban\n"
-				wantServices = "daemon-reload\nenable x-ui\nstart x-ui\n"
+				wantServices = "daemon-reload\nenable d3x-ui\nstart d3x-ui\n"
 			}
 			for name, want := range map[string]string{
 				"path": "/a/", "username": "admin", "password": "admin", "writes": "",

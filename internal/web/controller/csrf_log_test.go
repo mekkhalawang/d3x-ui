@@ -13,17 +13,17 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database/dbtest"
-	"github.com/mhsanaei/3x-ui/v3/internal/logger"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/locale"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/service/panel"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/session"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/dbtest"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/logger"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/locale"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/service/panel"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/session"
 )
 
 func TestLoginCSRFRejectionLogsPeerIPNotForwardedHeader(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	engine := gin.New()
-	engine.Use(sessions.Sessions("3x-ui", cookie.NewStore([]byte("csrf-log-test-secret"))))
+	engine.Use(sessions.Sessions("d3x-ui", cookie.NewStore([]byte("csrf-log-test-secret"))))
 	NewIndexController(engine.Group("/"))
 
 	req := httptest.NewRequest(http.MethodPost, "/login", nil)
@@ -51,9 +51,9 @@ func TestLoginCSRFRejectionLogsPeerIPNotForwardedHeader(t *testing.T) {
 // notifier queue; an unauthenticated caller must not be able to make that unbounded.
 func TestLoginRefusesOversizedUsernameBeforeRecordingIt(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	dbtest.InitDB(t, filepath.Join(t.TempDir(), "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(t.TempDir(), "d3x-ui.db"))
 	engine := gin.New()
-	engine.Use(sessions.Sessions("3x-ui", cookie.NewStore([]byte("login-length-test-secret"))))
+	engine.Use(sessions.Sessions("d3x-ui", cookie.NewStore([]byte("login-length-test-secret"))))
 	engine.Use(func(c *gin.Context) {
 		c.Set("I18n", func(_ locale.I18nType, key string, _ ...string) string { return key })
 		c.Next()

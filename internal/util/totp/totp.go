@@ -9,7 +9,7 @@ import (
 )
 
 // SkewWindows is how many 30s steps around now VerifyWithSkew accepts.
-// Standard TOTP clock-drift tolerance, see MHSanaei/3x-ui#6535.
+// Standard TOTP clock-drift tolerance, see mekkhalawang/d3x-ui#6535.
 const SkewWindows = 1
 
 // NormalizeSecret turns a base32 key as authenticator apps show it (lower case,

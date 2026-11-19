@@ -1032,6 +1032,34 @@ describe('IPv6 bracket wrapping in share-link authority', () => {
     expect(new URL(link).host).toBe('[2001:db8::1]:443');
   });
 
+  it('genHysteriaLink emits insecure=1 when the panel-only allowInsecure flag is set', () => {
+    const [, raw] = fixturesForProtocol('hysteria')[0];
+    const typed = InboundSchema.parse(raw);
+    const clientAuth = (raw as { settings: { clients: Array<{ auth: string }> } }).settings
+      .clients[0].auth;
+
+    const strict = genHysteriaLink({
+      inbound: typed,
+      address: 'example.com',
+      port: 443,
+      clientAuth,
+    });
+    expect(new URL(strict).searchParams.has('insecure')).toBe(false);
+
+    const stream = typed.streamSettings as
+      | { tlsSettings?: { settings: { allowInsecure: boolean } } }
+      | undefined;
+    if (!stream?.tlsSettings) throw new Error('hysteria fixture has no tlsSettings');
+    stream.tlsSettings.settings.allowInsecure = true;
+    const permissive = genHysteriaLink({
+      inbound: typed,
+      address: 'example.com',
+      port: 443,
+      clientAuth,
+    });
+    expect(new URL(permissive).searchParams.get('insecure')).toBe('1');
+  });
+
   it('genWireguardLink brackets a bare IPv6 address', () => {
     const [, raw] = fixturesForProtocol('wireguard')[0];
     const typed = InboundSchema.parse(raw);

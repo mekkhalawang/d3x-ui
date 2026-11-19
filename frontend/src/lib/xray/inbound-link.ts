@@ -841,9 +841,8 @@ function udpHopPorts(stream: NonNullable<Inbound['streamSettings']>): string {
 // finalmask.udp[type=salamander] when present; the broader finalmask payload
 // still rides under `fm` like the other links.
 //
-// Note: legacy genHysteriaLink reads stream.tls.settings.allowInsecure,
-// which isn't a field on TlsStreamSettings.Settings — the guard is always
-// false. We omit the `insecure` param here to stay byte-stable.
+// `insecure=1` comes from the panel-only tlsSettings.settings.allowInsecure:
+// xray-core dropped the field for its own clients, Hysteria clients did not.
 export function genHysteriaLink(input: GenHysteriaLinkInput): string {
   const {
     inbound,
@@ -873,6 +872,7 @@ export function genHysteriaLink(input: GenHysteriaLinkInput): string {
   if (tls.settings.pinnedPeerCertSha256.length > 0) {
     params.set('pinSHA256', tls.settings.pinnedPeerCertSha256.map(hysteriaPinHex).join(','));
   }
+  if (tls.settings.allowInsecure) params.set('insecure', '1');
   // An external-proxy entry can pin a different endpoint's certificate.
   // Hysteria carries it as hex `pinSHA256` (not the `pcs` other protocols
   // use), so coerce each entry through hysteriaPinHex like the main pin.

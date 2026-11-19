@@ -3,8 +3,8 @@ package database
 import (
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/config"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/config"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
 )
 
 func TestNodeDownNotifiedSeederMarksOfflineNodesAnnounced(t *testing.T) {

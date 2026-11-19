@@ -18,9 +18,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/crypto"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/netsafe"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/crypto"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/netsafe"
 )
 
 type generationProbeTransport struct {

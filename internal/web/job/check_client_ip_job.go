@@ -13,12 +13,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/amneziawgkern"
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/logger"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/service"
-	"github.com/mhsanaei/3x-ui/v3/internal/xray"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/amneziawgkern"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/logger"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/service"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/xray"
 
 	xnet "github.com/xtls/xray-core/common/net"
 	"github.com/xtls/xray-core/infra/conf"
@@ -699,7 +699,7 @@ func acceptsUnverifiedSources(inbound *model.Inbound) bool {
 }
 
 // writeBanLines emits one line per address; the wording is load-bearing, since
-// x-ui.sh create_iplimit_jails builds filter.d/3x-ipl.conf failregex from it.
+// d3x-ui.sh create_iplimit_jails builds filter.d/3x-ipl.conf failregex from it.
 func writeBanLines(w io.Writer, clientEmail string, actionable []model.ClientIpEntry) error {
 	stamp := time.Now().Format("2006/01/02 15:04:05")
 	for _, ipTime := range actionable {

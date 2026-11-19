@@ -7,7 +7,7 @@ import (
 )
 
 func TestCgroupMemoryLimitAt(t *testing.T) {
-	const service = "/system.slice/x-ui.service"
+	const service = "/system.slice/d3x-ui.service"
 	tests := []struct {
 		name       string
 		selfCgroup string

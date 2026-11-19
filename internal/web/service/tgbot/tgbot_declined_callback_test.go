@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/web/global"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/global"
 
 	"github.com/mymmrac/telego"
 )

@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/link"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/link"
 )
 
 // A salamander mask carrying packetSize (Gecko mode) must export the
@@ -29,6 +29,28 @@ func TestGenHysteriaLinkEmitsGeckoParamsForPacketSize(t *testing.T) {
 	}
 	if strings.Contains(got, "fm=") {
 		t.Fatalf("expressed salamander mask must not leak into fm= dump:\n %s", got)
+	}
+}
+
+// The panel-only allowInsecure flag must reach the hysteria2 URI as insecure=1,
+// and stay absent otherwise: Hysteria clients still honour it even though
+// xray-core dropped the field for its own clients.
+func TestGenHysteriaLinkEmitsInsecureFromPanelFlag(t *testing.T) {
+	base := func(tls string) *model.Inbound {
+		return &model.Inbound{
+			Id: 920003, Listen: "203.0.113.1", Port: 443, Protocol: model.Hysteria,
+			Settings:       `{"version":2,"clients":[{"auth":"secret","email":"user"}]}`,
+			StreamSettings: `{"security":"tls","tlsSettings":` + tls + `}`,
+		}
+	}
+
+	if got := (&SubService{}).genHysteriaLink(base(`{"serverName":"example.com","settings":{}}`), "user"); strings.Contains(got, "insecure=") {
+		t.Fatalf("insecure must stay off by default:\n %s", got)
+	}
+
+	got := (&SubService{}).genHysteriaLink(base(`{"serverName":"example.com","settings":{"allowInsecure":true}}`), "user")
+	if !strings.Contains(got, "insecure=1") {
+		t.Fatalf("allowInsecure did not reach the link:\n %s", got)
 	}
 }
 

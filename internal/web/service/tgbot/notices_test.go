@@ -9,7 +9,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/eventbus"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/eventbus"
 )
 
 // noticeServer records sendMessage/sendDocument/editMessageText with the visible body, so a test can
@@ -96,7 +96,7 @@ func TestBackupArrivesAsOneMessageWithACaption(t *testing.T) {
 	notices.reset()
 
 	tb := initReportDB(t)
-	tb.sendBackupFile(1, []byte("db-bytes"), "x-ui.db", "host\nbackup time")
+	tb.sendBackupFile(1, []byte("db-bytes"), "d3x-ui.db", "host\nbackup time")
 
 	got := calls()
 	sends := 0

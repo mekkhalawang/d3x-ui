@@ -14,9 +14,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database/dbtest"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/xray"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/dbtest"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/xray"
 )
 
 // fakeXrayCore handles only the command lines the panel uses to run a core. It exits 99
@@ -156,7 +156,7 @@ func TestUpdateXray(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			dbDir := t.TempDir()
 			t.Setenv("XUI_DB_FOLDER", dbDir)
-			dbtest.InitDB(t, filepath.Join(dbDir, "x-ui.db"))
+			dbtest.InitDB(t, filepath.Join(dbDir, "d3x-ui.db"))
 			binFolder := t.TempDir()
 			t.Setenv("XUI_BIN_FOLDER", binFolder)
 			t.Setenv("XUI_LOG_FOLDER", t.TempDir())

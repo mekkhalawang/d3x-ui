@@ -13,19 +13,19 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/dbtest"
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/entity"
-	"github.com/mhsanaei/3x-ui/v3/internal/web/locale"
-	"github.com/mhsanaei/3x-ui/v3/internal/xray"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/dbtest"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/entity"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/locale"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/xray"
 )
 
 func seedLegacyDotClient(t *testing.T, email string) (*gin.Engine, model.ClientRecord, model.Inbound) {
 	t.Helper()
 	dir := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", dir)
-	dbtest.InitDB(t, filepath.Join(dir, "x-ui.db"))
+	dbtest.InitDB(t, filepath.Join(dir, "d3x-ui.db"))
 	db := database.GetDB()
 	rec := model.ClientRecord{Email: email, UUID: "11111111-2222-3333-4444-555555555555", SubID: "legacy-dot-sub", Enable: true}
 	if err := db.Create(&rec).Error; err != nil {

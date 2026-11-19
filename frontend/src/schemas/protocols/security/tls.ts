@@ -89,6 +89,10 @@ export const TlsClientSettingsSchema = z.object({
   // share links / subscriptions; the modern replacement for `allowInsecure`,
   // which xray-core removed after 2026-06-01.
   verifyPeerCertByName: z.string().default(''),
+  // Hysteria2 only. Xray dropped allowInsecure for its own clients, but
+  // Hysteria/Clash/sing-box still honour insecure=1 — needed for self-signed
+  // certs. Panel-only: never reaches the Xray config.
+  allowInsecure: z.boolean().default(false),
 });
 export type TlsClientSettings = z.infer<typeof TlsClientSettingsSchema>;
 
@@ -116,6 +120,7 @@ export const TlsStreamSettingsSchema = z.object({
     echConfigList: '',
     pinnedPeerCertSha256: [],
     verifyPeerCertByName: '',
+    allowInsecure: false,
   }),
 });
 export type TlsStreamSettings = z.infer<typeof TlsStreamSettingsSchema>;

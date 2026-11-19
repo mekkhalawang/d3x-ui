@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/mhsanaei/3x-ui/v3/internal/database/model"
-	"github.com/mhsanaei/3x-ui/v3/internal/util/crypto"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/crypto"
 )
 
 func TestInitDB_GeneratesPerPanelSubscriptionPaths(t *testing.T) {
@@ -42,7 +42,7 @@ func TestInitDB_GeneratesPerPanelSubscriptionPaths(t *testing.T) {
 		return paths
 	}
 
-	firstDB := filepath.Join(t.TempDir(), "x-ui.db")
+	firstDB := filepath.Join(t.TempDir(), "d3x-ui.db")
 	first := loadPaths(firstDB)
 	reloaded := loadPaths(firstDB)
 	for key, firstPath := range first {
@@ -51,7 +51,7 @@ func TestInitDB_GeneratesPerPanelSubscriptionPaths(t *testing.T) {
 		}
 	}
 
-	second := loadPaths(filepath.Join(t.TempDir(), "x-ui.db"))
+	second := loadPaths(filepath.Join(t.TempDir(), "d3x-ui.db"))
 	for key, firstPath := range first {
 		if firstPath == second[key] {
 			t.Fatalf("%s reused across panels: %q", key, firstPath)
@@ -62,7 +62,7 @@ func TestInitDB_GeneratesPerPanelSubscriptionPaths(t *testing.T) {
 // Every launcher but install.sh serves the panel on the database as InitDB left
 // it, so a credential seeded here is one anyone on the network can log in with.
 func TestInitDBLeavesNoGuessableCredential(t *testing.T) {
-	if err := InitDB(filepath.Join(t.TempDir(), "x-ui.db")); err != nil {
+	if err := InitDB(filepath.Join(t.TempDir(), "d3x-ui.db")); err != nil {
 		t.Fatalf("InitDB: %v", err)
 	}
 	t.Cleanup(func() { _ = CloseDB() })
@@ -81,7 +81,7 @@ func TestInitDBLeavesNoGuessableCredential(t *testing.T) {
 // The server prints what EnsureFirstUser returns as the only copy of the first
 // login, so it must be the stored credential, and a restart must not mint another.
 func TestEnsureFirstUserCreatesOneWorkingCredential(t *testing.T) {
-	if err := InitDB(filepath.Join(t.TempDir(), "x-ui.db")); err != nil {
+	if err := InitDB(filepath.Join(t.TempDir(), "d3x-ui.db")); err != nil {
 		t.Fatalf("InitDB: %v", err)
 	}
 	t.Cleanup(func() { _ = CloseDB() })
@@ -111,7 +111,7 @@ func TestEnsureFirstUserCreatesOneWorkingCredential(t *testing.T) {
 // Old releases drew the cookie-signing secret from a clock-seeded math/rand, and a
 // stored value cannot tell its generator, so an upgrade must replace it exactly once.
 func TestSessionSecretRotatesOnceOnUpgrade(t *testing.T) {
-	dbPath := filepath.Join(t.TempDir(), "x-ui.db")
+	dbPath := filepath.Join(t.TempDir(), "d3x-ui.db")
 	if err := InitDB(dbPath); err != nil {
 		t.Fatalf("InitDB: %v", err)
 	}
@@ -161,7 +161,7 @@ func TestSessionSecretRotatesOnceOnUpgrade(t *testing.T) {
 func TestSeedClientsFromInboundJSON_IsIdempotentAgainstExistingClients(t *testing.T) {
 	dbDir := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", dbDir)
-	if err := InitDB(filepath.Join(dbDir, "x-ui.db")); err != nil {
+	if err := InitDB(filepath.Join(dbDir, "d3x-ui.db")); err != nil {
 		t.Fatalf("InitDB failed: %v", err)
 	}
 	t.Cleanup(func() { _ = CloseDB() })
@@ -223,7 +223,7 @@ func TestSeedClientsFromInboundJSON_IsIdempotentAgainstExistingClients(t *testin
 func TestSeedClientsFromInboundJSON_KeepsTheManualSwitch(t *testing.T) {
 	dbDir := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", dbDir)
-	if err := InitDB(filepath.Join(dbDir, "x-ui.db")); err != nil {
+	if err := InitDB(filepath.Join(dbDir, "d3x-ui.db")); err != nil {
 		t.Fatalf("InitDB failed: %v", err)
 	}
 	t.Cleanup(func() { _ = CloseDB() })
@@ -264,7 +264,7 @@ func TestSeedClientsFromInboundJSON_KeepsTheManualSwitch(t *testing.T) {
 func TestNormalizeInboundClientSubId_FillsMissingAndPreservesExisting(t *testing.T) {
 	dbDir := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", dbDir)
-	if err := InitDB(filepath.Join(dbDir, "x-ui.db")); err != nil {
+	if err := InitDB(filepath.Join(dbDir, "d3x-ui.db")); err != nil {
 		t.Fatalf("InitDB failed: %v", err)
 	}
 	t.Cleanup(func() { _ = CloseDB() })
@@ -347,7 +347,7 @@ func TestNormalizeInboundClientSubId_FillsMissingAndPreservesExisting(t *testing
 func TestNormalizeSettingPaths_RepairsLegacyValues(t *testing.T) {
 	dbDir := t.TempDir()
 	t.Setenv("XUI_DB_FOLDER", dbDir)
-	if err := InitDB(filepath.Join(dbDir, "x-ui.db")); err != nil {
+	if err := InitDB(filepath.Join(dbDir, "d3x-ui.db")); err != nil {
 		t.Fatalf("InitDB failed: %v", err)
 	}
 	t.Cleanup(func() { _ = CloseDB() })
@@ -391,7 +391,7 @@ func TestNormalizeSettingPaths_RepairsLegacyValues(t *testing.T) {
 // A padded group name was listed as its own group while every action on it hit the trimmed
 // one, so the upgrade folds stored names onto their trimmed form.
 func TestClientGroupNamesTrimmedOnUpgrade(t *testing.T) {
-	dbPath := filepath.Join(t.TempDir(), "x-ui.db")
+	dbPath := filepath.Join(t.TempDir(), "d3x-ui.db")
 	if err := InitDB(dbPath); err != nil {
 		t.Fatalf("InitDB: %v", err)
 	}
@@ -422,7 +422,7 @@ func TestClientGroupNamesTrimmedOnUpgrade(t *testing.T) {
 // Requests naming a subId no client owns stored HWID rows that nothing ever reads; the
 // upgrade drops them and keeps the rows of real subscriptions.
 func TestOwnerlessClientHwidsPurgedOnUpgrade(t *testing.T) {
-	dbPath := filepath.Join(t.TempDir(), "x-ui.db")
+	dbPath := filepath.Join(t.TempDir(), "d3x-ui.db")
 	if err := InitDB(dbPath); err != nil {
 		t.Fatalf("InitDB: %v", err)
 	}
@@ -456,7 +456,7 @@ func TestOwnerlessClientHwidsPurgedOnUpgrade(t *testing.T) {
 // The editor fills forwardedPorts from the record, and an emptied field now withdraws the
 // forwards: a record left at its creation value would drop live forwards on the next save.
 func TestClientForwardedPortsBackfilledOnUpgrade(t *testing.T) {
-	dbPath := filepath.Join(t.TempDir(), "x-ui.db")
+	dbPath := filepath.Join(t.TempDir(), "d3x-ui.db")
 	if err := InitDB(dbPath); err != nil {
 		t.Fatalf("InitDB: %v", err)
 	}
