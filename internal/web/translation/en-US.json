@@ -122,7 +122,6 @@
     "routing": "Routing",
     "outbounds": "Outbounds",
     "apiDocs": "API Docs",
-    "sponsors": "Sponsors",
     "openMenu": "Open menu",
     "pinSidebar": "Pin sidebar",
     "unpinSidebar": "Unpin sidebar",
@@ -2518,15 +2517,6 @@
       "routingScript": "Routing Script",
       "routingScriptDesc": "Path to a .lua file defining HandleRoute, absolute or relative to the Xray bin folder. The script then picks every route and Xray ignores all routing rules, the panel's api rule included: send the api inbound to the api outbound or traffic stats and live client changes stop. Xray will not start if the file is missing or invalid.",
       "routingScriptActive": "A routing script is set under {section}, so Xray ignores these rules."
-    },
-    "sponsors": {
-      "title": "Sponsors",
-      "intro": "Companies that support D3X-UI development. Sponsored links open in a new tab.",
-      "become": "Become a sponsor",
-      "tag": "Sponsor",
-      "visit": "Visit",
-      "yourBrand": "Your brand here",
-      "yourBrandText": "Put your company in front of thousands of server admins who open D3X-UI every day."
     }
   },
   "tgbot": {

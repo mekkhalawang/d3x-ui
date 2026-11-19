@@ -60,6 +60,7 @@ export default function InboundClientsPanel({ inbound, onChanged }: Props) {
   // The list endpoint is slim: it drops expiryTime and the speed limits from
   // settings.clients, so the expanded row re-reads the full inbound once.
   const [fullSettings, setFullSettings] = useState<unknown>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [expiryEdit, setExpiryEdit] = useState<{ email: string; value: Dayjs | null } | null>(null);
 
   useEffect(() => {
@@ -75,7 +76,7 @@ export default function InboundClientsPanel({ inbound, onChanged }: Props) {
     return () => {
       alive = false;
     };
-  }, [inbound.id]);
+  }, [inbound.id, reloadKey]);
 
   const clients = useMemo<RawClient[]>(() => {
     const settings = coerceInboundJsonField(fullSettings ?? inbound.settings);
@@ -95,6 +96,7 @@ export default function InboundClientsPanel({ inbound, onChanged }: Props) {
     try {
       const msg = await HttpUtil.post(url, body);
       if (msg?.success) {
+        setReloadKey((n) => n + 1);
         onChanged?.();
         return true;
       }
@@ -138,6 +140,7 @@ export default function InboundClientsPanel({ inbound, onChanged }: Props) {
       const linked = await setExternalLinks(meta.email, meta.externalLinks);
       if (!linked?.success) return linked;
     }
+    setReloadKey((n) => n + 1);
     onChanged?.();
     return msg;
   };

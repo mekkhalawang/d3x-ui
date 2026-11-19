@@ -121,7 +121,6 @@
     "routing": "Enrutamiento",
     "outbounds": "Salidas",
     "apiDocs": "Documentación de la API",
-    "sponsors": "Patrocinadores",
     "hosts": "Hosts",
     "openMenu": "Abrir menú",
     "pinSidebar": "Fijar barra lateral",
@@ -2518,15 +2517,6 @@
         "badVlessRoute": "Introduce un único número entre 0 y 65535"
       },
       "dragToReorder": "Arrastra para reordenar {name}"
-    },
-    "sponsors": {
-      "title": "Patrocinadores",
-      "intro": "Empresas que apoyan el desarrollo de D3X-UI. Los enlaces patrocinados se abren en una pestaña nueva.",
-      "become": "Hazte patrocinador",
-      "tag": "Patrocinador",
-      "visit": "Visitar",
-      "yourBrand": "Tu marca aquí",
-      "yourBrandText": "Muestra tu empresa a miles de administradores de servidores que abren D3X-UI cada día."
     }
   },
   "tgbot": {

@@ -121,7 +121,6 @@
     "routing": "Pengalihan",
     "outbounds": "Outbound",
     "apiDocs": "Dokumentasi API",
-    "sponsors": "Sponsor",
     "hosts": "Host",
     "openMenu": "Buka menu",
     "pinSidebar": "Sematkan bilah sisi",
@@ -2518,15 +2517,6 @@
         "badVlessRoute": "Masukkan satu angka antara 0 dan 65535"
       },
       "dragToReorder": "Seret untuk mengurutkan ulang {name}"
-    },
-    "sponsors": {
-      "title": "Sponsor",
-      "intro": "Perusahaan yang mendukung pengembangan D3X-UI. Tautan sponsor dibuka di tab baru.",
-      "become": "Jadi sponsor",
-      "tag": "Sponsor",
-      "visit": "Kunjungi",
-      "yourBrand": "Merek Anda di sini",
-      "yourBrandText": "Tampilkan perusahaan Anda kepada ribuan admin server yang membuka D3X-UI setiap hari."
     }
   },
   "tgbot": {
