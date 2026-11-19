@@ -195,7 +195,9 @@ jobs:
           file: d3x-ui-linux-${{ matrix.platform }}.tar.gz*
           file_glob: true
           overwrite: true
-          prerelease: true
+          # Stable tags must be the repo's "latest" so install.sh resolves them
+          # without an explicit version argument.
+          prerelease: false
 
   # =================================
   #  Windows Build
