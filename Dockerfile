@@ -21,7 +21,8 @@ RUN apk --no-cache --update add \
   build-base \
   gcc \
   curl \
-  unzip
+  unzip \
+  patch
 
 COPY . .
 COPY --from=frontend /src/internal/web/dist ./internal/web/dist

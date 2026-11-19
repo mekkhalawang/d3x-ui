@@ -53,12 +53,19 @@
 - 在有真实流量的机器上确认它会跳字（测试机上无流量，一直显示 `—`）。
 - 入站页展开的客户表目前**没有**速度列（只有累计流量），可考虑补一列。
 
+#### P1b：内核源码不再进仓库
+
+仓库里**不再 vendored 内核**，只有 `patches/xray-ratelimit.patch`（相对上游 `676eaf66f8f0`）。
+`release.yml` 与 `DockerInit.sh` 的流程是：拉上游源码 tarball → `patch -p1` → `go build ./main`。
+好处：仓库小、升级内核 = 换 commit + 重新打补丁；代价：CI 多一次下载与打补丁（已验证命令可用，见下）。
+
 #### P2：发布与分发
 
 - 分支未推送；Actions 未启用；没有 tag → 一键安装还没真正跑通。
 - 步骤：推 `feat/d3x-ui` → 仓库 Settings 启用 Actions → 打 tag `v3.11.0-d3.1` → 拿到 8 平台产物 → 服务器执行
   `bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh)`。
-- 注意 `release.yml` 现在从 `third_party/xray-core` 编译内核，**不要再改回下载上游二进制**，否则限速补丁会静默失效。
+- 注意 `release.yml` / `DockerInit.sh` 现在是「拉源码 + 打补丁 + 编译」，**不要再改回下载上游二进制**，否则限速补丁会静默失效。
+- 推 GitHub 走 SOCKS 代理：`git -c http.proxy=socks5h://127.0.0.1:3066 push`（直连和透明代理都推不动）。
 
 #### P3：其它
 
@@ -91,11 +98,11 @@
 |---|---|
 | `internal/web/service/xray_ratelimit.go` | 生成 `ratelimit.json`（含 `XUI_RATELIMIT_ENABLE` 开关） |
 | `internal/web/service/client_speed_limit_test.go` | 限速字段落库回归测试 |
+| 补丁涉及的内核文件 | `app/dispatcher/ratelimit.go`（旁路文件 + 令牌桶）、`app/dispatcher/shaper.go`（方向整形器，P0 攻坚对象）、`app/dispatcher/default.go`（`Dispatch` / `WrapLink` 两处 hook） |
 | `internal/xray/process.go` | 给内核子进程注入 `XRAY_RATELIMIT_FILE` |
-| `third_party/xray-core/app/dispatcher/ratelimit.go` | 旁路文件读取 + 令牌桶 |
-| `third_party/xray-core/app/dispatcher/shaper.go` | 方向整形器（P0 攻坚对象） |
-| `third_party/xray-core/app/dispatcher/default.go` | `Dispatch` / `WrapLink` 两处 hook |
-| `patches/xray-ratelimit.patch` | 相对上游的补丁（升级内核时用） |
+| `patches/xray-ratelimit.patch` | 内核补丁（相对上游 v26.11.9 / `676eaf66f8f0`）；升级内核时重新打它 |
+| `internal/web/service/xray_ratelimit.go` | 生成 `ratelimit.json`（含 `XUI_RATELIMIT_ENABLE` 开关） |
+| `.github/workflows/release.yml` / `DockerInit.sh` | 拉上游内核源码 → `patch -p1` → 编译出带限速的 xray |
 | `docs/d3x-xray-ratelimit.md` | 内核补丁原理 + 升级内核步骤 |
 | `frontend/src/pages/inbounds/list/InboundClientsPanel.tsx` | 入站展开的客户表 |
 | `frontend/src/pages/clients/ClientEditModal.tsx` | 内嵌完整客户编辑弹窗 |

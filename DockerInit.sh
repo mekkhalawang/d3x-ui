@@ -52,7 +52,9 @@ if [ -z "$MTG_MULTI_VER" ]; then
 fi
 mkdir -p build/bin
 cd build/bin
-# Build the patched core in-tree; a downloaded upstream binary has no limiter.
+# Build Xray from the pinned upstream source with the D3X-UI rate-limit patch.
+# A downloaded upstream binary would carry no limiter at all.
+XRAY_CORE_COMMIT="676eaf66f8f0"
 case $PLATFORM in
     amd64) GOARCH=amd64; GOARM="" ;;
     arm64) GOARCH=arm64; GOARM="" ;;
@@ -60,7 +62,11 @@ case $PLATFORM in
     armv6) GOARCH=arm; GOARM=6 ;;
     386) GOARCH=386; GOARM="" ;;
 esac
-( cd /app/third_party/xray-core && CGO_ENABLED=0 GOOS=linux GOARCH="$GOARCH" GOARM="$GOARM" \
+curl -sfL -o /tmp/xray-core.tar.gz "https://github.com/XTLS/Xray-core/archive/${XRAY_CORE_COMMIT}.tar.gz"
+mkdir -p /tmp/xray-core-src
+tar -xzf /tmp/xray-core.tar.gz -C /tmp/xray-core-src --strip-components=1
+( cd /tmp/xray-core-src && patch -p1 --forward < /app/patches/xray-ratelimit.patch && \
+    CGO_ENABLED=0 GOOS=linux GOARCH="$GOARCH" GOARM="$GOARM" \
     go build -trimpath -ldflags "-s -w" -o "/app/build/bin/${XRAY_BIN}" ./main )
 rm -f geoip.dat geosite.dat
 # mtg-multi (MTProto sidecar) ships prebuilt release binaries for every target
