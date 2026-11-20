@@ -33,6 +33,8 @@ Built as an enhanced fork of the original D3X-UI project, D3X-UI adds broader pr
 - **MTProto proxies** — per-client FakeTLS secrets, ad-tags, and quotas, applied live without dropping existing connections.
 - **Fallbacks** — serve multiple protocols on a single port (e.g. VLESS and Trojan on 443) using Xray's fallback support.
 - **Per-client management** — traffic quotas, expiry dates, IP limits with trusted-address exemptions, HWID device limits, scheduled renewal cycles, live online status, and one-click share links, QR codes, and subscriptions.
+- **Per-client speed limits** — upload/download caps per user (Mbps in the UI), enforced by the bundled patched Xray-core; concurrent connections of one user share the same token bucket, so opening more streams cannot multiply the limit.
+- **Argo (Cloudflare Tunnel) built in** — quick tunnels (random `*.trycloudflare.com` host) and named tunnels (Zero Trust token mode) are managed straight from the panel: `cloudflared` is downloaded and supervised automatically, crashed tunnels are restarted, and share links gain CDN variants (preferred Cloudflare IP as the dial address, tunnel domain as Host/SNI, ports 8443/8880) for every client.
 - **Traffic statistics** — per inbound, per client, and per outbound, with reset controls.
 - **Multi-node support** — manage and scale across multiple servers from a single panel, including cloning inbounds onto other nodes.
 - **Outbound & routing** — WARP, NordVPN, PIA, custom routing rules, load balancers with balancer-to-balancer fallback, and outbound proxy chaining. Bundled geosite and geoip categories are browsable straight from the rule editor.
@@ -74,19 +76,19 @@ Built as an enhanced fork of the original D3X-UI project, D3X-UI adds broader pr
 ## Quick Start
 
 ```bash
-bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/master/install.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh)
 ```
 
 To install a specific version, append its tag (e.g. `v3.7.0`):
 
 ```bash
-bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/master/install.sh) v3.7.0
+bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh) v3.11.0-d3.1
 ```
 
 To install the rolling **dev** build (latest per-commit pre-release from `main`, not a stable release), pass `dev-latest`:
 
 ```bash
-bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/master/install.sh) dev-latest
+bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh) dev-latest
 ```
 
 During installation a random username, password, and access path are generated. After installation, run `d3x-ui` to open the management menu, where you can start/stop the service, view or reset your login credentials, manage SSL certificates, and more.
@@ -151,27 +153,29 @@ docker run -d --cap-add=NET_ADMIN --cap-add=NET_RAW ... ghcr.io/mekkhalawang/d3x
 
 ## Environment Variables
 
-| Variable | Description | Default |
-| --- | --- | --- |
-| `XUI_DB_TYPE` | Database backend: `sqlite` or `postgres` | `sqlite` |
-| `XUI_DB_DSN` | PostgreSQL connection string (when `XUI_DB_TYPE=postgres`) | — |
-| `XUI_DB_FOLDER` | Directory for the SQLite database file | `/etc/d3x-ui` |
-| `XUI_DB_MAX_OPEN_CONNS` | Maximum open connections (PostgreSQL pool) | — |
-| `XUI_DB_MAX_IDLE_CONNS` | Maximum idle connections (PostgreSQL pool) | — |
-| `XUI_INIT_WEB_BASE_PATH` | The initial URI path for the web panel | `/` |
-| `XUI_ENABLE_FAIL2BAN` | Enable Fail2ban-based IP-limit enforcement | `true` |
-| `XUI_LOG_LEVEL` | Log verbosity (`debug`, `info`, `warning`, `error`) | `info` |
-| `XUI_DEBUG` | Enable debug mode | `false` |
-| `XUI_TUNNEL_HEALTH_MONITOR` | Enable the tunnel health monitor (probes a URL and restarts xray after repeated failures; a restart drops all clients) | `false` |
-| `XUI_TUNNEL_HEALTH_PROXY` | Proxy the probe is sent through; point it at a local xray inbound so the probe tests the tunnel (e.g. `socks5://127.0.0.1:1080`). Empty means the probe only checks host connectivity | — |
-| `XUI_TUNNEL_HEALTH_URL` | URL probed for tunnel health | `https://www.cloudflare.com/cdn-cgi/trace` |
-| `XUI_TUNNEL_HEALTH_INTERVAL` | Interval between probes | `30s` |
-| `XUI_TUNNEL_HEALTH_TIMEOUT` | Per-probe timeout | `10s` |
-| `XUI_TUNNEL_HEALTH_FAILURES` | Consecutive failures before a restart is triggered | `3` |
-| `XUI_TUNNEL_HEALTH_COOLDOWN` | Minimum delay between consecutive restarts | `5m` |
-| `NODE_TOKEN_ENCRYPTION` | Encryption at rest for node API tokens: `off`, `migration`, or `required` (note: no `XUI_` prefix) | `off` |
-| `XUI_NODE_TOKEN_KEY_FILE` | JSON keyring (mode `0600`) holding the active key id and its base64 32-byte keys | `/etc/d3x-ui/node_token_key.json` |
-| `XUI_NODE_TOKEN_KEY` | A single base64 32-byte key, used only when the key file cannot be loaded | — |
+| Variable                     | Description                                                                                                                                                                           | Default                                    |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| `XUI_DB_TYPE`                | Database backend: `sqlite` or `postgres`                                                                                                                                              | `sqlite`                                   |
+| `XUI_DB_DSN`                 | PostgreSQL connection string (when `XUI_DB_TYPE=postgres`)                                                                                                                            | —                                          |
+| `XUI_DB_FOLDER`              | Directory for the SQLite database file                                                                                                                                                | `/etc/d3x-ui`                              |
+| `XUI_DB_MAX_OPEN_CONNS`      | Maximum open connections (PostgreSQL pool)                                                                                                                                            | —                                          |
+| `XUI_DB_MAX_IDLE_CONNS`      | Maximum idle connections (PostgreSQL pool)                                                                                                                                            | —                                          |
+| `XUI_INIT_WEB_BASE_PATH`     | The initial URI path for the web panel                                                                                                                                                | `/`                                        |
+| `XUI_ENABLE_FAIL2BAN`        | Enable Fail2ban-based IP-limit enforcement                                                                                                                                            | `true`                                     |
+| `XUI_LOG_LEVEL`              | Log verbosity (`debug`, `info`, `warning`, `error`)                                                                                                                                   | `info`                                     |
+| `XUI_DEBUG`                  | Enable debug mode                                                                                                                                                                     | `false`                                    |
+| `XUI_TUNNEL_HEALTH_MONITOR`  | Enable the tunnel health monitor (probes a URL and restarts xray after repeated failures; a restart drops all clients)                                                                | `false`                                    |
+| `XUI_RATELIMIT_ENABLE`       | Turn on per-client speed limits (the panel writes the limit table the patched core enforces)                                                                                          | `false`                                    |
+| `XUI_CLOUDFLARED_PATH`       | Use an existing `cloudflared` binary instead of the auto-downloaded one                                                                                                               | —                                          |
+| `XUI_TUNNEL_HEALTH_PROXY`    | Proxy the probe is sent through; point it at a local xray inbound so the probe tests the tunnel (e.g. `socks5://127.0.0.1:1080`). Empty means the probe only checks host connectivity | —                                          |
+| `XUI_TUNNEL_HEALTH_URL`      | URL probed for tunnel health                                                                                                                                                          | `https://www.cloudflare.com/cdn-cgi/trace` |
+| `XUI_TUNNEL_HEALTH_INTERVAL` | Interval between probes                                                                                                                                                               | `30s`                                      |
+| `XUI_TUNNEL_HEALTH_TIMEOUT`  | Per-probe timeout                                                                                                                                                                     | `10s`                                      |
+| `XUI_TUNNEL_HEALTH_FAILURES` | Consecutive failures before a restart is triggered                                                                                                                                    | `3`                                        |
+| `XUI_TUNNEL_HEALTH_COOLDOWN` | Minimum delay between consecutive restarts                                                                                                                                            | `5m`                                       |
+| `NODE_TOKEN_ENCRYPTION`      | Encryption at rest for node API tokens: `off`, `migration`, or `required` (note: no `XUI_` prefix)                                                                                    | `off`                                      |
+| `XUI_NODE_TOKEN_KEY_FILE`    | JSON keyring (mode `0600`) holding the active key id and its base64 32-byte keys                                                                                                      | `/etc/d3x-ui/node_token_key.json`          |
+| `XUI_NODE_TOKEN_KEY`         | A single base64 32-byte key, used only when the key file cannot be loaded                                                                                                             | —                                          |
 
 The complete list is on the [environment variables reference](https://github.com/mekkhalawang/d3x-ui#readme/docs/reference/env-vars).
 

@@ -33,6 +33,8 @@ D3X-UI 作为原始 D3X-UI 项目的增强分支（fork），增加了更广泛�
 - **MTProto 代理** — 按客户端配置 FakeTLS 密钥、广告标签和配额，实时生效且不会断开已有连接。
 - **回落 (Fallback)** — 通过 Xray 的 fallback 功能在单个端口上提供多种协议（例如在 443 端口上同时使用 VLESS 和 Trojan）。
 - **按客户端管理** — 流量配额、到期日期、可豁免受信任地址的 IP 限制、HWID 设备数限制、定时续期周期、实时在线状态，以及一键分享链接、二维码和订阅。
+- **按客户端限速** — 每个用户的上/下行速率上限（界面按 Mbps 设置），由内置的补丁版 Xray-core 执行；同一用户的多条并发连接共用一个令牌桶，开多条连接也无法突破限额。
+- **内置 Argo（Cloudflare Tunnel）** — 临时隧道（随机 `*.trycloudflare.com` 域名）与固定隧道（Zero Trust Token 模式）全部在面板内管理：自动下载并守护 `cloudflared`、崩溃自动重启；分享链接自动生成 CDN 变体（优选 Cloudflare IP 作为连接地址、隧道域名作 Host/SNI、端口 8443/8880），覆盖每一个客户端。
 - **流量统计** — 按入站、按客户端、按出站统计，并支持重置控制。
 - **多节点支持** — 从单一面板管理并扩展到多台服务器，并可将入站克隆到其他节点。
 - **出站与路由** — WARP、NordVPN、PIA、自定义路由规则、支持均衡器间回退的负载均衡器，以及出站代理链。内置的 geosite 与 geoip 分类可直接在规则编辑器中浏览。
@@ -74,19 +76,19 @@ D3X-UI 作为原始 D3X-UI 项目的增强分支（fork），增加了更广泛�
 ## 快速开始
 
 ```bash
-bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/master/install.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh)
 ```
 
 若要安装特定版本，请在命令后附加对应的标签（例如 `v3.7.0`）：
 
 ```bash
-bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/master/install.sh) v3.7.0
+bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh) v3.11.0-d3.1
 ```
 
 若要安装滚动更新的 **dev** 版本（来自 `main` 的最新逐次提交预发布版本，而非稳定版本），请传入 `dev-latest`：
 
 ```bash
-bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/master/install.sh) dev-latest
+bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh) dev-latest
 ```
 
 安装过程中会生成随机的用户名、密码和访问路径。安装完成后，运行 `d3x-ui` 打开管理菜单，您可以在其中启动/停止服务、查看或重置登录凭据、管理 SSL 证书等。
@@ -151,27 +153,29 @@ docker run -d --cap-add=NET_ADMIN --cap-add=NET_RAW ... ghcr.io/mekkhalawang/d3x
 
 ## 环境变量
 
-| 变量 | 说明 | 默认值 |
-| --- | --- | --- |
-| `XUI_DB_TYPE` | 数据库后端：`sqlite` 或 `postgres` | `sqlite` |
-| `XUI_DB_DSN` | PostgreSQL 连接字符串（当 `XUI_DB_TYPE=postgres` 时） | — |
-| `XUI_DB_FOLDER` | SQLite 数据库文件所在目录 | `/etc/d3x-ui` |
-| `XUI_DB_MAX_OPEN_CONNS` | 最大打开连接数（PostgreSQL 连接池） | — |
-| `XUI_DB_MAX_IDLE_CONNS` | 最大空闲连接数（PostgreSQL 连接池） | — |
-| `XUI_INIT_WEB_BASE_PATH` | Web 面板的初始 URI 路径 | `/` |
-| `XUI_ENABLE_FAIL2BAN` | 启用基于 Fail2ban 的 IP 限制 | `true` |
-| `XUI_LOG_LEVEL` | 日志级别（`debug`、`info`、`warning`、`error`） | `info` |
-| `XUI_DEBUG` | 启用调试模式 | `false` |
-| `XUI_TUNNEL_HEALTH_MONITOR` | 启用隧道健康监控（探测某个 URL，在连续多次失败后重启 xray；重启会断开所有客户端） | `false` |
-| `XUI_TUNNEL_HEALTH_PROXY` | 探测请求所经过的代理；将其指向本地 xray 入站，使探测能够测试隧道（例如 `socks5://127.0.0.1:1080`）。留空表示探测仅检查主机连通性 | — |
-| `XUI_TUNNEL_HEALTH_URL` | 用于检测隧道健康状况的探测 URL | `https://www.cloudflare.com/cdn-cgi/trace` |
-| `XUI_TUNNEL_HEALTH_INTERVAL` | 两次探测之间的间隔 | `30s` |
-| `XUI_TUNNEL_HEALTH_TIMEOUT` | 单次探测的超时时间 | `10s` |
-| `XUI_TUNNEL_HEALTH_FAILURES` | 触发重启前的连续失败次数 | `3` |
-| `XUI_TUNNEL_HEALTH_COOLDOWN` | 两次连续重启之间的最小间隔 | `5m` |
-| `NODE_TOKEN_ENCRYPTION` | 节点 API 令牌的静态加密：`off`、`migration` 或 `required`（注意：无 `XUI_` 前缀） | `off` |
-| `XUI_NODE_TOKEN_KEY_FILE` | JSON 密钥环（权限 `0600`），包含活动密钥 ID 及其 base64 编码的 32 字节密钥 | `/etc/d3x-ui/node_token_key.json` |
-| `XUI_NODE_TOKEN_KEY` | 单个 base64 编码的 32 字节密钥，仅在无法加载密钥文件时使用 | — |
+| 变量                         | 说明                                                                                                                             | 默认值                                     |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| `XUI_DB_TYPE`                | 数据库后端：`sqlite` 或 `postgres`                                                                                               | `sqlite`                                   |
+| `XUI_DB_DSN`                 | PostgreSQL 连接字符串（当 `XUI_DB_TYPE=postgres` 时）                                                                            | —                                          |
+| `XUI_DB_FOLDER`              | SQLite 数据库文件所在目录                                                                                                        | `/etc/d3x-ui`                              |
+| `XUI_DB_MAX_OPEN_CONNS`      | 最大打开连接数（PostgreSQL 连接池）                                                                                              | —                                          |
+| `XUI_DB_MAX_IDLE_CONNS`      | 最大空闲连接数（PostgreSQL 连接池）                                                                                              | —                                          |
+| `XUI_INIT_WEB_BASE_PATH`     | Web 面板的初始 URI 路径                                                                                                          | `/`                                        |
+| `XUI_ENABLE_FAIL2BAN`        | 启用基于 Fail2ban 的 IP 限制                                                                                                     | `true`                                     |
+| `XUI_LOG_LEVEL`              | 日志级别（`debug`、`info`、`warning`、`error`）                                                                                  | `info`                                     |
+| `XUI_DEBUG`                  | 启用调试模式                                                                                                                     | `false`                                    |
+| `XUI_TUNNEL_HEALTH_MONITOR`  | 启用隧道健康监控（探测某个 URL，在连续多次失败后重启 xray；重启会断开所有客户端）                                                | `false`                                    |
+| `XUI_TUNNEL_HEALTH_PROXY`    | 探测请求所经过的代理；将其指向本地 xray 入站，使探测能够测试隧道（例如 `socks5://127.0.0.1:1080`）。留空表示探测仅检查主机连通性 | —                                          |
+| `XUI_TUNNEL_HEALTH_URL`      | 用于检测隧道健康状况的探测 URL                                                                                                   | `https://www.cloudflare.com/cdn-cgi/trace` |
+| `XUI_TUNNEL_HEALTH_INTERVAL` | 两次探测之间的间隔                                                                                                               | `30s`                                      |
+| `XUI_TUNNEL_HEALTH_TIMEOUT`  | 单次探测的超时时间                                                                                                               | `10s`                                      |
+| `XUI_TUNNEL_HEALTH_FAILURES` | 触发重启前的连续失败次数                                                                                                         | `3`                                        |
+| `XUI_TUNNEL_HEALTH_COOLDOWN` | 两次连续重启之间的最小间隔                                                                                                       | `5m`                                       |
+| `XUI_RATELIMIT_ENABLE`       | 开启按客户端限速（面板写出限额表，由补丁版内核执行）                                                                             | `false`                                    |
+| `XUI_CLOUDFLARED_PATH`       | 使用已安装的 `cloudflared` 二进制，而不是自动下载                                                                                | —                                          |
+| `NODE_TOKEN_ENCRYPTION`      | 节点 API 令牌的静态加密：`off`、`migration` 或 `required`（注意：无 `XUI_` 前缀）                                                | `off`                                      |
+| `XUI_NODE_TOKEN_KEY_FILE`    | JSON 密钥环（权限 `0600`），包含活动密钥 ID 及其 base64 编码的 32 字节密钥                                                       | `/etc/d3x-ui/node_token_key.json`          |
+| `XUI_NODE_TOKEN_KEY`         | 单个 base64 编码的 32 字节密钥，仅在无法加载密钥文件时使用                                                                       | —                                          |
 
 完整列表请参阅[环境变量参考](https://github.com/mekkhalawang/d3x-ui#readme/zh/docs/reference/env-vars)。
 

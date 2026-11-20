@@ -96,14 +96,14 @@ green "Argo版本：V$(/usr/local/x-ui/cloudflared version 2>/dev/null | awk '{p
 
 **【源码证实】** 不生成任何配置文件——没有 `config.yml`、没有 `cert.pem`/credentials、没有本地 named tunnel 定义。两种模式：
 
-| | 临时隧道（quick） | 固定隧道（named, token 模式） |
-|---|---|---|
-| 命令 | `cloudflared tunnel --url http://localhost:$port ...`（L950） | `cloudflared tunnel ... run --token ${argotoken}`（L1010） |
-| 域名 | 自动发 `*.trycloudflare.com`，从 `argo.log` 抓取（L953-954：`grep -a trycloudflare.com | awk 'NR==2...'`） | 用户输入，存 `/usr/local/x-ui/xuiargoym.log` |
-| 凭据 | 无需 | 用户输入 token（Zero Trust 仪表盘生成），存 `/usr/local/x-ui/xuiargotoken.log` |
-| 回源映射 | 命令行 `--url` 指定 | **在 Cloudflare 仪表盘配置**（L994 提示"请确保Cloudflare官网 --- Zero Trust --- Networks --- Tunnels已设置完成"） |
-| 域名验证 | 重试 5 次：`curl -sL https://$domain -I` 命中 `404|400|503` 视为有效（L945-962） | 无脚本侧验证，仅 sleep 20（L1011） |
-| 状态记录 | 端口→`xuiargoport.log` | 端口→`xuiargoymport.log`，域名/Token 各自 log |
+|          | 临时隧道（quick）                                                                      | 固定隧道（named, token 模式）                                                                                     |
+| -------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| 命令     | `cloudflared tunnel --url http://localhost:$port ...`（L950）                          | `cloudflared tunnel ... run --token ${argotoken}`（L1010）                                                        |
+| 域名     | 自动发 `*.trycloudflare.com`，从 `argo.log` 抓取（L953-954：`grep -a trycloudflare.com | awk 'NR==2...'`）                                                                                                 | 用户输入，存 `/usr/local/x-ui/xuiargoym.log` |
+| 凭据     | 无需                                                                                   | 用户输入 token（Zero Trust 仪表盘生成），存 `/usr/local/x-ui/xuiargotoken.log`                                    |
+| 回源映射 | 命令行 `--url` 指定                                                                    | **在 Cloudflare 仪表盘配置**（L994 提示"请确保Cloudflare官网 --- Zero Trust --- Networks --- Tunnels已设置完成"） |
+| 域名验证 | 重试 5 次：`curl -sL https://$domain -I` 命中 `404                                     | 400                                                                                                               | 503` 视为有效（L945-962）                    | 无脚本侧验证，仅 sleep 20（L1011） |
+| 状态记录 | 端口→`xuiargoport.log`                                                                 | 端口→`xuiargoymport.log`，域名/Token 各自 log                                                                     |
 
 即 **token 模式（remotely-managed tunnel）而非本地配置文件模式**；固定隧道的 hostname→localhost:端口 映射由用户在 CF 仪表盘的 Public Hostname 里配（典型配 `http://localhost:<WS端口>`）。**【源码证实脚本行为；"映射在仪表盘配"系基于 token 模式原理 + L994 提示的推断】**
 
@@ -163,6 +163,7 @@ green "Argo版本：V$(/usr/local/x-ui/cloudflared version 2>/dev/null | awk '{p
   ```
 
   其中 `$cdnargo`=优选 IP 域名，`$argolsym`/`$argoym`=临时/固定隧道域名（作 Host/SNI），每种协议出 8880/8443 两条（无 TLS / TLS 各一）。
+
 - **订阅产物**：`jhsub.txt`（聚合通用链接）、`clmi.yaml`（clash-meta）、`sbox.json`（sing-box），节点信息从 `/usr/local/x-ui/bin/config.json`（面板落盘的运行时 xray 全量配置，二进制 strings 证实含 `bin/config.json` 路径）用 jq 解析拼装。
 - **分发渠道**：① 本地订阅服务（`ipsub()` L767-848：python http 服务挂 `/root/webxui/<token>/`，输出三个文件，端口/路径可配）；② Gitlab 推送（`sharesub()` L1162-1181）；③ 直接 cat 文件/二维码展示。
 - **面板联动**：`version` 文件称"XUI面版指定节点的添加、变更、删除将自动同步IP订阅链接"——面板二进制对指定节点变更会自动同步本地订阅产物。**【文本证实；具体实现未开源，属推断（可能由面板回调脚本或直接重写产物）】**
@@ -209,37 +210,37 @@ D3X-UI 现状（3x-ui v3.11.0 二开）：Go 后端（`internal/xray`、`interna
 
 ### 4.6 落地文件清单（建议）
 
-| 位置 | 改动 |
-|---|---|
-| `internal/argo/`（新） | cloudflared 下载/校验/进程 supervisor/域名解析 |
-| `internal/database/model/model.go` 或新 model 文件 | argo 隧道配置持久化 |
-| `internal/web/controller/`（新 argo_controller） | REST API：状态/启停/配置 |
-| `internal/sub/host_sub.go` 等 URL 构造处 | Argo 链接生成（add=优选IP，host/sni=隧道域，8880/8443） |
-| `frontend/src/pages/`（新 argo 页）+ `api/` + 路由/菜单 | Argo 管理 UI、入站分享弹窗的 Argo 链接 |
-| `internal/eventbus` / 启动生命周期 | 面板启动时按 DB 配置拉起隧道、状态广播 |
-| `internal/tunnelmonitor`（已有，待确认职责） | 可能可复用其监控/告警框架托管 cloudflared 健康检查 |
+| 位置                                                    | 改动                                                    |
+| ------------------------------------------------------- | ------------------------------------------------------- |
+| `internal/argo/`（新）                                  | cloudflared 下载/校验/进程 supervisor/域名解析          |
+| `internal/database/model/model.go` 或新 model 文件      | argo 隧道配置持久化                                     |
+| `internal/web/controller/`（新 argo_controller）        | REST API：状态/启停/配置                                |
+| `internal/sub/host_sub.go` 等 URL 构造处                | Argo 链接生成（add=优选IP，host/sni=隧道域，8880/8443） |
+| `frontend/src/pages/`（新 argo 页）+ `api/` + 路由/菜单 | Argo 管理 UI、入站分享弹窗的 Argo 链接                  |
+| `internal/eventbus` / 启动生命周期                      | 面板启动时按 DB 配置拉起隧道、状态广播                  |
+| `internal/tunnelmonitor`（已有，待确认职责）            | 可能可复用其监控/告警框架托管 cloudflared 健康检查      |
 
 ---
 
 ## 五、证实 / 推断标注汇总
 
-| 结论 | 性质 | 依据 |
-|---|---|---|
-| 面板二进制闭源、argo 逻辑全在 install.sh | **源码证实** | README 声明 + 面板二进制 strings 零命中（argo/cloudflared/tunnel/jhsub 等） |
-| cloudflared 下载路径/来源/chmod | **源码证实** | install.sh:898-911 |
-| 临时隧道 `--url`、域名抓取、验证重试、@reboot cron | **源码证实** | install.sh:941-971 |
-| 固定隧道 `run --token`、token/域名存 log、@reboot cron | **源码证实** | install.sh:987-1022 |
-| 无 config.yml/cert.pem，token 模式 | **源码证实** | 全文无相关文件读写；命令行仅 `--token` |
-| 固定隧道回源端口在 CF 仪表盘配置 | **推断** | token（remotely-managed）模式机制 + install.sh:994 提示文本 |
-| cloudflared 运行期崩溃无自愈、仅开机重启 | **源码证实**（cron 穷举） | @reboot 条目外无 cloudflared 监控；goxui.sh 只管 x-ui/xray（L653-663） |
-| UI 在 SSH 菜单（3→1→1/2），Web 面板无 Argo UI | **源码证实** | install.sh:725/913-932 + strings 零命中 |
-| 一隧道一 WS 端口，多用户=入站多 clients | **源码证实** | install.sh:941/1000 + clients 机制 |
-| 聚合订阅只导出 clients[0] | **源码证实** | install.sh:2059/2299 等 |
-| 其余用户需手工换 uuid 拼链接 | **推断** | 基于 clients[0] 局限 |
-| 链接 add=优选IP、host/sni=隧道域、8880/8443 | **源码证实** | install.sh:2174-2175/2293-2294/2414-2415/2533 |
-| 优选 IP 文件 xuicdnip_argo.txt、默认 www.visa.com.sg | **源码证实** | install.sh:1037-1067/1211-1215 |
-| 订阅产物 jhsub/clmi/sbox + 本地 webxui 或 Gitlab 分发 | **源码证实** | install.sh:1210-1482/767-848/1162-1181 |
-| 面板"节点变更自动同步IP订阅" | **文本证实，实现推断** | version 文件；二进制闭源 |
-| 面板落盘 bin/config.json 供脚本 jq 解析 | **源码证实** | 二进制 strings 含 `bin/config.json`；install.sh:1492 起读取 |
-| 前提约束（WS/关TLS/空header） | **源码证实** | install.sh:915-919、2063/2820 校验逻辑 |
-| sing-box-yg 同套 Argo 范式 | **外部资料佐证** | deepwiki.com/yonggekkk/sing-box-yg "Temporary vs Fixed Tunnels" |
+| 结论                                                   | 性质                      | 依据                                                                        |
+| ------------------------------------------------------ | ------------------------- | --------------------------------------------------------------------------- |
+| 面板二进制闭源、argo 逻辑全在 install.sh               | **源码证实**              | README 声明 + 面板二进制 strings 零命中（argo/cloudflared/tunnel/jhsub 等） |
+| cloudflared 下载路径/来源/chmod                        | **源码证实**              | install.sh:898-911                                                          |
+| 临时隧道 `--url`、域名抓取、验证重试、@reboot cron     | **源码证实**              | install.sh:941-971                                                          |
+| 固定隧道 `run --token`、token/域名存 log、@reboot cron | **源码证实**              | install.sh:987-1022                                                         |
+| 无 config.yml/cert.pem，token 模式                     | **源码证实**              | 全文无相关文件读写；命令行仅 `--token`                                      |
+| 固定隧道回源端口在 CF 仪表盘配置                       | **推断**                  | token（remotely-managed）模式机制 + install.sh:994 提示文本                 |
+| cloudflared 运行期崩溃无自愈、仅开机重启               | **源码证实**（cron 穷举） | @reboot 条目外无 cloudflared 监控；goxui.sh 只管 x-ui/xray（L653-663）      |
+| UI 在 SSH 菜单（3→1→1/2），Web 面板无 Argo UI          | **源码证实**              | install.sh:725/913-932 + strings 零命中                                     |
+| 一隧道一 WS 端口，多用户=入站多 clients                | **源码证实**              | install.sh:941/1000 + clients 机制                                          |
+| 聚合订阅只导出 clients[0]                              | **源码证实**              | install.sh:2059/2299 等                                                     |
+| 其余用户需手工换 uuid 拼链接                           | **推断**                  | 基于 clients[0] 局限                                                        |
+| 链接 add=优选IP、host/sni=隧道域、8880/8443            | **源码证实**              | install.sh:2174-2175/2293-2294/2414-2415/2533                               |
+| 优选 IP 文件 xuicdnip_argo.txt、默认 www.visa.com.sg   | **源码证实**              | install.sh:1037-1067/1211-1215                                              |
+| 订阅产物 jhsub/clmi/sbox + 本地 webxui 或 Gitlab 分发  | **源码证实**              | install.sh:1210-1482/767-848/1162-1181                                      |
+| 面板"节点变更自动同步IP订阅"                           | **文本证实，实现推断**    | version 文件；二进制闭源                                                    |
+| 面板落盘 bin/config.json 供脚本 jq 解析                | **源码证实**              | 二进制 strings 含 `bin/config.json`；install.sh:1492 起读取                 |
+| 前提约束（WS/关TLS/空header）                          | **源码证实**              | install.sh:915-919、2063/2820 校验逻辑                                      |
+| sing-box-yg 同套 Argo 范式                             | **外部资料佐证**          | deepwiki.com/yonggekkk/sing-box-yg "Temporary vs Fixed Tunnels"             |

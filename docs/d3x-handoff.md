@@ -18,16 +18,16 @@
 
 ### 已完成并验证
 
-| 项 | 内容 | 验证方式 |
-|---|---|---|
-| 品牌改名 | 模块 `github.com/mekkhalawang/d3x-ui/v3`；二进制/服务 `d3x-ui`；路径 `/usr/local/d3x-ui`、`/etc/d3x-ui`；`d3x-ui.db`、`d3x-ui.log`；脚本 `d3x-ui.sh`、`d3x-ui.service.*`、`d3x-ui.rc`；图标 | 972 个文件批量替换 + VPS 实跑 |
-| 一键安装链路 | `install.sh` / `update.sh` / `d3x-ui.sh` 全部指向 `mekkhalawang/d3x-ui`；发布 tag 改为 stable（否则 `/releases/latest` 跳过 prerelease，脚本 404） | 待推 tag 后端到端验证 |
-| HY2 允许不安全 | `tlsSettings.settings.allowInsecure`（panel-only，生成 Xray 配置前被 strip）→ 分享链接 `insecure=1`、Clash `skip-cert-verify`；仅 hysteria 协议显示 | 前后端单测 + Chrome 实测（安全页最底部） |
-| 旧版入站交互 | 入站行首 `+` 展开客户表：启用开关、到期时间点击改、流量、限速、删除；`添加客户端` 复用完整 `ClientFormModal`；`编辑` 用 `ClientEditModal`（hydrate 后走 clients 页同一套 update/attach/detach/links） | Chrome 实测 |
-| 侧边栏 | 默认固定展开（旧版观感） | Chrome 实测 |
-| 去赞助 | 登录页/仪表盘赞助位、赞助页与路由、侧边栏菜单、命令面板入口、14 语言文案全部删除 | HTML 检索 0 命中 + 菜单截图 |
-| 内核限速补丁（面板侧） | `model.Client/ClientRecord.speedLimitUp/Down`（kbps）、UI 用 Mbps、`ratelimit.json` 写入、`XRAY_RATELIMIT_FILE` 传给子进程、发布与 Docker 改为从 `third_party/xray-core` 现场编译内核 | 单测 + 实机落库验证 |
-| 修掉的真实 bug | 客户更新时 `applyClientRecordMerge` 与 `Updates` 白名单漏了限速两列，导致改完被吃掉 | `TestUpdateByEmailJSONPersistsSpeedLimits` |
+| 项                     | 内容                                                                                                                                                                                                  | 验证方式                                   |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| 品牌改名               | 模块 `github.com/mekkhalawang/d3x-ui/v3`；二进制/服务 `d3x-ui`；路径 `/usr/local/d3x-ui`、`/etc/d3x-ui`；`d3x-ui.db`、`d3x-ui.log`；脚本 `d3x-ui.sh`、`d3x-ui.service.*`、`d3x-ui.rc`；图标           | 972 个文件批量替换 + VPS 实跑              |
+| 一键安装链路           | `install.sh` / `update.sh` / `d3x-ui.sh` 全部指向 `mekkhalawang/d3x-ui`；发布 tag 改为 stable（否则 `/releases/latest` 跳过 prerelease，脚本 404）                                                    | 待推 tag 后端到端验证                      |
+| HY2 允许不安全         | `tlsSettings.settings.allowInsecure`（panel-only，生成 Xray 配置前被 strip）→ 分享链接 `insecure=1`、Clash `skip-cert-verify`；仅 hysteria 协议显示                                                   | 前后端单测 + Chrome 实测（安全页最底部）   |
+| 旧版入站交互           | 入站行首 `+` 展开客户表：启用开关、到期时间点击改、流量、限速、删除；`添加客户端` 复用完整 `ClientFormModal`；`编辑` 用 `ClientEditModal`（hydrate 后走 clients 页同一套 update/attach/detach/links） | Chrome 实测                                |
+| 侧边栏                 | 默认固定展开（旧版观感）                                                                                                                                                                              | Chrome 实测                                |
+| 去赞助                 | 登录页/仪表盘赞助位、赞助页与路由、侧边栏菜单、命令面板入口、14 语言文案全部删除                                                                                                                      | HTML 检索 0 命中 + 菜单截图                |
+| 内核限速补丁（面板侧） | `model.Client/ClientRecord.speedLimitUp/Down`（kbps）、UI 用 Mbps、`ratelimit.json` 写入、`XRAY_RATELIMIT_FILE` 传给子进程、发布与 Docker 改为从 `third_party/xray-core` 现场编译内核                 | 单测 + 实机落库验证                        |
+| 修掉的真实 bug         | 客户更新时 `applyClientRecordMerge` 与 `Updates` 白名单漏了限速两列，导致改完被吃掉                                                                                                                   | `TestUpdateByEmailJSONPersistsSpeedLimits` |
 
 ### 未完成（按优先级）
 
@@ -35,11 +35,11 @@
 
 **验收数据**（修复后 `wait()` + 直写整形器）：
 
-| 场景 | 设定 | 实测 | 误差 |
-|---|---|---|---|
-| 本机单线程（VLESS→本地 HTTP 源站） | 2 500 000 B/s | 2 524 695 B/s | +1% |
-| 本机 4 并发总和（30s 固定窗口） | 2 500 000 B/s | 2 500 737 B/s | +0.03% |
-| VPS 单线程（VLESS→speed.cloudflare.com） | 2 500 000 B/s | 2 517 602 B/s | +0.7% |
+| 场景                                     | 设定          | 实测          | 误差   |
+| ---------------------------------------- | ------------- | ------------- | ------ |
+| 本机单线程（VLESS→本地 HTTP 源站）       | 2 500 000 B/s | 2 524 695 B/s | +1%    |
+| 本机 4 并发总和（30s 固定窗口）          | 2 500 000 B/s | 2 500 737 B/s | +0.03% |
+| VPS 单线程（VLESS→speed.cloudflare.com） | 2 500 000 B/s | 2 517 602 B/s | +0.7%  |
 
 **根因是两个叠加的 bug（都不是原先猜的方向/所有权问题）：**
 
@@ -47,6 +47,7 @@
 2. **`shaperWriter` 攒批 64KB 再写**（`app/dispatcher/shaper.go`）：TLS 握手第一趟几 KB 永远凑不满批，对端等它 → 死锁 → 0 字节。修复：先扣令牌、马上直写。**"84KB/s 是小包延迟 ACK"是误诊**——那次实测带着 bug 1 的桶，84KB/s ≈ burst/观测时长。
 
 **复现/验证工具**（在仓库外，别丢）：
+
 - 本机最小复现：`E:\D3X-UI\.tmp\xray-repro\`（run.sh single/multi、agg.sh 30s 固定窗口聚合）
   - ⚠️ 本机 `NO_PROXY` 含 127.0.0.1，curl 必须 `--noproxy ""` 才走代理，否则测的是直连（400MB/s 假象，曾把整轮排查带偏）
   - ⚠️ freedom 出站默认 block 回环（防 SSRF），本地源站要在 `settings.finalRules` 加 `{"action":"allow","ip":["127.0.0.0/8"]}`
@@ -62,6 +63,7 @@
 #### P1：argo 接入面板 —— MVP 已落地（2026-11-20，commit 3b1f1c64）
 
 调研结论见 `docs/x-ui-yg-argo-analysis.md`（要点：x-ui-yg 的 argo 不在面板里，全在 SSH 脚本；它的分享链接精髓 = 优选 IP 入口 + 隧道域名作 Host/SNI + 8880/8443）。已实现：
+
 - `internal/cloudflared/`：quick（随机 trycloudflare.com，域名从启动日志抓）+ named（token 模式）双隧道监督进程，按需下载官方二进制、崩溃退避重启、日志尾窗。
 - `internal/web/service/argo.go` + `controller/argo.go`：配置存 Setting、`/panel/api/argo/*`（status/config/启停/links）、入站校验（WS + 关 TLS）。
 - **分享链接走既有 Host 机制**：隧道活跃时自动 upsert Host 行（add=优选 IP、host/sni=隧道域、8443 wss + 8880 ws）→ 订阅/二维码里每个 client 自动多出 Argo 变体（不像 x-ui-yg 只导 clients[0]）。
@@ -74,6 +76,7 @@
 
 客户端页**已有**「速度」列（`pages/clients/ClientsPage.tsx` 的 `key: 'speed'`，数据来自 `useClients()` 的 `clientSpeed`，由内核 stats 差分 + WebSocket 推送）。
 待办：
+
 - 在有真实流量的机器上确认它会跳字（测试机上无流量，一直显示 `—`）。
 - 入站页展开的客户表目前**没有**速度列（只有累计流量），可考虑补一列。
 
@@ -98,15 +101,15 @@
 
 ## 二、环境与坐标
 
-| 用途 | 位置 |
-|---|---|
-| 本地仓库 | `E:\D3X-UI\repo`，分支 `feat/d3x-ui` |
-| 本地工具链 | Go `E:\D3X-UI\tools\go\go`；Node `E:\D3X-UI\tools\node-v26.13.1-win-x64`；MinGW `E:\D3X-UI\tools\mingw\mingw64` |
-| 编译要点 | `CGO_ENABLED=1`、`CC` 必须写 gcc 的**绝对路径**、`GOCACHE`/`TMP` 放 E 盘（C 盘只剩 3.8G） |
-| 测试 VPS | `16.5.162.29:2666`，root，经本机 `127.0.0.1:3066` SOCKS 代理 |
+| 用途            | 位置                                                                                                                               |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| 本地仓库        | `E:\D3X-UI\repo`，分支 `feat/d3x-ui`                                                                                               |
+| 本地工具链      | Go `E:\D3X-UI\tools\go\go`；Node `E:\D3X-UI\tools\node-v26.13.1-win-x64`；MinGW `E:\D3X-UI\tools\mingw\mingw64`                    |
+| 编译要点        | `CGO_ENABLED=1`、`CC` 必须写 gcc 的**绝对路径**、`GOCACHE`/`TMP` 放 E 盘（C 盘只剩 3.8G）                                          |
+| 测试 VPS        | `16.5.162.29:2666`，root，经本机 `127.0.0.1:3066` SOCKS 代理                                                                       |
 | 本机 → VPS 转发 | `E:\D3X-UI\forwarder.py`（SSH 用）、`E:\D3X-UI\webproxy.py 8092 16.5.162.29 2053`（面板 HTTP，用它就能在本机 Chrome 打开测试面板） |
-| 测试面板 | `http://127.0.0.1:8092`，`admin / D3xTest123`，数据目录 `/root/d3xrun2` |
-| 限速测试脚本 | 本机 `E:\D3X-UI\ratetest.sh` / `ratdir.sh` / `ratscale.sh`，VPS 上 `/root/ratetest/` |
+| 测试面板        | `http://127.0.0.1:8092`，`admin / D3xTest123`，数据目录 `/root/d3xrun2`                                                            |
+| 限速测试脚本    | 本机 `E:\D3X-UI\ratetest.sh` / `ratdir.sh` / `ratscale.sh`，VPS 上 `/root/ratetest/`                                               |
 
 ## 三、容易踩的坑（都已踩过）
 
@@ -118,15 +121,15 @@
 
 ## 四、关键文件
 
-| 文件 | 作用 |
-|---|---|
-| `internal/web/service/xray_ratelimit.go` | 生成 `ratelimit.json`（含 `XUI_RATELIMIT_ENABLE` 开关） |
-| `internal/web/service/client_speed_limit_test.go` | 限速字段落库回归测试 |
-| 补丁涉及的内核文件 | `app/dispatcher/ratelimit.go`（旁路文件 + 令牌桶）、`app/dispatcher/shaper.go`（方向整形器，P0 攻坚对象）、`app/dispatcher/default.go`（`Dispatch` / `WrapLink` 两处 hook） |
-| `internal/xray/process.go` | 给内核子进程注入 `XRAY_RATELIMIT_FILE` |
-| `patches/xray-ratelimit.patch` | 内核补丁（相对上游 v26.11.9 / `676eaf66f8f0`）；升级内核时重新打它 |
-| `internal/web/service/xray_ratelimit.go` | 生成 `ratelimit.json`（含 `XUI_RATELIMIT_ENABLE` 开关） |
-| `.github/workflows/release.yml` / `DockerInit.sh` | 拉上游内核源码 → `patch -p1` → 编译出带限速的 xray |
-| `docs/d3x-xray-ratelimit.md` | 内核补丁原理 + 升级内核步骤 |
-| `frontend/src/pages/inbounds/list/InboundClientsPanel.tsx` | 入站展开的客户表 |
-| `frontend/src/pages/clients/ClientEditModal.tsx` | 内嵌完整客户编辑弹窗 |
+| 文件                                                       | 作用                                                                                                                                                                        |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `internal/web/service/xray_ratelimit.go`                   | 生成 `ratelimit.json`（含 `XUI_RATELIMIT_ENABLE` 开关）                                                                                                                     |
+| `internal/web/service/client_speed_limit_test.go`          | 限速字段落库回归测试                                                                                                                                                        |
+| 补丁涉及的内核文件                                         | `app/dispatcher/ratelimit.go`（旁路文件 + 令牌桶）、`app/dispatcher/shaper.go`（方向整形器，P0 攻坚对象）、`app/dispatcher/default.go`（`Dispatch` / `WrapLink` 两处 hook） |
+| `internal/xray/process.go`                                 | 给内核子进程注入 `XRAY_RATELIMIT_FILE`                                                                                                                                      |
+| `patches/xray-ratelimit.patch`                             | 内核补丁（相对上游 v26.11.9 / `676eaf66f8f0`）；升级内核时重新打它                                                                                                          |
+| `internal/web/service/xray_ratelimit.go`                   | 生成 `ratelimit.json`（含 `XUI_RATELIMIT_ENABLE` 开关）                                                                                                                     |
+| `.github/workflows/release.yml` / `DockerInit.sh`          | 拉上游内核源码 → `patch -p1` → 编译出带限速的 xray                                                                                                                          |
+| `docs/d3x-xray-ratelimit.md`                               | 内核补丁原理 + 升级内核步骤                                                                                                                                                 |
+| `frontend/src/pages/inbounds/list/InboundClientsPanel.tsx` | 入站展开的客户表                                                                                                                                                            |
+| `frontend/src/pages/clients/ClientEditModal.tsx`           | 内嵌完整客户编辑弹窗                                                                                                                                                        |

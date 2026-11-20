@@ -17,12 +17,12 @@
 补丁文件：`patches/xray-ratelimit.patch`
 内核源码：`third_party/xray-core/`（开发用，发布时拉上游 tarball + 打补丁现场编译）
 
-| 文件 | 改动 |
-|---|---|
-| `app/dispatcher/ratelimit.go` | 新增。读取限速文件、维护每用户令牌桶 |
-| `app/dispatcher/shaper.go` | 新增。方向整形器：**先扣令牌、再直写**（见下方"两个致命教训"） |
-| `app/dispatcher/default.go` | 在 `Dispatch()` 与 `WrapLink()`（VLESS/Trojan 走这里）两处挂 hook |
-| `app/dispatcher/ratelimit_test.go` | 新增。文件加载、热更新、令牌桶速率/持续/超突发/多并发 6 个用例 |
+| 文件                               | 改动                                                              |
+| ---------------------------------- | ----------------------------------------------------------------- |
+| `app/dispatcher/ratelimit.go`      | 新增。读取限速文件、维护每用户令牌桶                              |
+| `app/dispatcher/shaper.go`         | 新增。方向整形器：**先扣令牌、再直写**（见下方"两个致命教训"）    |
+| `app/dispatcher/default.go`        | 在 `Dispatch()` 与 `WrapLink()`（VLESS/Trojan 走这里）两处挂 hook |
+| `app/dispatcher/ratelimit_test.go` | 新增。文件加载、热更新、令牌桶速率/持续/超突发/多并发 6 个用例    |
 
 ### 数据流
 
@@ -38,7 +38,7 @@
 `ratelimit.json` 格式（字节/秒，0 或缺省表示不限）：
 
 ```json
-{"users":{"alice@example.com":{"up":125000,"down":1000000}}}
+{ "users": { "alice@example.com": { "up": 125000, "down": 1000000 } } }
 ```
 
 ### 为什么用旁路文件，而不是写进 Xray 配置
