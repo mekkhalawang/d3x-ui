@@ -156,7 +156,10 @@ func (s *ArgoService) SaveConfig(cfg ArgoConfig) error {
 	if cfg.CdnAddress == "" {
 		cfg.CdnAddress = "www.visa.com.sg"
 	}
-	if cfg.QuickEnable {
+	if cfg.QuickEnable && cfg.QuickInboundId <= 0 {
+		return fmt.Errorf("select a WebSocket inbound")
+	}
+	if cfg.QuickInboundId > 0 {
 		if err := s.validateWSInbound(cfg.QuickInboundId); err != nil {
 			return err
 		}
@@ -165,10 +168,10 @@ func (s *ArgoService) SaveConfig(cfg ArgoConfig) error {
 		if strings.TrimSpace(cfg.NamedToken) == "" {
 			return fmt.Errorf("named tunnel needs a token from the Cloudflare Zero Trust dashboard")
 		}
-		if cfg.NamedInboundId > 0 {
-			if err := s.validateWSInbound(cfg.NamedInboundId); err != nil {
-				return err
-			}
+	}
+	if cfg.NamedInboundId > 0 {
+		if err := s.validateWSInbound(cfg.NamedInboundId); err != nil {
+			return err
 		}
 	}
 	// Reset discovered quick domain: a new config may point at another inbound.
@@ -194,15 +197,19 @@ func (s *ArgoService) validateWSInbound(inboundId int) error {
 	if err := database.GetDB().First(&inbound, inboundId).Error; err != nil {
 		return fmt.Errorf("inbound %d not found", inboundId)
 	}
+	name := strings.TrimSpace(inbound.Remark)
+	if name == "" {
+		name = fmt.Sprintf("#%d", inbound.Id)
+	}
 	var stream map[string]any
 	_ = json.Unmarshal([]byte(inbound.StreamSettings), &stream)
 	network, _ := stream["network"].(string)
 	if network != "ws" {
-		return fmt.Errorf("inbound '%s' uses %s transport; Argo needs WebSocket", inbound.Remark, network)
+		return fmt.Errorf("inbound '%s' uses %s transport; Argo needs WebSocket", name, network)
 	}
 	security, _ := stream["security"].(string)
 	if security == "tls" || security == "reality" {
-		return fmt.Errorf("inbound '%s' has %s enabled; turn it off, Cloudflare's edge terminates TLS", inbound.Remark, security)
+		return fmt.Errorf("inbound '%s' has %s enabled; turn it off, Cloudflare's edge terminates TLS", name, security)
 	}
 	return nil
 }
@@ -253,7 +260,10 @@ func (s *ArgoService) StopQuick() (ArgoStatus, error) {
 	cloudflared.GetManager().StopQuick()
 	cfg := s.GetConfig()
 	cfg.QuickEnable = false
-	return s.Status(), s.saveConfig(cfg)
+	if err := s.saveConfig(cfg); err != nil {
+		return ArgoStatus{}, err
+	}
+	return s.Status(), s.SyncHosts()
 }
 
 // StartNamed launches the token-mode tunnel.
@@ -279,7 +289,10 @@ func (s *ArgoService) StopNamed() (ArgoStatus, error) {
 	cloudflared.GetManager().StopNamed()
 	cfg := s.GetConfig()
 	cfg.NamedEnable = false
-	return s.Status(), s.saveConfig(cfg)
+	if err := s.saveConfig(cfg); err != nil {
+		return ArgoStatus{}, err
+	}
+	return s.Status(), s.SyncHosts()
 }
 
 // Reconcile nudges the runners toward what the settings say. The web layer
