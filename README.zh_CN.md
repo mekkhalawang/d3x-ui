@@ -1,77 +1,34 @@
-[English](/README.md) | [فارسی](/README.fa_IR.md) | [العربية](/README.ar_EG.md) | [中文](/README.zh_CN.md) | [Español](/README.es_ES.md) | [Русский](/README.ru_RU.md) | [Türkçe](/README.tr_TR.md)
+# D3X-UI
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./media/d3x-ui-dark.png">
-    <img alt="d3x-ui" src="./media/d3x-ui-light.png">
-  </picture>
-</p>
-
-<p align="center">
-  <a href="https://github.com/mekkhalawang/d3x-ui/releases"><img src="https://img.shields.io/github/v/release/mekkhalawang/d3x-ui" alt="Release"></a>
-  <a href="https://github.com/mekkhalawang/d3x-ui/actions"><img src="https://img.shields.io/github/actions/workflow/status/mekkhalawang/d3x-ui/release.yml.svg" alt="Build"></a>
-  <a href="#"><img src="https://img.shields.io/github/go-mod/go-version/mekkhalawang/d3x-ui.svg" alt="GO Version"></a>
-  <a href="https://github.com/mekkhalawang/d3x-ui/releases/latest"><img src="https://img.shields.io/github/downloads/mekkhalawang/d3x-ui/total.svg" alt="Downloads"></a>
-  <a href="https://www.gnu.org/licenses/gpl-3.0.en.html"><img src="https://img.shields.io/badge/license-GPL%20V3-blue.svg?longCache=true" alt="License"></a>
-  <a href="https://pkg.go.dev/github.com/mekkhalawang/d3x-ui/v3"><img src="https://pkg.go.dev/badge/github.com/mekkhalawang/d3x-ui/v3.svg" alt="Go Reference"></a>
-  <a href="https://github.com/mekkhalawang/d3x-ui#readme"><img src="https://img.shields.io/badge/docs-README-22d3ee" alt="Documentation"></a>
-</p>
-
-**D3X-UI** 是一个先进的开源 Web 控制面板，用于管理 [Xray-core](https://github.com/XTLS/Xray-core) 服务器。它提供简洁、多语言的界面，用于部署、配置和监控各种代理与 VPN 协议——从单台 VPS 到多节点部署。
-
-D3X-UI 作为原始 D3X-UI 项目的增强分支（fork），增加了更广泛的协议支持、更好的稳定性、按客户端的流量统计以及许多提升使用体验的功能。
+**D3X-UI** 是一个开源的 Xray 网络面板，用于部署、配置和监控多种代理协议——从单台 VPS 到多节点部署。项目基于 3x-ui v3.11.0 冻结二次开发，独立演进，面向多用户上网管理场景。
 
 > [!IMPORTANT]
-> 本项目仅供个人使用。请勿将其用于非法目的，也请勿在生产环境中使用。
+> 本项目仅供个人学习使用，请勿用于非法用途或生产环境。
 
 ## 功能特性
 
 - **多协议入站** — VLESS、VMess、Trojan、Shadowsocks、WireGuard、AmneziaWG、TUIC v5、Hysteria2、MTProto、HTTP、SOCKS (Mixed)、Dokodemo-door / Tunnel 和 TUN。
-- **现代传输与安全** — TCP (Raw)、mKCP、WebSocket、gRPC、HTTPUpgrade 和 XHTTP，并通过 TLS、XTLS 和 REALITY 加密。
-- **内置 AmneziaWG** — 抗 DPI 的 WireGuard 直接在面板内的用户态网络栈上运行，无需内核模块、DKMS 或额外软件包。
-- **内置 TUIC v5** — 基于 QUIC 的高性能代理，支持原生 UDP 中继流量统计、0-RTT 握手和 BBR 拥塞控制。
-- **MTProto 代理** — 按客户端配置 FakeTLS 密钥、广告标签和配额，实时生效且不会断开已有连接。
-- **回落 (Fallback)** — 通过 Xray 的 fallback 功能在单个端口上提供多种协议（例如在 443 端口上同时使用 VLESS 和 Trojan）。
-- **按客户端管理** — 流量配额、到期日期、可豁免受信任地址的 IP 限制、HWID 设备数限制、定时续期周期、实时在线状态，以及一键分享链接、二维码和订阅。
-- **按客户端限速** — 每个用户的上/下行速率上限（界面按 Mbps 设置），由内置的补丁版 Xray-core 执行；同一用户的多条并发连接共用一个令牌桶，开多条连接也无法突破限额。
+- **现代传输与安全** — TCP (Raw)、mKCP、WebSocket、gRPC、HTTPUpgrade、XHTTP，支持 TLS、XTLS、REALITY。
+- **按客户端限速** — 每个用户的上/下行速率上限（界面按 Mbps 设置），由内置补丁版 Xray-core 执行；同一用户的多条并发连接共用一个令牌桶，开多条连接也无法突破限额。
 - **内置 Argo（Cloudflare Tunnel）** — 临时隧道（随机 `*.trycloudflare.com` 域名）与固定隧道（Zero Trust Token 模式）全部在面板内管理：自动下载并守护 `cloudflared`、崩溃自动重启；分享链接自动生成 CDN 变体（优选 Cloudflare IP 作为连接地址、隧道域名作 Host/SNI、端口 8443/8880），覆盖每一个客户端。
-- **流量统计** — 按入站、按客户端、按出站统计，并支持重置控制。
-- **多节点支持** — 从单一面板管理并扩展到多台服务器，并可将入站克隆到其他节点。
-- **出站与路由** — WARP、NordVPN、PIA、自定义路由规则、支持均衡器间回退的负载均衡器，以及出站代理链。内置的 geosite 与 geoip 分类可直接在规则编辑器中浏览。
-- **内置订阅服务器** — 提供 raw、JSON 和 Clash 输出，可依据客户端 User-Agent 自动选择，并支持[自定义页面模板](docs/custom-subscription-templates.md)。
-- **Telegram 和 Discord 机器人**，用于远程监控和管理。
-- **RESTful API**，支持带作用域、可设置有效期的令牌，并提供面板内置的 API 参考文档。
-- **可安装面板 (PWA)** — 将 D3X-UI 固定到桌面或手机主屏幕。
-- **灵活的存储** — SQLite（默认）或 PostgreSQL。
-- **14 种界面语言**，支持深色和浅色主题。
-- **Fail2ban 集成**，用于强制执行按客户端的 IP 限制。
-
-## 截图
-
-<details>
-<summary>点击展开</summary>
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./media/01-overview-dark.png">
-  <img alt="Overview" src="./media/01-overview-light.png">
-</picture>
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./media/02-add-inbound-dark.png">
-  <img alt="Inbounds" src="./media/02-add-inbound-light.png">
-</picture>
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./media/03-add-client-dark.png">
-  <img alt="Add client" src="./media/03-add-client-light.png">
-</picture>
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./media/05-add-nodes-dark.png">
-  <img alt="Configs" src="./media/05-add-nodes-light.png">
-</picture>
-
-</details>
+- **一键 Argo 节点** — 入站页一键创建完整 Argo 节点：选临时/固定隧道、填域名与 Token、回源端口留空自动分配，创建入站、生成客户端、绑定隧道、启动并输出用户链接一步到位。
+- **一键自签证书** — 入站安全设置中按 SNI 域名一键生成自签证书（CN+SAN=SNI），适配自签 + 任意域名的部署场景；Hysteria2 支持"允许不安全"，分享链接自动携带 `insecure=1` / Clash `skip-cert-verify`。
+- **入站内嵌客户管理** — 入站行内展开客户表：启用开关、到期时间、流量、限速、删除，添加/编辑客户复用完整表单，无需跳转页面。
+- **AmneziaWG 内置** — 抗 DPI 的 WireGuard 以内置用户态网络栈运行在面板内，无需内核模块、DKMS 或额外依赖。
+- **原生 TUIC v5 服务** — 进程内 Go QUIC 服务，对接 Xray 路由与按客户端流量统计，服务端支持 BBR 与 New Reno。
+- **MTProto 代理** — 按客户端的 FakeTLS 密钥、广告标签与配额，热更新不掉线。
+- **Fallback（回落）** — 借助 Xray fallback 在单端口上服务多种协议（例如 443 端口同时跑 VLESS 和 Trojan）。
+- **按客户端管理** — 流量配额、到期日期、IP 限制（受信任地址豁免）、HWID 设备数限制、定时续期、实时在线状态，一键分享链接、二维码与订阅。
+- **流量统计** — 按入站、按客户端、按出站统计，支持重置。
+- **多节点管理** — 从单一面板管理多台服务器，支持入站克隆到其他节点。
+- **出站与路由** — WARP、NordVPN、PIA、自定义路由规则、负载均衡（支持 balancer 回退）、出站链式代理；内置 geosite / geoip 分类可在规则编辑器中浏览。
+- **内置订阅服务** — raw、JSON、Clash 输出，按客户端 User-Agent 自动选择，支持[自定义订阅页面模板](docs/custom-subscription-templates.md)。
+- **Telegram 与 Discord 机器人** 远程监控与管理。
+- **RESTful API** — 支持作用域与过期时间的 API Token，面板内置 API 文档。
+- **可安装面板（PWA）** — 可固定到桌面或手机主屏。
+- **灵活存储** — SQLite（默认）或 PostgreSQL。
+- **14 种界面语言**，暗色 / 亮色主题。
+- **Fail2ban 集成**，用于按客户端 IP 限制的强制执行。
 
 ## 快速开始
 
@@ -79,157 +36,76 @@ D3X-UI 作为原始 D3X-UI 项目的增强分支（fork），增加了更广泛�
 bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh)
 ```
 
-若要安装特定版本，请在命令后附加对应的标签（例如 `v3.7.0`）：
+安装指定版本，追加 tag（例如 `v3.11.0-d3.1`）：
 
 ```bash
 bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh) v3.11.0-d3.1
 ```
 
-若要安装滚动更新的 **dev** 版本（来自 `main` 的最新逐次提交预发布版本，而非稳定版本），请传入 `dev-latest`：
+安装滚动 **dev** 构建（`main` 分支每次提交的最新预发布，非稳定版）：
 
 ```bash
 bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh) dev-latest
 ```
 
-安装过程中会生成随机的用户名、密码和访问路径。安装完成后，运行 `d3x-ui` 打开管理菜单，您可以在其中启动/停止服务、查看或重置登录凭据、管理 SSL 证书等。
+安装过程会生成随机的用户名、密码与访问路径。安装完成后运行 `d3x-ui` 打开管理菜单，可启停服务、查看或重置登录凭据、管理 SSL 证书等。
 
-每个发布资源都会在其旁边附带一个 `.sha256` 校验和。`install.sh` 和更新程序都会据此校验压缩包，不匹配时中止。
-
-完整文档（安装、配置、运维以及完整的 API 参考）请访问 **[README](https://github.com/mekkhalawang/d3x-ui#readme/zh)**。
+每个发布产物均附带 `.sha256` 校验文件，`install.sh` 与更新器都会校验后再继续。
 
 ### 无人值守安装
 
-安装程序也可以**非交互式**运行，适用于 cloud-init。
-设置 `XUI_NONINTERACTIVE=1`（或在无 TTY 的情况下通过管道传入），它就会全程
-零提示地完成端到端安装，生成随机凭据并写入
-`/etc/d3x-ui/install-result.env`。请参阅 [`deploy/`](deploy/)：
+安装器支持 **非交互** 运行（适用于 cloud-init）。设置 `XUI_NONINTERACTIVE=1`（或无 TTY 管道输入）即可零提示完成安装，随机凭据写入 `/etc/d3x-ui/install-result.env`。参见 [`deploy/`](deploy/)：
 
-- [Cloud-init user-data](deploy/cloud-init/) — 在任意云平台上无人值守安装（Hetzner/AWS/DO/Vultr/GCP/Azure/Oracle）
-- [Hetzner Cloud 说明](deploy/marketplace/hetzner/) — 在 Hetzner 上基于 cloud-init 的部署
+- [Cloud-init user-data](deploy/cloud-init/) — 在任意云上无人值守安装（Hetzner/AWS/DO/Vultr/GCP/Azure/Oracle）
+- [Hetzner Cloud 说明](deploy/marketplace/hetzner/)
 
-## 支持的平台
+## 支持平台
 
-**操作系统：** Ubuntu、Debian、Armbian、Fedora、CentOS、RHEL、AlmaLinux、Rocky Linux、Oracle Linux、Amazon Linux、Virtuozzo、Arch、Manjaro、Parch、openSUSE (Tumbleweed / Leap)、Alpine 和 Windows。
+**操作系统：** Ubuntu、Debian、Armbian、Fedora、CentOS、RHEL、AlmaLinux、Rocky Linux、Oracle Linux、Amazon Linux、Virtuozzo、Arch、Manjaro、Parch、openSUSE（Tumbleweed / Leap）、Alpine 与 Windows。
 
 **架构：** `amd64` · `386` · `arm64` (aarch64) · `armv7` · `armv6` · `armv5` · `s390x`。
 
 ## 数据库选项
 
-D3X-UI 支持两种后端，可在安装时选择：
+- **SQLite**（默认）— 单文件 `/etc/d3x-ui/d3x-ui.db`，零配置，适合中小规模部署。
+- **PostgreSQL** — 适合大规模部署与集中管理。
 
-- **SQLite**（默认）— 位于 `/etc/d3x-ui/d3x-ui.db` 的单个文件。无需配置，适合中小型部署。
-- **PostgreSQL** — 推荐用于大量客户端或多节点设置。安装程序可以为您在本地安装 PostgreSQL，或接受指向现有服务器的 DSN。
+运行时通过环境变量选择后端（安装程序会写入 `/etc/default/d3x-ui`）：
 
-运行时通过环境变量选择后端（安装程序会为您写入 `/etc/default/d3x-ui`）：
-
-```
+```bash
 XUI_DB_TYPE=postgres
 XUI_DB_DSN=postgres://xui:password@127.0.0.1:5432/xui?sslmode=disable
 ```
 
-### 将现有的 SQLite 安装迁移到 PostgreSQL
+迁移已有 SQLite 数据到 PostgreSQL：
 
 ```bash
 d3x-ui migrate-db --dsn "postgres://xui:password@127.0.0.1:5432/xui?sslmode=disable"
-# 然后在 /etc/default/d3x-ui 中设置 XUI_DB_TYPE 和 XUI_DB_DSN 并重启：
+# 然后设置 XUI_DB_TYPE 与 XUI_DB_DSN 并重启：
 systemctl restart d3x-ui
 ```
 
-源 SQLite 文件保持不变；在确认新后端正常工作后，请手动删除它。
-
 ### Docker
 
-默认的 `docker compose up -d` 仍使用 SQLite。若要使用捆绑的 PostgreSQL 服务运行，请取消注释 `docker-compose.yml` 中的两行 `XUI_DB_*` 环境变量，并使用该 profile 启动：
-
-```bash
-docker compose --profile postgres up -d
-```
-
-该镜像捆绑了 Fail2ban（默认启用），用于强制执行按客户端的 **IP 限制**。Fail2ban 使用 `iptables` 封禁违规者，这需要 `NET_ADMIN` 权限。`docker-compose.yml` 已通过 `cap_add` 授予该权限；如果您改用 `docker run` 启动容器，请自行添加这些权限，否则封禁只会被记录而永远不会生效：
-
-```bash
-docker run -d --cap-add=NET_ADMIN --cap-add=NET_RAW ... ghcr.io/mekkhalawang/d3x-ui
-```
+默认 `docker compose up -d` 使用 SQLite；如需 PostgreSQL，取消注释 `docker-compose.yml` 中的 `XUI_DB_*` 两行并以对应 profile 启动。镜像发布于 `ghcr.io/mekkhalawang/d3x-ui`。
 
 ## 环境变量
 
-| 变量                         | 说明                                                                                                                             | 默认值                                     |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
-| `XUI_DB_TYPE`                | 数据库后端：`sqlite` 或 `postgres`                                                                                               | `sqlite`                                   |
-| `XUI_DB_DSN`                 | PostgreSQL 连接字符串（当 `XUI_DB_TYPE=postgres` 时）                                                                            | —                                          |
-| `XUI_DB_FOLDER`              | SQLite 数据库文件所在目录                                                                                                        | `/etc/d3x-ui`                              |
-| `XUI_DB_MAX_OPEN_CONNS`      | 最大打开连接数（PostgreSQL 连接池）                                                                                              | —                                          |
-| `XUI_DB_MAX_IDLE_CONNS`      | 最大空闲连接数（PostgreSQL 连接池）                                                                                              | —                                          |
-| `XUI_INIT_WEB_BASE_PATH`     | Web 面板的初始 URI 路径                                                                                                          | `/`                                        |
-| `XUI_ENABLE_FAIL2BAN`        | 启用基于 Fail2ban 的 IP 限制                                                                                                     | `true`                                     |
-| `XUI_LOG_LEVEL`              | 日志级别（`debug`、`info`、`warning`、`error`）                                                                                  | `info`                                     |
-| `XUI_DEBUG`                  | 启用调试模式                                                                                                                     | `false`                                    |
-| `XUI_TUNNEL_HEALTH_MONITOR`  | 启用隧道健康监控（探测某个 URL，在连续多次失败后重启 xray；重启会断开所有客户端）                                                | `false`                                    |
-| `XUI_TUNNEL_HEALTH_PROXY`    | 探测请求所经过的代理；将其指向本地 xray 入站，使探测能够测试隧道（例如 `socks5://127.0.0.1:1080`）。留空表示探测仅检查主机连通性 | —                                          |
-| `XUI_TUNNEL_HEALTH_URL`      | 用于检测隧道健康状况的探测 URL                                                                                                   | `https://www.cloudflare.com/cdn-cgi/trace` |
-| `XUI_TUNNEL_HEALTH_INTERVAL` | 两次探测之间的间隔                                                                                                               | `30s`                                      |
-| `XUI_TUNNEL_HEALTH_TIMEOUT`  | 单次探测的超时时间                                                                                                               | `10s`                                      |
-| `XUI_TUNNEL_HEALTH_FAILURES` | 触发重启前的连续失败次数                                                                                                         | `3`                                        |
-| `XUI_TUNNEL_HEALTH_COOLDOWN` | 两次连续重启之间的最小间隔                                                                                                       | `5m`                                       |
-| `XUI_RATELIMIT_ENABLE`       | 开启按客户端限速（面板写出限额表，由补丁版内核执行）                                                                             | `false`                                    |
-| `XUI_CLOUDFLARED_PATH`       | 使用已安装的 `cloudflared` 二进制，而不是自动下载                                                                                | —                                          |
-| `NODE_TOKEN_ENCRYPTION`      | 节点 API 令牌的静态加密：`off`、`migration` 或 `required`（注意：无 `XUI_` 前缀）                                                | `off`                                      |
-| `XUI_NODE_TOKEN_KEY_FILE`    | JSON 密钥环（权限 `0600`），包含活动密钥 ID 及其 base64 编码的 32 字节密钥                                                       | `/etc/d3x-ui/node_token_key.json`          |
-| `XUI_NODE_TOKEN_KEY`         | 单个 base64 编码的 32 字节密钥，仅在无法加载密钥文件时使用                                                                       | —                                          |
+| 变量 | 说明 | 默认值 |
+|---|---|---|
+| `XUI_DB_TYPE` | 数据库后端：`sqlite` 或 `postgres` | `sqlite` |
+| `XUI_DB_DSN` | PostgreSQL 连接串（`XUI_DB_TYPE=postgres` 时） | — |
+| `XUI_DB_FOLDER` | SQLite 数据库文件目录 | `/etc/d3x-ui` |
+| `XUI_INIT_WEB_BASE_PATH` | Web 面板初始 URI 路径 | `/` |
+| `XUI_ENABLE_FAIL2BAN` | 启用基于 Fail2ban 的 IP 限制执行 | `true` |
+| `XUI_LOG_LEVEL` | 日志级别（`debug`、`info`、`warning`、`error`） | `info` |
+| `XUI_DEBUG` | 启用调试模式 | `false` |
+| `XUI_RATELIMIT_ENABLE` | 开启按客户端限速（面板写出限额表，由补丁版内核执行） | `false` |
+| `XUI_CLOUDFLARED_PATH` | 使用已安装的 `cloudflared` 二进制，而不是自动下载 | — |
+| `XUI_TUNNEL_HEALTH_MONITOR` | 启用隧道健康监控（探测某 URL，连续失败后重启 xray） | `false` |
 
-完整列表请参阅[环境变量参考](https://github.com/mekkhalawang/d3x-ui#readme/zh/docs/reference/env-vars)。
+完整列表参见[环境变量参考](https://github.com/mekkhalawang/d3x-ui#readme/docs/reference/env-vars)。
 
-## 支持的语言
+## 许可证
 
-面板界面提供 14 种语言：
-
-English · فارسی · العربية · 中文（简体） · 中文（繁體） · Español · Русский · Українська · Türkçe · Tiếng Việt · 日本語 · Bahasa Indonesia · Português (Brasil) · Slovenčina
-
-## 贡献
-
-欢迎贡献。在提交 issue 或 pull request 之前，请阅读[贡献指南](/CONTRIBUTING.md)。
-
-## 特别感谢
-
-- [alireza0](https://github.com/alireza0/)
-
-## 致谢
-
-- [Iran v2ray rules](https://github.com/chocolate4u/Iran-v2ray-rules) (许可证: **GPL-3.0**): _增强的 v2ray/xray 和 v2ray/xray-clients 路由规则，内置伊朗域名，专注于安全性和广告拦截。_
-- [Russia v2ray rules](https://github.com/runetfreedom/russia-v2ray-rules-dat) (许可证: **GPL-3.0**): _此仓库包含基于俄罗斯被阻止域名和地址数据自动更新的 V2Ray 路由规则。_
-
-## 社区工具
-
-社区围绕 d3x-ui 构建的工具和集成。
-
-- [terraform-provider-d3x-ui](https://github.com/batonogov/terraform-provider-threexui) (许可证: **MIT**): _使用 Terraform / OpenTofu 通过代码管理入站、客户端、面板设置和 Xray 配置。_
-- [D3X-UI Manager](https://github.com/yukh975/D3X-UI-Manager) (许可证: **MIT**): _d3x-ui 的原生 Android 客户端 — 仪表板、入站、带二维码分享的客户端、节点以及多面板管理。可在 F-Droid 获取。_
-
-## 支持项目
-
-**如果这个项目对您有帮助，您可以给它一个**:star2:
-
-<a href="https://github.com/mekkhalawang/d3x-ui" target="_blank">
-<img src="./media/default-yellow.png" alt="Buy Me A Coffee" style="height: 70px !important;width: 277px !important;" >
-</a>
-
-</br>
-<a href="https://nowpayments.io/donation/hsanaei" target="_blank" rel="noreferrer noopener">
-   <img src="./media/donation-button-black.svg" alt="Crypto donation button by NOWPayments">
-</a>
-
-## 星标历史
-
-<a href="https://www.star-history.com/?repos=mhsanaei%2Fd3x-ui&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=mekkhalawang/d3x-ui&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=mekkhalawang/d3x-ui&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=mekkhalawang/d3x-ui&type=date&legend=top-left" />
- </picture>
-</a>
-
-<p align="center">
- <a href="https://www.star-history.com/mekkhalawang/d3x-ui">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=mekkhalawang/d3x-ui&type=rank&theme=dark" /><source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=mekkhalawang/d3x-ui&type=rank" /><img alt="Star History Rank" src="https://api.star-history.com/badge?repo=mekkhalawang/d3x-ui&type=rank" /></picture> <picture><source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=mekkhalawang/d3x-ui&type=trending&theme=dark" /><source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=mekkhalawang/d3x-ui&type=trending" /><img alt="GitHub Trending Repository of the Day" src="https://api.star-history.com/badge?repo=mekkhalawang/d3x-ui&type=trending" /></picture>
- </a>
-</p>
+GPL-3.0
