@@ -59,9 +59,16 @@
 
 **安全阀**：面板侧写 `ratelimit.json` 需要 `XUI_RATELIMIT_ENABLE=1`；未开启时文件里是空 `users`。内核端已验证，可以开。
 
-#### P1：argo 接入面板（新，调研已完成）
+#### P1：argo 接入面板 —— MVP 已落地（2026-11-20，commit 3b1f1c64）
 
-调研结论见 `docs/x-ui-yg-argo-analysis.md`（要点：x-ui-yg 的 argo **不在面板里**，全在 SSH 脚本 install.sh；面板二进制闭源但 strings 零 argo 命中，无需逆向）。借鉴它的两个精髓：双隧道（quick `--url` + named `run --token`）共存；分享链接 = 优选 IP 入口 + 隧道域名作 Host/SNI + CF 端口 8880/8443。落地方案（4.x 节有文件清单）：`internal/argo/`（cloudflared 下载/校验/进程 supervisor）、DB 持久化隧道配置、面板新增 Argo 页、`internal/sub/` 为**每个 client** 生成 Argo 链接（不要学 x-ui-yg 只导 clients[0]）。
+调研结论见 `docs/x-ui-yg-argo-analysis.md`（要点：x-ui-yg 的 argo 不在面板里，全在 SSH 脚本；它的分享链接精髓 = 优选 IP 入口 + 隧道域名作 Host/SNI + 8880/8443）。已实现：
+- `internal/cloudflared/`：quick（随机 trycloudflare.com，域名从启动日志抓）+ named（token 模式）双隧道监督进程，按需下载官方二进制、崩溃退避重启、日志尾窗。
+- `internal/web/service/argo.go` + `controller/argo.go`：配置存 Setting、`/panel/api/argo/*`（status/config/启停/links）、入站校验（WS + 关 TLS）。
+- **分享链接走既有 Host 机制**：隧道活跃时自动 upsert Host 行（add=优选 IP、host/sni=隧道域、8443 wss + 8880 ws）→ 订阅/二维码里每个 client 自动多出 Argo 变体（不像 x-ui-yg 只导 clients[0]）。
+- 前端 `/argo` 页：双隧道卡片、配置表单、按用户列链接、日志尾窗；14 语言文案已同步（i18n 键对齐测试强制）。
+- 30s 对账 job：按设置启停隧道、同步 Host 行。
+
+**待办**：① 真机验证（要 CF 账号：quick 隧道试跑 + named token 跑通，确认域名抓取与链接可用）；② macOS 二进制下载未做（用 `XUI_CLOUDFLARED_PATH` 兜底）；③ 多条 named 隧道/hostname→入站映射表（现在一条 named）；④ 与发布链路（P2）一起在 VPS 上验收。
 
 #### P1b：客户端页实时速度
 
