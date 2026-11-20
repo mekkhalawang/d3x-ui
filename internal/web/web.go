@@ -304,6 +304,7 @@ const (
 	cadenceXrayRestart   = "@every 30s"
 	cadenceXrayTraffic   = "@every 5s"
 	cadenceMtproto       = "@every 10s"
+	cadenceArgo          = "@every 30s"
 	cadenceAmneziaWG     = "@every 10s"
 	cadenceTuic          = "@every 10s"
 	cadenceClientIPScan  = "@every 10s"
@@ -346,6 +347,10 @@ func (s *Server) startTask(restartXray bool, loc *time.Location) {
 	mtJob := job.NewMtprotoJob()
 	_, _ = s.cron.AddJob(cadenceMtproto, mtJob)
 	go mtJob.Run()
+
+	argoJob := job.NewArgoJob()
+	_, _ = s.cron.AddJob(cadenceArgo, argoJob)
+	go argoJob.Run()
 
 	// Reconcile embedded AmneziaWG interfaces; traffic rides Xray's own stats
 	awgJob := job.NewAmneziaWGJob()

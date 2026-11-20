@@ -204,6 +204,17 @@ var defaultValueMap = map[string]string{
 	"externalTrafficInformURI":    "",
 	"restartXrayOnClientDisable":  "true",
 	"xrayOutboundTestUrl":         "https://www.google.com/generate_204",
+	// Argo (Cloudflare Tunnel) integration. Quick tunnels get a random
+	// *.trycloudflare.com host per start; named tunnels are token-mode ones
+	// created in the Zero Trust dashboard.
+	"argoQuickEnable":    "false",
+	"argoQuickInboundId": "0",
+	"argoQuickDomain":    "",
+	"argoNamedEnable":    "false",
+	"argoNamedToken":     "",
+	"argoNamedDomain":    "",
+	"argoNamedInboundId": "0",
+	"argoCdnAddress":     "www.visa.com.sg",
 	"panelOutbound":               "",
 	"devChannelEnable":            "false",
 
