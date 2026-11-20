@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   Col,
+  ConfigProvider,
   Form,
   Input,
   Layout,
@@ -26,10 +27,11 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 
+import { useTheme } from '@/hooks/useTheme';
 import { useInboundOptions } from '@/api/queries/useInboundOptions';
+import AppSidebar from '@/layouts/AppSidebar';
 import { HttpUtil } from '@/utils';
 
-const { Content } = Layout;
 const { Text, Paragraph } = Typography;
 
 interface ArgoConfig {
@@ -136,6 +138,8 @@ function TunnelCard({
 export default function ArgoPage() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { isDark, isUltra, antdThemeConfig } = useTheme();
+  const [messageApi, messageContextHolder] = message.useMessage();
   const [form] = Form.useForm();
   const [saving, setSaving] = useState(false);
   const [linksInboundId, setLinksInboundId] = useState<number | null>(null);
@@ -170,11 +174,11 @@ export default function ArgoPage() {
     async (path: string) => {
       const msg = await HttpUtil.post(`/panel/api/argo/${path}`);
       if (msg?.success) {
-        message.success(msg.msg);
+        messageApi.success(msg.msg);
       }
       refresh();
     },
-    [refresh],
+    [refresh, messageApi],
   );
 
   const saveConfig = useCallback(async () => {
@@ -193,13 +197,13 @@ export default function ArgoPage() {
       };
       const msg = await HttpUtil.post('/panel/api/argo/config', cfg);
       if (msg?.success) {
-        message.success(msg.msg);
+        messageApi.success(msg.msg);
       }
       refresh();
     } finally {
       setSaving(false);
     }
-  }, [form, status, refresh]);
+  }, [form, status, refresh, messageApi]);
 
   const loadLinks = useCallback(async (inboundId: number) => {
     setLinksInboundId(inboundId);
@@ -216,160 +220,170 @@ export default function ArgoPage() {
     }`,
   }));
 
+  const pageClass = ['argo-page', isDark && 'is-dark', isUltra && 'is-ultra']
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <Layout style={{ minHeight: '100vh', background: 'transparent' }}>
-      <Content style={{ padding: 24 }}>
-        <Space direction="vertical" size="large" style={{ width: '100%' }}>
-          <Typography.Title level={4} style={{ marginTop: 0 }}>
-            <CloudOutlined aria-hidden /> {t('pages.argotunnel.title')}
-          </Typography.Title>
-          <Alert
-            type="info"
-            showIcon
-            message={t('pages.argotunnel.hint')}
-            description={t('pages.argotunnel.hintDetail')}
-          />
-
-          {statusQuery.isLoading ? (
-            <Spin />
-          ) : (
-            <Row gutter={[16, 16]}>
-              <Col xs={24} lg={12}>
-                <TunnelCard
-                  title={t('pages.argotunnel.quick')}
-                  status={status!.quick}
-                  domain={status!.config.quickDomain}
-                  onStart={() => action('quick/start')}
-                  onStop={() => action('quick/stop')}
-                  extra={
-                    <Text type="secondary">
-                      {t('pages.argotunnel.quickDesc')}
-                      {status!.version ? ` · cloudflared ${status!.version}` : ''}
-                    </Text>
-                  }
-                />
-              </Col>
-              <Col xs={24} lg={12}>
-                <TunnelCard
-                  title={t('pages.argotunnel.named')}
-                  status={status!.named}
-                  domain={status!.config.namedDomain}
-                  onStart={() => action('named/start')}
-                  onStop={() => action('named/stop')}
-                  extra={<Text type="secondary">{t('pages.argotunnel.namedDesc')}</Text>}
-                />
-              </Col>
-            </Row>
-          )}
-
-          <Card title={t('pages.argotunnel.config')}>
-            <Form form={form} layout="vertical" onFinish={saveConfig}>
-              <Row gutter={[16, 0]}>
-                <Col xs={24} md={12}>
-                  <Form.Item
-                    name="cdnAddress"
-                    label={t('pages.argotunnel.cdnAddress')}
-                    tooltip={t('pages.argotunnel.cdnAddressTip')}
-                  >
-                    <Input placeholder="www.visa.com.sg" />
-                  </Form.Item>
-                  <Form.Item
-                    name="quickInboundId"
-                    label={t('pages.argotunnel.quickInbound')}
-                    tooltip={t('pages.argotunnel.inboundTip')}
-                  >
-                    <Select
-                      allowClear
-                      placeholder={t('pages.argotunnel.selectInbound')}
-                      options={inboundSelectOptions}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} md={12}>
-                  <Form.Item
-                    name="namedToken"
-                    label={t('pages.argotunnel.namedToken')}
-                    tooltip={t('pages.argotunnel.namedTokenTip')}
-                  >
-                    <Input.Password placeholder="eyJ..." />
-                  </Form.Item>
-                  <Form.Item name="namedDomain" label={t('pages.argotunnel.namedDomain')}>
-                    <Input placeholder="proxy.example.com" />
-                  </Form.Item>
-                  <Form.Item name="namedInboundId" label={t('pages.argotunnel.namedInbound')}>
-                    <Select
-                      allowClear
-                      placeholder={t('pages.argotunnel.selectInbound')}
-                      options={inboundSelectOptions}
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Space>
-                <Button type="primary" htmlType="submit" loading={saving}>
-                  {t('pages.argotunnel.save')}
-                </Button>
-                <Button icon={<ReloadOutlined aria-hidden />} onClick={refresh}>
-                  {t('pages.argotunnel.refresh')}
-                </Button>
-              </Space>
-            </Form>
-          </Card>
-
-          <Card
-            title={t('pages.argotunnel.links')}
-            extra={
-              <Select
-                aria-label={t('pages.argotunnel.selectInbound')}
-                style={{ minWidth: 260 }}
-                placeholder={t('pages.argotunnel.selectInbound')}
-                value={linksInboundId ?? undefined}
-                onChange={loadLinks}
-                options={inboundSelectOptions}
+    <ConfigProvider theme={antdThemeConfig}>
+      {messageContextHolder}
+      <Layout className={pageClass}>
+        <AppSidebar />
+        <Layout className="content-shell">
+          <Layout.Content id="content-layout" className="content-area">
+            <Space direction="vertical" size="large" style={{ width: '100%' }}>
+              <Typography.Title level={4} style={{ marginTop: 0 }}>
+                <CloudOutlined aria-hidden /> {t('pages.argotunnel.title')}
+              </Typography.Title>
+              <Alert
+                type="info"
+                showIcon
+                message={t('pages.argotunnel.hint')}
+                description={t('pages.argotunnel.hintDetail')}
               />
-            }
-          >
-            {clientLinks.length === 0 ? (
-              <Paragraph type="secondary">{t('pages.argotunnel.linksEmpty')}</Paragraph>
-            ) : (
-              <List
-                dataSource={clientLinks}
-                renderItem={(item) => (
-                  <List.Item>
-                    <List.Item.Meta
-                      title={item.email}
-                      description={
-                        <Space direction="vertical" style={{ width: '100%' }}>
-                          {item.links.map((link) => (
-                            <Paragraph
-                              key={link}
-                              copyable={{
-                                text: link,
-                                icon: [<CopyOutlined key="c" aria-hidden />],
-                              }}
-                              style={{ marginBottom: 0, fontFamily: 'monospace', fontSize: 12 }}
-                            >
-                              {link}
-                            </Paragraph>
-                          ))}
-                        </Space>
+
+              {statusQuery.isLoading ? (
+                <Spin />
+              ) : (
+                <Row gutter={[16, 16]}>
+                  <Col xs={24} lg={12}>
+                    <TunnelCard
+                      title={t('pages.argotunnel.quick')}
+                      status={status!.quick}
+                      domain={status!.config.quickDomain}
+                      onStart={() => action('quick/start')}
+                      onStop={() => action('quick/stop')}
+                      extra={
+                        <Text type="secondary">
+                          {t('pages.argotunnel.quickDesc')}
+                          {status!.version ? ` · cloudflared ${status!.version}` : ''}
+                        </Text>
                       }
                     />
-                  </List.Item>
-                )}
-              />
-            )}
-          </Card>
+                  </Col>
+                  <Col xs={24} lg={12}>
+                    <TunnelCard
+                      title={t('pages.argotunnel.named')}
+                      status={status!.named}
+                      domain={status!.config.namedDomain}
+                      onStart={() => action('named/start')}
+                      onStop={() => action('named/stop')}
+                      extra={<Text type="secondary">{t('pages.argotunnel.namedDesc')}</Text>}
+                    />
+                  </Col>
+                </Row>
+              )}
 
-          {status?.quick.log?.length || status?.named.log?.length ? (
-            <Card title={t('pages.argotunnel.logs')}>
-              <pre style={{ maxHeight: 260, overflow: 'auto', fontSize: 12, margin: 0 }}>
-                {[...(status?.quick.log ?? []), ...(status?.named.log ?? [])].join('\n')}
-              </pre>
-            </Card>
-          ) : null}
-        </Space>
-      </Content>
-    </Layout>
+              <Card title={t('pages.argotunnel.config')}>
+                <Form form={form} layout="vertical" onFinish={saveConfig}>
+                  <Row gutter={[16, 0]}>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        name="cdnAddress"
+                        label={t('pages.argotunnel.cdnAddress')}
+                        tooltip={t('pages.argotunnel.cdnAddressTip')}
+                      >
+                        <Input placeholder="www.visa.com.sg" />
+                      </Form.Item>
+                      <Form.Item
+                        name="quickInboundId"
+                        label={t('pages.argotunnel.quickInbound')}
+                        tooltip={t('pages.argotunnel.inboundTip')}
+                      >
+                        <Select
+                          allowClear
+                          placeholder={t('pages.argotunnel.selectInbound')}
+                          options={inboundSelectOptions}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Form.Item
+                        name="namedToken"
+                        label={t('pages.argotunnel.namedToken')}
+                        tooltip={t('pages.argotunnel.namedTokenTip')}
+                      >
+                        <Input.Password placeholder="eyJ..." />
+                      </Form.Item>
+                      <Form.Item name="namedDomain" label={t('pages.argotunnel.namedDomain')}>
+                        <Input placeholder="proxy.example.com" />
+                      </Form.Item>
+                      <Form.Item name="namedInboundId" label={t('pages.argotunnel.namedInbound')}>
+                        <Select
+                          allowClear
+                          placeholder={t('pages.argotunnel.selectInbound')}
+                          options={inboundSelectOptions}
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Space>
+                    <Button type="primary" htmlType="submit" loading={saving}>
+                      {t('pages.argotunnel.save')}
+                    </Button>
+                    <Button icon={<ReloadOutlined aria-hidden />} onClick={refresh}>
+                      {t('pages.argotunnel.refresh')}
+                    </Button>
+                  </Space>
+                </Form>
+              </Card>
+
+              <Card
+                title={t('pages.argotunnel.links')}
+                extra={
+                  <Select
+                    aria-label={t('pages.argotunnel.selectInbound')}
+                    style={{ minWidth: 260 }}
+                    placeholder={t('pages.argotunnel.selectInbound')}
+                    value={linksInboundId ?? undefined}
+                    onChange={loadLinks}
+                    options={inboundSelectOptions}
+                  />
+                }
+              >
+                {clientLinks.length === 0 ? (
+                  <Paragraph type="secondary">{t('pages.argotunnel.linksEmpty')}</Paragraph>
+                ) : (
+                  <List
+                    dataSource={clientLinks}
+                    renderItem={(item) => (
+                      <List.Item>
+                        <List.Item.Meta
+                          title={item.email}
+                          description={
+                            <Space direction="vertical" style={{ width: '100%' }}>
+                              {item.links.map((link) => (
+                                <Paragraph
+                                  key={link}
+                                  copyable={{
+                                    text: link,
+                                    icon: [<CopyOutlined key="c" aria-hidden />],
+                                  }}
+                                  style={{ marginBottom: 0, fontFamily: 'monospace', fontSize: 12 }}
+                                >
+                                  {link}
+                                </Paragraph>
+                              ))}
+                            </Space>
+                          }
+                        />
+                      </List.Item>
+                    )}
+                  />
+                )}
+              </Card>
+
+              {status?.quick.log?.length || status?.named.log?.length ? (
+                <Card title={t('pages.argotunnel.logs')}>
+                  <pre style={{ maxHeight: 260, overflow: 'auto', fontSize: 12, margin: 0 }}>
+                    {[...(status?.quick.log ?? []), ...(status?.named.log ?? [])].join('\n')}
+                  </pre>
+                </Card>
+              ) : null}
+            </Space>
+          </Layout.Content>
+        </Layout>
+      </Layout>
+    </ConfigProvider>
   );
 }
