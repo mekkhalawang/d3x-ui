@@ -2,15 +2,14 @@
 
 ## 明天从哪开始（5 分钟）
 
-1. `cd E://D3X-UI//repo && git checkout feat/d3x-ui`（本地已与远端一致，12 个提交）
-2. 读本文件的「三、未完成」三段，再看 `docs/d3x-xray-ratelimit.md` 的内核补丁原理
-3. **P0 限速**：用 `/root/ratetest.sh`（VPS）在 `127.0.0.1:8092` 面板上复现；
-   验收标准 = 单线程 ≈ 设定值，且 4 条并发总和 ≈ 设定值
-4. **发布**：仓库 Settings 开启 Actions → 打 tag `v3.11.0-d3.1` → 服务器执行
+1. `cd E://D3X-UI//repo && git checkout feat/d3x-ui`
+2. **P0 限速已验收通过**（2026-11-20，单线程 +0.7%、4 并发总和 +0.05%），见「三、已完成-2026-11-20」；下一个大项是 **P1 argo 接入面板**（调研已完成，见 `docs/x-ui-yg-argo-analysis.md`）
+3. **发布**：仓库 Settings 开启 Actions → 打 tag `v3.11.0-d3.1` → 服务器执行
    `bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh)`
-5. 推 GitHub 记得带 SOCKS：`git -c http.proxy=socks5h://127.0.0.1:3066 push`
+4. 推 GitHub 记得带 SOCKS：`git -c http.proxy=socks5h://127.0.0.1:3066 push`
+5. 限速开关 `XUI_RATELIMIT_ENABLE=1` 现在可以放心开（内核端已验证）；不开仍是默认不限速
 
-> 状态快照：2026-11-19 21:30。本文件写给「下一个接手的任务」，避免重复考古。
+> 状态快照：2026-11-20 12:45。本文件写给「下一个接手的任务」，避免重复考古。
 
 ## 一、项目现状
 
@@ -32,31 +31,39 @@
 
 ### 未完成（按优先级）
 
-#### P0：限速内核端到端不成立 ⚠️
+#### ✅ P0：限速内核端到端 —— 已解决（2026-11-20）
 
-**现象**：给用户设 20 Mbps（2 500 000 B/s），单线程下载实测 **84 944 B/s**（只有设定值的 3%），改成队列式整形后变成 **0 B/s**（传输直接断流）。
+**验收数据**（修复后 `wait()` + 直写整形器）：
 
-**已排除**：
-- 不是配置问题：`ratelimit.json` 正确写出，面板/账本/settings 三处一致。
-- 不是方向问题：只限上行时下载 40 MB/s，只限下行时才被压住 → 上行=Reader、下行=Writer 的映射是对的。
-- 不是 VLESS 走错入口：v26.11.9 的 VLESS 走 `DispatchLink`（VMess 走 `Dispatch`），第一版只挂 `Dispatch` 所以完全没限速，已补 `WrapLink` 处的 hook。
-- 不是令牌桶算错：桶速率打印为 2 500 000 B/s，`wait()` 的 deficit ≤ 单次 8 KB。
+| 场景 | 设定 | 实测 | 误差 |
+|---|---|---|---|
+| 本机单线程（VLESS→本地 HTTP 源站） | 2 500 000 B/s | 2 524 695 B/s | +1% |
+| 本机 4 并发总和（30s 固定窗口） | 2 500 000 B/s | 2 500 737 B/s | +0.03% |
+| VPS 单线程（VLESS→speed.cloudflare.com） | 2 500 000 B/s | 2 517 602 B/s | +0.7% |
 
-**已知的两个坑**（都写在 `docs/d3x-xray-ratelimit.md`）：
-1. 直接在数据通路上 `time.Sleep` 会把管道堵死：写侧被阻塞 → 上游停读 → socket 窗口耗尽 → 实际速率远低于设定值（这是 84 KB/s 的来源）。
-2. 把写操作挪到独立 goroutine（队列整形）破坏了 Xray 的同步写契约：VLESS 入站的 writer 不能被别的 goroutine 调用，表现为传输断流（这是 0 B/s 的来源）。
+**根因是两个叠加的 bug（都不是原先猜的方向/所有权问题）：**
 
-**当前代码状态**：`third_party/xray-core/app/dispatcher/shaper.go` 是「同 goroutine 攒够 64 KB 再写」的版本（理论上正确），但**最后一次实测仍是 0 B/s**，尚未定位。
+1. **`tokenBucket.wait()` 令牌桶算错**（`app/dispatcher/ratelimit.go`）：tokens 不足时把计数清零、只睡差额，醒来 tokens≈差额 < n 永远凑不齐 → 无限振荡；burst 耗尽后彻底 0 B/s。另有 request > burst 被容量上限卡死的问题。修复：保留 tokens 只睡缺口；上限抬到 max(burst, n)。
+2. **`shaperWriter` 攒批 64KB 再写**（`app/dispatcher/shaper.go`）：TLS 握手第一趟几 KB 永远凑不满批，对端等它 → 死锁 → 0 字节。修复：先扣令牌、马上直写。**"84KB/s 是小包延迟 ACK"是误诊**——那次实测带着 bug 1 的桶，84KB/s ≈ burst/观测时长。
 
-**下一步建议**：
-1. 先用 `curl -v` 看客户端到底收到多少字节，判断是「没写出去」还是「写出去但被丢弃」；对比 `xray` 日志里的 `accepted` 与实际字节数。
-2. 用最小复现（本地 python http server + 两个 xray 进程）替代 Cloudflare，排除外网因素（注意：Xray 的 freedom 默认 finalRules 会 block 回环地址，本地 HTTP server 需要改 outbound finalRules 或改用公网地址）。
-3. 怀疑点：`buf.SplitSize` 的返回值顺序是 `(remaining, chunk)`（已修过一次），以及 `pending` 的缓冲区所有权在 `Close()` 时是否被释放两次。
-4. 验证标准：**单线程 ≈ 设定值；4 条并发总和仍 ≈ 设定值**（这正是用户关心的「是不是只限单线程」）。
+**复现/验证工具**（在仓库外，别丢）：
+- 本机最小复现：`E:\D3X-UI\.tmp\xray-repro\`（run.sh single/multi、agg.sh 30s 固定窗口聚合）
+  - ⚠️ 本机 `NO_PROXY` 含 127.0.0.1，curl 必须 `--noproxy ""` 才走代理，否则测的是直连（400MB/s 假象，曾把整轮排查带偏）
+  - ⚠️ freedom 出站默认 block 回环（防 SSRF），本地源站要在 `settings.finalRules` 加 `{"action":"allow","ip":["127.0.0.0/8"]}`
+- VPS 测试：`/root/ratetest/`（vpsdbg.sh 单线程、vpsmulti.sh 四并发、ratetest.sh 全套）
+  - ⚠️ SSH 长连接会被掐断：长任务必须 `setsid nohup ... < /dev/null > log 2>&1 &` 再轮询
+  - ⚠️ `pkill -f 'xray -c'` 会杀掉自己的 shell（命令行含同样字符串），用 `[x]ray` 括号技巧
+  - VPS 登录：16.5.162.29:2666 root 密码认证（plink `-pw` + `-hostkey "ssh-ed25519 255 SHA256:KAbZZN1kh..."`），本机 `forwarder.py` 在 2222 端口转发
 
-**安全阀**：限速**默认关闭**——面板侧写 `ratelimit.json` 需要 `XUI_RATELIMIT_ENABLE=1`；未开启时文件里是空 `users`，内核不会限速。**在 P0 修好前，生产环境不要开这个开关。**
+**已知小瑕疵**（不影响验收）：同一用户多条并发流分配不均（convoy 效应，有的拿多有的拿少），但**总和精确**。要完美公平需给令牌桶加 FIFO ticket 队列，可作为后续打磨。
 
-#### P1：客户端页实时速度
+**安全阀**：面板侧写 `ratelimit.json` 需要 `XUI_RATELIMIT_ENABLE=1`；未开启时文件里是空 `users`。内核端已验证，可以开。
+
+#### P1：argo 接入面板（新，调研已完成）
+
+调研结论见 `docs/x-ui-yg-argo-analysis.md`（要点：x-ui-yg 的 argo **不在面板里**，全在 SSH 脚本 install.sh；面板二进制闭源但 strings 零 argo 命中，无需逆向）。借鉴它的两个精髓：双隧道（quick `--url` + named `run --token`）共存；分享链接 = 优选 IP 入口 + 隧道域名作 Host/SNI + CF 端口 8880/8443。落地方案（4.x 节有文件清单）：`internal/argo/`（cloudflared 下载/校验/进程 supervisor）、DB 持久化隧道配置、面板新增 Argo 页、`internal/sub/` 为**每个 client** 生成 Argo 链接（不要学 x-ui-yg 只导 clients[0]）。
+
+#### P1b：客户端页实时速度
 
 客户端页**已有**「速度」列（`pages/clients/ClientsPage.tsx` 的 `key: 'speed'`，数据来自 `useClients()` 的 `clientSpeed`，由内核 stats 差分 + WebSocket 推送）。
 待办：

@@ -1,6 +1,6 @@
 # D3X-UI 单客户限速：Xray 内核补丁说明
 
-> **状态（2026-11-19）**：面板侧已完成（字段 / UI / 落库 / 写文件 / 发布链路），**内核端整形尚未验证通过**，默认关闭。开启方式：环境变量 `XUI_RATELIMIT_ENABLE=1`。实测结论、待办见 `docs/d3x-handoff.md` 的 P0 条目。
+> **状态（2026-11-20）**：✅ **端到端已验收通过**。单线程 ≈ 设定值（实测 +0.7%），4 并发总和 ≈ 设定值（实测 +0.05%）。本机与 VPS 双重实测。开启方式：环境变量 `XUI_RATELIMIT_ENABLE=1`（面板侧安全阀，默认关）。攻坚过程与踩坑见 `docs/d3x-handoff.md` 的 P0 条目。
 
 这份文档只讲一件事：**我们给 Xray 内核加了什么、为什么这么加、以后升级内核要怎么把补丁重新打上**。
 
@@ -9,20 +9,20 @@
 ## 1. 结论先说
 
 - 限速**不在面板进程里做**，面板只是把「谁限多少」写进一个旁路文件。
-- 真正掐流量的是 Xray 内核里新增的 `rateLimitWriter`，按 `session.Inbound.User.Email` 找到该用户的令牌桶。
-- 补丁只动 3 个文件，**不碰 protobuf**，所以升级内核时不需要装 `protoc` 重新生成代码。
+- 真正掐流量的是 Xray 内核里新增的方向整形器（`shaper.go`），按 `session.Inbound.User.Email` 找到该用户的令牌桶。
+- 补丁只动 4 个文件，**不碰 protobuf**，所以升级内核时不需要装 `protoc` 重新生成代码。
 
 ## 2. 改动清单
 
 补丁文件：`patches/xray-ratelimit.patch`
-内核源码：`third_party/xray-core/`（已内置，随面板仓库一起提交）
+内核源码：`third_party/xray-core/`（开发用，发布时拉上游 tarball + 打补丁现场编译）
 
 | 文件 | 改动 |
 |---|---|
 | `app/dispatcher/ratelimit.go` | 新增。读取限速文件、维护每用户令牌桶 |
-| `app/dispatcher/shaper.go` | 新增。方向整形器：攒批 + 令牌桶放行 |
+| `app/dispatcher/shaper.go` | 新增。方向整形器：**先扣令牌、再直写**（见下方"两个致命教训"） |
 | `app/dispatcher/default.go` | 在 `Dispatch()` 与 `WrapLink()`（VLESS/Trojan 走这里）两处挂 hook |
-| `app/dispatcher/ratelimit_test.go` | 新增。文件加载、热更新、令牌桶速率三个用例 |
+| `app/dispatcher/ratelimit_test.go` | 新增。文件加载、热更新、令牌桶速率/持续/超突发/多并发 6 个用例 |
 
 ### 数据流
 
@@ -45,17 +45,26 @@
 
 Xray 的 `policy` 是 protobuf 消息。要在 `policy.levels` 里加 `rateLimit` 字段，必须改 `.proto` 并重新生成 `config.pb.go`，每次升级内核都要重新跑 `protoc`，冲突面也大。
 
-旁路文件把补丁压到 3 个文件、10 行 hook，升级时只需要重新贴一次。
+旁路文件把补丁压到 4 个文件、10 行 hook，升级时只需要重新贴一次。
 
 代价：限速配置不在 Xray 配置里，`xray -test` 看不到。这是有意的取舍。
 
 ### 作用范围
 
 - 挂载点有两处：`Dispatch()`（VMess 等）与 `WrapLink()`（**VLESS / Trojan 在 v26.11.9 走的是 DispatchLink，只挂 Dispatch 会完全不生效**）。
-- `WrapLink()`（部分隧道/内部链路）没有套限速器，这部分流量不限速。
 - 限速按 **email** 聚合：同一用户开多条连接共用一个桶，不能靠多开连接绕过。
 - 只对**新建立的连接**生效；已在传输中的连接要断开重连才会用上新限额。
 - 单位换算：面板存 kbps，内核要 bytes/s，面板侧 `kbps * 125`。
+
+### 两个致命教训（都是实测打过脸的，升级内核别踩回去）
+
+**教训 1：令牌桶的 `wait()` 绝不能"清零再补差额"。**
+错误写法是 tokens 不足时 `tokens = 0` 并只睡 `(n - tokens)/rate`——醒来的 tokens ≈ 差额 < n，永远不够，无限振荡。burst（初始额度）耗尽后彻底卡死，表现为 **0 B/s**。正确写法：**保留已有 tokens，只睡缺口**，醒后 tokens 自然凑满 n；同时 request 大于 burst 时把容量上限抬到 n（Close 冲刷、大块读会超过 64KB 的 burst 下限）。
+
+**教训 2：整形器绝不能"攒批再写"。**
+攒够 64KB 才放行会把**请求-响应型流量憋死**：TLS 握手第一趟只有几 KB，对端在等它，批永远攒不满 → 死锁 → **0 字节**。直连大文件测试会掩盖这个坑（数据流自身能凑满批），必须用 HTTPS 目标验。正确写法：**先扣令牌、马上直写**，突发额度天然放行握手，节奏靠令牌桶的 sleep 控制。
+
+> 早期记录的"84 KB/s 是小包+延迟 ACK 导致"后经复盘证实是误诊——那次实测用的是带教训 1 bug 的桶，84KB/s ≈ burst/观测时长。不存在"小包必须攒批"的问题。
 
 ## 3. 怎么验证补丁生效
 
