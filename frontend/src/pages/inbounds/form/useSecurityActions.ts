@@ -373,9 +373,44 @@ export function useSecurityActions({
     }
   };
 
+  /*
+   * genSelfSignedCert mints a self-signed pair for the SNI typed into the
+   * security tab and fills the certificate row's content fields. The SNI is
+   * required: a cert without a name is useless, so the user must fill it in
+   * first. Writes content mode (useFile=false) since the PEM lives in the form.
+   */
+  const genSelfSignedCert = async (index: number) => {
+    const sni = (
+      (getValues('streamSettings.tlsSettings.serverName') as string | undefined) ?? ''
+    ).trim();
+    if (!sni) {
+      messageApi.warning(t('pages.inbounds.form.selfSignedSniRequired'));
+      return;
+    }
+    setSaving(true);
+    try {
+      const msg = await HttpUtil.get(
+        `/panel/api/server/getNewSelfSignedCert?sni=${encodeURIComponent(sni)}`,
+      );
+      if (msg?.success) {
+        const obj = msg.obj as { certificate: string; key: string };
+        setValue(`streamSettings.tlsSettings.certificates.${index}.useFile`, false);
+        setValue(
+          `streamSettings.tlsSettings.certificates.${index}.certificate`,
+          obj.certificate.split('\n'),
+        );
+        setValue(`streamSettings.tlsSettings.certificates.${index}.key`, obj.key.split('\n'));
+        messageApi.success(t('pages.inbounds.form.selfSignedGenerated'));
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return {
     genRealityKeypair,
     clearRealityKeypair,
+    genSelfSignedCert,
     genMldsa65,
     clearMldsa65,
     scanRealityTarget,

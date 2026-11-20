@@ -359,6 +359,7 @@ export default function InboundFormModal({
     pinFromRemote,
     setCertFromPanel,
     clearCertFiles,
+    genSelfSignedCert,
     onSecurityChange,
   } = useSecurityActions({
     methods,
@@ -1091,6 +1092,7 @@ export default function InboundFormModal({
           saving={saving}
           setCertFromPanel={setCertFromPanel}
           clearCertFiles={clearCertFiles}
+          genSelfSignedCert={genSelfSignedCert}
           pinFromCert={pinFromCert}
           pinFromRemote={pinFromRemote}
           getNewEchCert={getNewEchCert}

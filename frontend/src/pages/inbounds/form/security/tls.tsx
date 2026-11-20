@@ -44,6 +44,7 @@ interface TlsFormProps {
   saving: boolean;
   setCertFromPanel: (certName: number) => void;
   clearCertFiles: (certName: number) => void;
+  genSelfSignedCert: (index: number) => void;
   pinFromCert: () => void;
   pinFromRemote: () => void;
   getNewEchCert: () => void;
@@ -57,6 +58,7 @@ interface CertRowProps {
   onRemove: () => void;
   setCertFromPanel: (certName: number) => void;
   clearCertFiles: (certName: number) => void;
+  genSelfSignedCert: (index: number) => void;
 }
 
 function CertRow({
@@ -66,6 +68,7 @@ function CertRow({
   onRemove,
   setCertFromPanel,
   clearCertFiles,
+  genSelfSignedCert,
 }: CertRowProps) {
   const { t } = useTranslation();
   const { control } = useFormContext();
@@ -88,6 +91,11 @@ function CertRow({
           <Radio.Button value={false}>{t('pages.inbounds.certificateContent')}</Radio.Button>
         </Radio.Group>
       </FormField>
+      <Form.Item label=" ">
+        <Button size="small" loading={saving} onClick={() => genSelfSignedCert(index)}>
+          {t('pages.inbounds.genSelfSigned')}
+        </Button>
+      </Form.Item>
       {total > 1 && (
         <Form.Item label=" ">
           <Button size="small" danger onClick={onRemove}>
@@ -314,6 +322,7 @@ export default function TlsForm({
   saving,
   setCertFromPanel,
   clearCertFiles,
+  genSelfSignedCert,
   pinFromCert,
   pinFromRemote,
   getNewEchCert,
@@ -457,6 +466,7 @@ export default function TlsForm({
           onRemove={() => remove(idx)}
           setCertFromPanel={setCertFromPanel}
           clearCertFiles={clearCertFiles}
+          genSelfSignedCert={genSelfSignedCert}
         />
       ))}
       <FormField

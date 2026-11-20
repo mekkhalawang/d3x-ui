@@ -46,6 +46,7 @@ function renderTls(defaultValues?: Record<string, unknown>) {
       <TlsForm
         saving={false}
         setCertFromPanel={noop}
+        genSelfSignedCert={() => {}}
         clearCertFiles={noop}
         pinFromCert={noop}
         pinFromRemote={noop}

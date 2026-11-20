@@ -85,6 +85,7 @@ describe('inbound security forms', () => {
       <TlsForm
         saving={false}
         setCertFromPanel={noop}
+        genSelfSignedCert={() => {}}
         clearCertFiles={noop}
         pinFromCert={noop}
         pinFromRemote={noop}

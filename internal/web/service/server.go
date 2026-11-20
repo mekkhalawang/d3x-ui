@@ -6,8 +6,12 @@ import (
 	"bytes"
 	"cmp"
 	"context"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 	"crypto/sha256"
 	"crypto/x509"
+	"crypto/x509/pkix"
 	"encoding/hex"
 	"encoding/json"
 	"encoding/pem"
@@ -16,6 +20,7 @@ import (
 	"io"
 	"maps"
 	"math"
+	"math/big"
 	"mime/multipart"
 	stdnet "net"
 	"net/http"
@@ -2688,6 +2693,46 @@ func (s *ServerService) GetNewX25519Cert() (any, error) {
 	}
 
 	return keyPair, nil
+}
+
+// GetSelfSignedCert mints a self-signed TLS certificate whose CN and SAN match
+// sni, for inbounds that front a domain with a self-signed pair (clients then
+// turn on allow-insecure / skip-cert-verify). Returns PEM strings ready to fill
+// the inbound form's certificate fields.
+func (s *ServerService) GetSelfSignedCert(sni string) (any, error) {
+	sni = strings.TrimSpace(sni)
+	if sni == "" {
+		return nil, common.NewError("sni is required to generate a self-signed certificate")
+	}
+	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		return nil, err
+	}
+	serial, err := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
+	if err != nil {
+		return nil, err
+	}
+	tmpl := &x509.Certificate{
+		SerialNumber: serial,
+		Subject:      pkix.Name{CommonName: sni},
+		NotBefore:    time.Now().Add(-time.Hour),
+		NotAfter:     time.Now().AddDate(10, 0, 0),
+		KeyUsage:     x509.KeyUsageDigitalSignature,
+		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		DNSNames:     []string{sni},
+	}
+	der, err := x509.CreateCertificate(rand.Reader, tmpl, tmpl, &priv.PublicKey, priv)
+	if err != nil {
+		return nil, err
+	}
+	keyDER, err := x509.MarshalPKCS8PrivateKey(priv)
+	if err != nil {
+		return nil, err
+	}
+	return map[string]any{
+		"certificate": string(pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: der})),
+		"key":         string(pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: keyDER})),
+	}, nil
 }
 
 func (s *ServerService) GetNewmldsa65() (*MLDSA65Response, error) {
