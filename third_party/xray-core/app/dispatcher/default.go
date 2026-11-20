@@ -2,6 +2,8 @@ package dispatcher
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -205,6 +207,14 @@ func WrapLink(ctx context.Context, policyManager policy.Manager, statsManager st
 	}
 
 	link.Reader = &buf.TimeoutWrapperReader{Reader: link.Reader}
+
+	if os.Getenv("XRAY_RATELIMIT_DEBUG") != "" {
+		e := "<nil>"
+		if user != nil {
+			e = user.Email
+		}
+		fmt.Fprintf(os.Stderr, "D3XDEBUG wraplink email=%q\n", e)
+	}
 
 	if user != nil && len(user.Email) > 0 {
 		p := policyManager.ForLevel(user.Level)

@@ -10,39 +10,28 @@ import (
 // shaperWriter paces one direction of a link.
 //
 // The write stays on the producer's goroutine — Xray's link writers are not
-// safe to call from another goroutine — but the bytes are batched before the
-// write. Handing the target 8 KiB at a time makes it emit tiny TLS records and
-// the peer's delayed ACK stalls every one of them, which caps the link far
-// below the configured rate. Batching keeps the record size natural.
+// safe to call from another goroutine. The bucket is charged first, then the
+// buffers go straight through in their natural size.
 //
-// The producer still stalls while the bucket refills, but only once per batch,
-// and the socket buffers absorb the difference.
+// Earlier revisions batched data until 64 KiB had accumulated. That deadlocks
+// request/response flows: the TLS handshake's first flight is a few KiB, the
+// peer blocks waiting for it, and the batch never fills, so nothing moves at
+// all. The initial burst covers handshakes, and the pacing sleep between
+// chunks is what throttles the bulk transfer.
 type shaperWriter struct {
-	target  buf.Writer
-	limit   *tokenBucket
-	pending buf.MultiBuffer
+	target buf.Writer
+	limit  *tokenBucket
 }
-
-// shaperBatchBytes is the release granularity.
-const shaperBatchBytes = 64 * 1024
 
 func newShaperWriter(target buf.Writer, limit *tokenBucket) *shaperWriter {
 	return &shaperWriter{target: target, limit: limit}
 }
 
 func (s *shaperWriter) WriteMultiBuffer(mb buf.MultiBuffer) error {
-	s.pending = append(s.pending, mb...)
-	for int32(s.pending.Len()) >= shaperBatchBytes {
-		// SplitSize returns (remaining, chunk).
-		rest, chunk := buf.SplitSize(s.pending, shaperBatchBytes)
-		s.pending = rest
-		s.limit.wait(int(chunk.Len()))
-		if err := s.target.WriteMultiBuffer(chunk); err != nil {
-			buf.ReleaseMulti(rest)
-			return err
-		}
+	if n := int(mb.Len()); n > 0 {
+		s.limit.wait(n)
 	}
-	return nil
+	return s.target.WriteMultiBuffer(mb)
 }
 
 func (s *shaperWriter) Interrupt() {
@@ -50,14 +39,6 @@ func (s *shaperWriter) Interrupt() {
 }
 
 func (s *shaperWriter) Close() error {
-	if s.pending.Len() > 0 {
-		s.limit.wait(int(s.pending.Len()))
-		pending := s.pending
-		s.pending = nil
-		if err := s.target.WriteMultiBuffer(pending); err != nil {
-			return err
-		}
-	}
 	return common.Close(s.target)
 }
 

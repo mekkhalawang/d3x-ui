@@ -1,6 +1,16 @@
---- a/app/dispatcher/default.go
-+++ b/app/dispatcher/default.go
-@@ -182,6 +182,16 @@
+diff -ruN a/app/dispatcher/default.go b/app/dispatcher/default.go
+--- a/app/dispatcher/default.go	2026-11-20 12:01:41.599200800 +0800
++++ b/app/dispatcher/default.go	2026-11-20 12:34:23.795988400 +0800
+@@ -2,6 +2,8 @@
+ 
+ import (
+ 	"context"
++	"fmt"
++	"os"
+ 	"strings"
+ 	"sync"
+ 	"time"
+@@ -182,6 +184,16 @@
  		if p.Stats.UserOnline {
  			trackOnlineIP(ctx, d.stats, user.Email, sessionInbound.Source.Address.String())
  		}
@@ -17,7 +27,22 @@
  	}
  
  	return inboundLink, outboundLink
-@@ -216,6 +226,18 @@
+@@ -196,6 +208,14 @@
+ 
+ 	link.Reader = &buf.TimeoutWrapperReader{Reader: link.Reader}
+ 
++	if os.Getenv("XRAY_RATELIMIT_DEBUG") != "" {
++		e := "<nil>"
++		if user != nil {
++			e = user.Email
++		}
++		fmt.Fprintf(os.Stderr, "D3XDEBUG wraplink email=%q\n", e)
++	}
++
+ 	if user != nil && len(user.Email) > 0 {
+ 		p := policyManager.ForLevel(user.Level)
+ 		if p.Stats.UserUplink {
+@@ -216,6 +236,18 @@
  		if p.Stats.UserOnline {
  			trackOnlineIP(ctx, statsManager, user.Email, sessionInbound.Source.Address.String())
  		}
@@ -36,9 +61,10 @@
  	}
  
  	return link
---- /dev/null
-+++ b/app/dispatcher/ratelimit.go
-@@ -0,0 +1,227 @@
+diff -ruN a/app/dispatcher/ratelimit.go b/app/dispatcher/ratelimit.go
+--- a/app/dispatcher/ratelimit.go	1970-01-01 08:00:00.000000000 +0800
++++ b/app/dispatcher/ratelimit.go	2026-11-20 12:34:23.864745100 +0800
+@@ -0,0 +1,240 @@
 +package dispatcher
 +
 +import (
@@ -98,7 +124,7 @@
 +// same user share one bucket, so a client cannot multiply its limit by opening
 +// more streams.
 +func (b *tokenBucket) wait(n int) {
-+	if n <= 0 {
++	if n <= 0 || b.rate <= 0 {
 +		return
 +	}
 +	for {
@@ -106,8 +132,15 @@
 +		now := time.Now()
 +		b.tokens += now.Sub(b.last).Seconds() * b.rate
 +		b.last = now
-+		if b.tokens > b.burst {
-+			b.tokens = b.burst
++		// The cap only bounds idle accumulation. A single request larger than
++		// the nominal burst (a Close() flush, a big upstream read) must still
++		// be grantable, so let the ceiling rise to n for that request.
++		ceiling := b.burst
++		if float64(n) > ceiling {
++			ceiling = float64(n)
++		}
++		if b.tokens > ceiling {
++			b.tokens = ceiling
 +		}
 +		if b.tokens >= float64(n) {
 +			b.tokens -= float64(n)
@@ -120,14 +153,13 @@
 +			b.mu.Unlock()
 +			return
 +		}
++		// Sleep exactly long enough for the ungranted remainder to accrue, and
++		// KEEP the tokens we already hold. The previous version zeroed the
++		// counter here and slept only (n - tokens)/rate, so it woke up with
++		// fewer than n tokens and oscillated forever — the "0 B/s once the
++		// burst runs out" bug.
 +		deficit := float64(n) - b.tokens
-+		b.tokens = 0
-+		b.bytes += int64(n)
-+		b.waits++
 +		b.mu.Unlock()
-+		if os.Getenv("XRAY_RATELIMIT_DEBUG") != "" && b.waits%1000 == 0 {
-+			fmt.Fprintf(os.Stderr, "D3XDEBUG waits=%d n=%d rate=%.0f\n", b.waits, n, b.rate)
-+		}
 +		time.Sleep(time.Duration(deficit / b.rate * float64(time.Second)))
 +	}
 +}
@@ -147,7 +179,11 @@
 +)
 +
 +func init() {
-+	if p := os.Getenv("XRAY_RATELIMIT_FILE"); p != "" {
++	p := os.Getenv("XRAY_RATELIMIT_FILE")
++	if os.Getenv("XRAY_RATELIMIT_DEBUG") != "" {
++		fmt.Fprintf(os.Stderr, "D3XDEBUG init XRAY_RATELIMIT_FILE=%q\n", p)
++	}
++	if p != "" {
 +		SetRateLimitFile(p)
 +	}
 +}
@@ -171,6 +207,9 @@
 +// mtime changes. It is called once per connection, not per packet.
 +func lookupRateLimit(email string) *userRateLimit {
 +	path := currentRateLimitFile()
++	if os.Getenv("XRAY_RATELIMIT_DEBUG") != "" {
++		fmt.Fprintf(os.Stderr, "D3XDEBUG lookup email=%q path=%q\n", email, path)
++	}
 +	if path == "" || email == "" {
 +		return nil
 +	}
@@ -266,107 +305,16 @@
 +func (w *rateLimitWriter) Close() error {
 +	return common.Close(w.writer)
 +}
---- /dev/null
-+++ b/app/dispatcher/shaper.go
-@@ -0,0 +1,90 @@
-+package dispatcher
-+
-+import (
-+	"os"
-+
-+	"github.com/xtls/xray-core/common"
-+	"github.com/xtls/xray-core/common/buf"
-+)
-+
-+// shaperWriter paces one direction of a link.
-+//
-+// The write stays on the producer's goroutine — Xray's link writers are not
-+// safe to call from another goroutine — but the bytes are batched before the
-+// write. Handing the target 8 KiB at a time makes it emit tiny TLS records and
-+// the peer's delayed ACK stalls every one of them, which caps the link far
-+// below the configured rate. Batching keeps the record size natural.
-+//
-+// The producer still stalls while the bucket refills, but only once per batch,
-+// and the socket buffers absorb the difference.
-+type shaperWriter struct {
-+	target  buf.Writer
-+	limit   *tokenBucket
-+	pending buf.MultiBuffer
-+}
-+
-+// shaperBatchBytes is the release granularity.
-+const shaperBatchBytes = 64 * 1024
-+
-+func newShaperWriter(target buf.Writer, limit *tokenBucket) *shaperWriter {
-+	return &shaperWriter{target: target, limit: limit}
-+}
-+
-+func (s *shaperWriter) WriteMultiBuffer(mb buf.MultiBuffer) error {
-+	s.pending = append(s.pending, mb...)
-+	for int32(s.pending.Len()) >= shaperBatchBytes {
-+		// SplitSize returns (remaining, chunk).
-+		rest, chunk := buf.SplitSize(s.pending, shaperBatchBytes)
-+		s.pending = rest
-+		s.limit.wait(int(chunk.Len()))
-+		if err := s.target.WriteMultiBuffer(chunk); err != nil {
-+			buf.ReleaseMulti(rest)
-+			return err
-+		}
-+	}
-+	return nil
-+}
-+
-+func (s *shaperWriter) Interrupt() {
-+	common.Interrupt(s.target)
-+}
-+
-+func (s *shaperWriter) Close() error {
-+	if s.pending.Len() > 0 {
-+		s.limit.wait(int(s.pending.Len()))
-+		pending := s.pending
-+		s.pending = nil
-+		if err := s.target.WriteMultiBuffer(pending); err != nil {
-+			return err
-+		}
-+	}
-+	return common.Close(s.target)
-+}
-+
-+// shaperReader paces the other direction. Uploads are small, so a blocking
-+// read is enough and avoids a second buffer queue.
-+type shaperReader struct {
-+	reader buf.Reader
-+	limit  *tokenBucket
-+}
-+
-+func newShaperReader(reader buf.Reader, limit *tokenBucket) *shaperReader {
-+	return &shaperReader{reader: reader, limit: limit}
-+}
-+
-+func (r *shaperReader) ReadMultiBuffer() (buf.MultiBuffer, error) {
-+	mb, err := r.reader.ReadMultiBuffer()
-+	if mb != nil {
-+		r.limit.wait(int(mb.Len()))
-+	}
-+	return mb, err
-+}
-+
-+func (r *shaperReader) Interrupt() {
-+	common.Interrupt(r.reader)
-+}
-+
-+// debugEnabled reports whether the limiter should print its counters.
-+func debugEnabled() bool {
-+	return os.Getenv("XRAY_RATELIMIT_DEBUG") != ""
-+}
---- /dev/null
-+++ b/app/dispatcher/ratelimit_test.go
-@@ -0,0 +1,74 @@
+diff -ruN a/app/dispatcher/ratelimit_test.go b/app/dispatcher/ratelimit_test.go
+--- a/app/dispatcher/ratelimit_test.go	1970-01-01 08:00:00.000000000 +0800
++++ b/app/dispatcher/ratelimit_test.go	2026-11-20 12:34:24.003249600 +0800
+@@ -0,0 +1,135 @@
 +package dispatcher
 +
 +import (
 +	"os"
 +	"path/filepath"
++	"sync"
 +	"testing"
 +	"time"
 +)
@@ -425,7 +373,7 @@
 +}
 +
 +func TestTokenBucketSpreadsLargeWrites(t *testing.T) {
-+	b := newTokenBucket(100000) // 100 kB/s
++	b := newTokenBucket("down", 100000) // 100 kB/s
 +	start := time.Now()
 +	b.wait(100000) // burst is 64 KiB, so ~360ms must be paid
 +	elapsed := time.Since(start)
@@ -435,4 +383,139 @@
 +	if elapsed > 2*time.Second {
 +		t.Fatalf("bucket too slow: %v", elapsed)
 +	}
++}
++
++// TestTokenBucketSustainedRate keeps asking for small chunks after the burst is
++// exhausted. The old bucket zeroed the token counter before sleeping only for
++// the deficit, so it woke up with (n - old_tokens) tokens — never enough for n —
++// and oscillated forever. That showed up as 0 B/s once the burst ran out.
++func TestTokenBucketSustainedRate(t *testing.T) {
++	b := newTokenBucket("down", 100000) // 100 kB/s, burst 64 KiB
++	start := time.Now()
++	for i := 0; i < 20; i++ {
++		b.wait(10000)
++	}
++	elapsed := time.Since(start)
++	// 200 kB at 100 kB/s ≈ 2s, minus the initial burst credit (~0.65s) → 1.35s.
++	if elapsed < 500*time.Millisecond {
++		t.Fatalf("200kB at 100kB/s finished too fast: %v", elapsed)
++	}
++	if elapsed > 5*time.Second {
++		t.Fatalf("200kB at 100kB/s took too long (stalling?): %v", elapsed)
++	}
++}
++
++// TestTokenBucketLargerThanBurst covers a single write bigger than the bucket
++// capacity (e.g. the flush in shaperWriter.Close or a big upstream read). The
++// token cap must not be able to strand a request below n forever.
++func TestTokenBucketLargerThanBurst(t *testing.T) {
++	b := newTokenBucket("down", 200000) // burst = max(50 kB, 64 KiB) = 64 KiB
++	start := time.Now()
++	b.wait(150000) // 150 kB > burst
++	elapsed := time.Since(start)
++	if elapsed > 3*time.Second {
++		t.Fatalf("wait larger than burst took too long: %v", elapsed)
++	}
++}
++
++// TestTokenBucketConcurrentSharesLimit opens 4 streams on one bucket. Total
++// throughput must stay near the configured rate — that is the acceptance
++// criterion for "4 concurrent connections still capped in aggregate".
++func TestTokenBucketConcurrentSharesLimit(t *testing.T) {
++	b := newTokenBucket("down", 200000) // 200 kB/s shared
++	start := time.Now()
++	var wg sync.WaitGroup
++	for i := 0; i < 4; i++ {
++		wg.Add(1)
++		go func() {
++			defer wg.Done()
++			for j := 0; j < 10; j++ {
++				b.wait(20000) // 200 kB total per stream, 800 kB combined
++			}
++		}()
++	}
++	wg.Wait()
++	elapsed := time.Since(start)
++	// 800 kB at 200 kB/s = 4s, minus burst credit 64 KiB ≈ 0.3s.
++	if elapsed < 2500*time.Millisecond {
++		t.Fatalf("4 streams leaked past the shared limit: %v", elapsed)
++	}
++	if elapsed > 10*time.Second {
++		t.Fatalf("4 streams starved: %v", elapsed)
++	}
++}
+diff -ruN a/app/dispatcher/shaper.go b/app/dispatcher/shaper.go
+--- a/app/dispatcher/shaper.go	1970-01-01 08:00:00.000000000 +0800
++++ b/app/dispatcher/shaper.go	2026-11-20 12:34:23.928204700 +0800
+@@ -0,0 +1,71 @@
++package dispatcher
++
++import (
++	"os"
++
++	"github.com/xtls/xray-core/common"
++	"github.com/xtls/xray-core/common/buf"
++)
++
++// shaperWriter paces one direction of a link.
++//
++// The write stays on the producer's goroutine — Xray's link writers are not
++// safe to call from another goroutine. The bucket is charged first, then the
++// buffers go straight through in their natural size.
++//
++// Earlier revisions batched data until 64 KiB had accumulated. That deadlocks
++// request/response flows: the TLS handshake's first flight is a few KiB, the
++// peer blocks waiting for it, and the batch never fills, so nothing moves at
++// all. The initial burst covers handshakes, and the pacing sleep between
++// chunks is what throttles the bulk transfer.
++type shaperWriter struct {
++	target buf.Writer
++	limit  *tokenBucket
++}
++
++func newShaperWriter(target buf.Writer, limit *tokenBucket) *shaperWriter {
++	return &shaperWriter{target: target, limit: limit}
++}
++
++func (s *shaperWriter) WriteMultiBuffer(mb buf.MultiBuffer) error {
++	if n := int(mb.Len()); n > 0 {
++		s.limit.wait(n)
++	}
++	return s.target.WriteMultiBuffer(mb)
++}
++
++func (s *shaperWriter) Interrupt() {
++	common.Interrupt(s.target)
++}
++
++func (s *shaperWriter) Close() error {
++	return common.Close(s.target)
++}
++
++// shaperReader paces the other direction. Uploads are small, so a blocking
++// read is enough and avoids a second buffer queue.
++type shaperReader struct {
++	reader buf.Reader
++	limit  *tokenBucket
++}
++
++func newShaperReader(reader buf.Reader, limit *tokenBucket) *shaperReader {
++	return &shaperReader{reader: reader, limit: limit}
++}
++
++func (r *shaperReader) ReadMultiBuffer() (buf.MultiBuffer, error) {
++	mb, err := r.reader.ReadMultiBuffer()
++	if mb != nil {
++		r.limit.wait(int(mb.Len()))
++	}
++	return mb, err
++}
++
++func (r *shaperReader) Interrupt() {
++	common.Interrupt(r.reader)
++}
++
++// debugEnabled reports whether the limiter should print its counters.
++func debugEnabled() bool {
++	return os.Getenv("XRAY_RATELIMIT_DEBUG") != ""
 +}

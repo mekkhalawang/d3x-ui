@@ -57,7 +57,7 @@ func newTokenBucket(label string, bytesPerSecond int64) *tokenBucket {
 // same user share one bucket, so a client cannot multiply its limit by opening
 // more streams.
 func (b *tokenBucket) wait(n int) {
-	if n <= 0 {
+	if n <= 0 || b.rate <= 0 {
 		return
 	}
 	for {
@@ -65,8 +65,15 @@ func (b *tokenBucket) wait(n int) {
 		now := time.Now()
 		b.tokens += now.Sub(b.last).Seconds() * b.rate
 		b.last = now
-		if b.tokens > b.burst {
-			b.tokens = b.burst
+		// The cap only bounds idle accumulation. A single request larger than
+		// the nominal burst (a Close() flush, a big upstream read) must still
+		// be grantable, so let the ceiling rise to n for that request.
+		ceiling := b.burst
+		if float64(n) > ceiling {
+			ceiling = float64(n)
+		}
+		if b.tokens > ceiling {
+			b.tokens = ceiling
 		}
 		if b.tokens >= float64(n) {
 			b.tokens -= float64(n)
@@ -79,14 +86,13 @@ func (b *tokenBucket) wait(n int) {
 			b.mu.Unlock()
 			return
 		}
+		// Sleep exactly long enough for the ungranted remainder to accrue, and
+		// KEEP the tokens we already hold. The previous version zeroed the
+		// counter here and slept only (n - tokens)/rate, so it woke up with
+		// fewer than n tokens and oscillated forever — the "0 B/s once the
+		// burst runs out" bug.
 		deficit := float64(n) - b.tokens
-		b.tokens = 0
-		b.bytes += int64(n)
-		b.waits++
 		b.mu.Unlock()
-		if os.Getenv("XRAY_RATELIMIT_DEBUG") != "" && b.waits%1000 == 0 {
-			fmt.Fprintf(os.Stderr, "D3XDEBUG waits=%d n=%d rate=%.0f\n", b.waits, n, b.rate)
-		}
 		time.Sleep(time.Duration(deficit / b.rate * float64(time.Second)))
 	}
 }
@@ -106,7 +112,11 @@ var (
 )
 
 func init() {
-	if p := os.Getenv("XRAY_RATELIMIT_FILE"); p != "" {
+	p := os.Getenv("XRAY_RATELIMIT_FILE")
+	if os.Getenv("XRAY_RATELIMIT_DEBUG") != "" {
+		fmt.Fprintf(os.Stderr, "D3XDEBUG init XRAY_RATELIMIT_FILE=%q\n", p)
+	}
+	if p != "" {
 		SetRateLimitFile(p)
 	}
 }
@@ -130,6 +140,9 @@ func currentRateLimitFile() string {
 // mtime changes. It is called once per connection, not per packet.
 func lookupRateLimit(email string) *userRateLimit {
 	path := currentRateLimitFile()
+	if os.Getenv("XRAY_RATELIMIT_DEBUG") != "" {
+		fmt.Fprintf(os.Stderr, "D3XDEBUG lookup email=%q path=%q\n", email, path)
+	}
 	if path == "" || email == "" {
 		return nil
 	}
