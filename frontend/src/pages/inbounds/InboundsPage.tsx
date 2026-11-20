@@ -49,6 +49,7 @@ import { useInbounds } from './useInbounds';
 import { InboundList } from './list';
 import { LazyMount } from '@/components/utility';
 const InboundFormModal = lazy(() => import('./form/InboundFormModal'));
+const ArgoNodeModal = lazy(() => import('./ArgoNodeModal'));
 const CloneInboundModal = lazy(() => import('./CloneInboundModal'));
 const InboundInfoModal = lazy(() => import('./info/InboundInfoModal'));
 const AttachClientsModal = lazy(() => import('./clients/AttachClientsModal'));
@@ -164,6 +165,7 @@ export default function InboundsPage() {
   const [infoOpen, setInfoOpen] = useState(false);
   const [infoDbInbound, setInfoDbInbound] = useState<DBInbound | null>(null);
   const [infoClientIndex, setInfoClientIndex] = useState(0);
+  const [argoOpen, setArgoOpen] = useState(false);
 
   const [attachOpen, setAttachOpen] = useState(false);
   const [attachSource, setAttachSource] = useState<DBInbound | null>(null);
@@ -800,6 +802,7 @@ export default function InboundsPage() {
                       onRefresh={refresh}
                       hosts={hosts}
                       onAddInbound={onAddInbound}
+                      onArgoCreate={() => setArgoOpen(true)}
                       onGeneralAction={onGeneralAction}
                       onRowAction={({ key, dbInbound }) =>
                         onRowAction({ key, dbInbound: dbInbound as unknown as DBInbound })
@@ -813,6 +816,9 @@ export default function InboundsPage() {
           </Layout.Content>
         </Layout>
 
+        <LazyMount when={argoOpen}>
+          <ArgoNodeModal open={argoOpen} onOpenChange={setArgoOpen} onCreated={refresh} />
+        </LazyMount>
         <LazyMount when={formOpen}>
           <InboundFormModal
             open={formOpen}

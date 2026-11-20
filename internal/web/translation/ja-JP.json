@@ -331,6 +331,7 @@
       "updatedAt": "更新",
       "resetTraffic": "トラフィックをリセット",
       "addInbound": "インバウンド追加",
+      "argoOneClick": "Argo node",
       "generalActions": "一般操作",
       "modifyInbound": "インバウンド修正",
       "deleteConfirmTitle": "インバウンド「{remark}」を削除しますか？",
@@ -2427,12 +2428,31 @@
       "links": "User links",
       "linksEmpty": "Pick an inbound to list each user's links (Argo variants included)",
       "logs": "cloudflared log",
+      "createNode": {
+        "title": "One-click Argo node",
+        "mode": "Tunnel kind",
+        "quickOption": "Quick tunnel (random trycloudflare.com domain)",
+        "namedOption": "Named tunnel (Cloudflare token)",
+        "quickDesc": "The panel downloads and supervises cloudflared; the domain appears in the Argo page once the tunnel is up.",
+        "domainRequired": "Enter the tunnel hostname",
+        "tokenRequired": "Paste the tunnel token",
+        "originPort": "Origin port",
+        "portTip": "The local port the tunnel forwards to. Leave empty to pick a random free port.",
+        "portPlaceholder": "Empty = random free port",
+        "note": "Creates a vless-ws inbound (TLS off, as Argo requires) with one client; share links gain both wss (TLS via Cloudflare) and plain ws variants.",
+        "created": "Argo node created",
+        "quickDomainHint": "The quick tunnel domain appears on the Argo page once cloudflared reports it.",
+        "done": "Done",
+        "cancel": "Cancel",
+        "submit": "Create"
+      },
       "toasts": {
         "save": "Argo configuration saved",
         "start": "Tunnel start requested",
         "stop": "Tunnel stopped",
         "syncHosts": "Share-link hosts synced",
-        "links": "User links"
+        "links": "User links",
+        "createNode": "Argo node created"
       }
     },
     "hosts": {

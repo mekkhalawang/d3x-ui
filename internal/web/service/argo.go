@@ -4,13 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
+	"net"
 	"strconv"
 	"strings"
+
+	"github.com/google/uuid"
 
 	"github.com/mekkhalawang/d3x-ui/v3/internal/cloudflared"
 	"github.com/mekkhalawang/d3x-ui/v3/internal/database"
 	"github.com/mekkhalawang/d3x-ui/v3/internal/database/model"
 	"github.com/mekkhalawang/d3x-ui/v3/internal/logger"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/random"
 )
 
 // ArgoConfig is the panel-side Argo tunnel configuration. Quick tunnels get a
@@ -408,4 +413,175 @@ func (s *ArgoService) ClientLinks(inboundId int, host string) ([]ArgoClientLinks
 		out = append(out, ArgoClientLinks{Email: email, Links: links})
 	}
 	return out, nil
+}
+
+// ArgoCreateNodeRequest is the one-click Argo node wizard input: pick a tunnel
+// kind, optionally pin the origin port (0 = random free port).
+type ArgoCreateNodeRequest struct {
+	Mode   string `json:"mode" form:"mode"`
+	Domain string `json:"domain" form:"domain"`
+	Token  string `json:"token" form:"token"`
+	Port   int    `json:"port" form:"port"`
+}
+
+// ArgoCreateNodeResult reports what the wizard built.
+type ArgoCreateNodeResult struct {
+	InboundId int      `json:"inboundId"`
+	Remark    string   `json:"remark"`
+	Port      int      `json:"port"`
+	Email     string   `json:"email"`
+	Uuid      string   `json:"uuid"`
+	WsPath    string   `json:"wsPath"`
+	Mode      string   `json:"mode"`
+	Domain    string   `json:"domain"`
+	Links     []string `json:"links"`
+}
+
+// pickFreePort honours the preferred port when it is free; otherwise it picks a
+// random port that is neither bound nor taken by another inbound.
+func pickFreePort(preferred int) (int, error) {
+	var used []int
+	if err := database.GetDB().Model(&model.Inbound{}).Pluck("port", &used).Error; err != nil {
+		return 0, err
+	}
+	taken := make(map[int]bool, len(used))
+	for _, p := range used {
+		taken[p] = true
+	}
+	free := func(p int) bool {
+		if p <= 0 || p > 65535 || taken[p] {
+			return false
+		}
+		ln, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", p))
+		if err != nil {
+			return false
+		}
+		_ = ln.Close()
+		return true
+	}
+	if preferred > 0 {
+		if !free(preferred) {
+			return 0, fmt.Errorf("port %d is already in use", preferred)
+		}
+		return preferred, nil
+	}
+	for i := 0; i < 80; i++ {
+		p := 20000 + rand.Intn(40000)
+		if free(p) {
+			return p, nil
+		}
+	}
+	return 0, fmt.Errorf("no free port found")
+}
+
+// CreateNode builds a ready-to-use Argo node end to end: a vless-ws inbound
+// (TLS off as Argo requires), one client with its own subId, the tunnel config
+// bound to that inbound, the tunnel started, share-link hosts synced, and the
+// user links returned. Xray is restarted so the node is live immediately.
+func (s *ArgoService) CreateNode(req ArgoCreateNodeRequest, host string) (*ArgoCreateNodeResult, error) {
+	mode := strings.TrimSpace(req.Mode)
+	if mode != cloudflared.KindQuick && mode != cloudflared.KindNamed {
+		return nil, fmt.Errorf("unknown tunnel mode %q", req.Mode)
+	}
+	if mode == cloudflared.KindNamed {
+		if strings.TrimSpace(req.Token) == "" {
+			return nil, fmt.Errorf("named tunnel needs a token from the Cloudflare Zero Trust dashboard")
+		}
+		if strings.TrimSpace(req.Domain) == "" {
+			return nil, fmt.Errorf("named tunnel needs its hostname (e.g. tunnel.example.com)")
+		}
+	}
+
+	port, err := pickFreePort(req.Port)
+	if err != nil {
+		return nil, err
+	}
+
+	clientUUID := uuid.NewString()
+	email := "argo" + random.Seq(8) + "@node"
+	subID := random.Seq(16)
+	wsPath := "/" + random.Seq(8)
+	remark := fmt.Sprintf("argo-%s-%d", mode, port)
+
+	settings, _ := json.Marshal(map[string]any{
+		"clients": []map[string]any{{
+			"id": clientUUID, "email": email, "enable": true, "subId": subID,
+		}},
+		"decryption": "none",
+	})
+	streamSettings, _ := json.Marshal(map[string]any{
+		"network":  "ws",
+		"security": "none",
+		"wsSettings": map[string]any{
+			"path": wsPath,
+		},
+	})
+	inbound := &model.Inbound{
+		Remark:         remark,
+		Enable:         true,
+		Port:           port,
+		Protocol:       model.VLESS,
+		Settings:       string(settings),
+		StreamSettings: string(streamSettings),
+		Tag:            fmt.Sprintf("in-argo-%s-%d", mode, port),
+	}
+	ibSvc := &InboundService{}
+	created, needRestart, err := ibSvc.AddInbound(inbound)
+	if err != nil {
+		return nil, err
+	}
+	xraySvc := &XrayService{}
+	xraySvc.SetToNeedRestart()
+	if needRestart {
+		// One-click means ready to use: restart right away so the inbound
+		// listens on the origin port before the tunnel carries traffic.
+		if rerr := xraySvc.RestartXray(false); rerr != nil {
+			logger.Warning("argo createNode: xray restart failed:", rerr)
+		}
+	}
+
+	cfg := s.GetConfig()
+	cfg.QuickInboundId = 0
+	cfg.NamedInboundId = 0
+	if mode == cloudflared.KindQuick {
+		cfg.QuickEnable = true
+		cfg.QuickInboundId = created.Id
+		cfg.QuickDomain = ""
+	} else {
+		cfg.NamedEnable = true
+		cfg.NamedInboundId = created.Id
+		cfg.NamedToken = strings.TrimSpace(req.Token)
+		cfg.NamedDomain = strings.TrimSpace(req.Domain)
+	}
+	if err := s.saveConfig(cfg); err != nil {
+		return nil, err
+	}
+	s.wireManager()
+
+	result := &ArgoCreateNodeResult{
+		InboundId: created.Id,
+		Remark:    remark,
+		Port:      port,
+		Email:     email,
+		Uuid:      clientUUID,
+		WsPath:    wsPath,
+		Mode:      mode,
+		Domain:    cfg.NamedDomain,
+	}
+	if mode == cloudflared.KindQuick {
+		if err := cloudflared.GetManager().StartQuick(context.Background()); err != nil {
+			return result, err
+		}
+	} else {
+		if err := cloudflared.GetManager().StartNamed(context.Background()); err != nil {
+			return result, err
+		}
+	}
+	if err := s.SyncHosts(); err != nil {
+		logger.Warning("argo createNode: host sync:", err)
+	}
+	if provider := subLinkProvider(); provider != nil {
+		result.Links = provider.LinksForClient(host, created, email)
+	}
+	return result, nil
 }

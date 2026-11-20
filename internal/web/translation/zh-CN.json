@@ -331,6 +331,7 @@
       "updatedAt": "更新时间",
       "resetTraffic": "重置流量",
       "addInbound": "添加入站",
+      "argoOneClick": "一键 Argo 节点",
       "generalActions": "通用操作",
       "modifyInbound": "修改入站",
       "deleteConfirmTitle": "删除入站 \"{remark}\"？",
@@ -2427,12 +2428,31 @@
       "links": "用户链接",
       "linksEmpty": "选择入站以查看每个用户的链接（含 Argo 变体）",
       "logs": "cloudflared 日志",
+      "createNode": {
+        "title": "一键新建 Argo 节点",
+        "mode": "隧道类型",
+        "quickOption": "临时隧道（随机 trycloudflare.com 域名）",
+        "namedOption": "固定隧道（Cloudflare Token）",
+        "quickDesc": "面板自动下载并守护 cloudflared，隧道起来后域名会显示在 Argo 页。",
+        "domainRequired": "请输入隧道域名",
+        "tokenRequired": "请粘贴隧道 Token",
+        "originPort": "回源端口",
+        "portTip": "隧道转发到的本地端口。留空则自动随机分配空闲端口。",
+        "portPlaceholder": "留空 = 随机空闲端口",
+        "note": "自动创建 vless-ws 入站（关 TLS，Argo 要求）并生成一个客户端；分享链接同时给出 wss（走 CF 的 TLS）和明文 ws 两种变体。",
+        "created": "Argo 节点已创建",
+        "quickDomainHint": "临时隧道的域名会在 cloudflared 上报后显示在 Argo 页。",
+        "done": "完成",
+        "cancel": "取消",
+        "submit": "创建"
+      },
       "toasts": {
         "save": "Argo 配置已保存",
         "start": "已请求启动隧道",
         "stop": "隧道已停止",
         "syncHosts": "分享链接主机已同步",
-        "links": "用户链接"
+        "links": "用户链接",
+        "createNode": "Argo 节点已创建"
       }
     },
     "hosts": {

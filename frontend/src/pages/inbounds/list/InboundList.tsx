@@ -18,6 +18,7 @@ import {
 import {
   PlusOutlined,
   MenuOutlined,
+  CloudOutlined,
   MoreOutlined,
   ExportOutlined,
   ImportOutlined,
@@ -62,6 +63,7 @@ export default function InboundList({
   hasActiveNode,
   hosts,
   onAddInbound,
+  onArgoCreate,
   onGeneralAction,
   onRowAction,
   onBulkDelete,
@@ -241,6 +243,13 @@ export default function InboundList({
               {!isMobile && t('pages.inbounds.generalActions')}
             </Button>
           </Dropdown>
+          <Button
+            icon={<CloudOutlined aria-hidden />}
+            onClick={onArgoCreate}
+            aria-label={t('pages.inbounds.argoOneClick')}
+          >
+            {!isMobile && t('pages.inbounds.argoOneClick')}
+          </Button>
           {showNodeFilter && (
             <Select
               value={nodeFilter}

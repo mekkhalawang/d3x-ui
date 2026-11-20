@@ -21,12 +21,27 @@ func NewArgoController(g *gin.RouterGroup) *ArgoController {
 func (a *ArgoController) initRouter(g *gin.RouterGroup) {
 	g.GET("/status", a.status)
 	g.POST("/config", a.saveConfig)
+	g.POST("/createNode", a.createNode)
 	g.POST("/quick/start", a.startQuick)
 	g.POST("/quick/stop", a.stopQuick)
 	g.POST("/named/start", a.startNamed)
 	g.POST("/named/stop", a.stopNamed)
 	g.POST("/syncHosts", a.syncHosts)
 	g.GET("/links/:inboundId", a.links)
+}
+
+func (a *ArgoController) createNode(c *gin.Context) {
+	var req service.ArgoCreateNodeRequest
+	if err := c.ShouldBind(&req); err != nil {
+		jsonMsg(c, I18nWeb(c, "pages.argotunnel.toasts.createNode"), err)
+		return
+	}
+	result, err := a.argoService.CreateNode(req, resolveHost(c))
+	if err != nil {
+		jsonMsgObj(c, I18nWeb(c, "pages.argotunnel.toasts.createNode"), result, err)
+		return
+	}
+	jsonMsgObj(c, I18nWeb(c, "pages.argotunnel.toasts.createNode"), result, nil)
 }
 
 func (a *ArgoController) status(c *gin.Context) {
