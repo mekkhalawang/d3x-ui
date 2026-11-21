@@ -333,7 +333,11 @@ jobs:
           file: d3x-ui-windows-amd64.zip*
           file_glob: true
           overwrite: true
-          prerelease: true
+          # Must match the Linux matrix: both steps edit the same release, so
+          # a `true` here re-marks the whole release as pre-release whenever
+          # the Windows job happens to upload last (that is how v1.0.0 briefly
+          # lost its "latest" badge).
+          prerelease: false
 
   # =================================
   #  Rolling dev channel (per-commit)
