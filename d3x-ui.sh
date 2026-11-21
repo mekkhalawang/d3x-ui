@@ -6,17 +6,515 @@ blue='\033[0;34m'
 yellow='\033[0;33m'
 plain='\033[0m'
 
+# ---------------------------------------------------------------------------
+# Localization: Chinese is the default for D3X-UI; set XUI_LANG=en for the
+# original English wording. Mirrors the install.sh scheme on purpose.
+# ---------------------------------------------------------------------------
+case "${XUI_LANG:-zh}" in
+    en | en_US | en_GB | en_US.* | en_GB.* | EN | EN_* | En | En_*) XUI_LANG_RESOLVED="en" ;;
+    *) XUI_LANG_RESOLVED="zh" ;;
+esac
+
+# xui_zh <english-text> echoes the Chinese wording for a known key, or the
+# English text itself when the key is unknown. A case statement is used on
+# purpose: an associative-array lookup misses keys that contain parentheses.
+xui_zh() {
+    case "$1" in
+        "ERROR: You must be root to run this script! \\n") printf '%s' "错误：必须以 root 身份运行本脚本！\\n" ;;
+        "%s [Default %s]:") printf '%s' "%s（默认 %s）：" ;;
+        "%s [y/n]:") printf '%s' "%s（y/n）：" ;;
+        "Cancelled") printf '%s' "已取消" ;;
+        "Cancelled.") printf '%s' "已取消。" ;;
+        "Operation canceled.") printf '%s' "操作已取消。" ;;
+        "Invalid option. Please select a valid number.\\n") printf '%s' "无效选项，请输入有效的数字。\\n" ;;
+        "Choose an option:") printf '%s' "请选择一项：" ;;
+        "Choose [1]:") printf '%s' "请选择［1］：" ;;
+        "Enter your choice (1 or 2):") printf '%s' "请输入你的选择（1 或 2）：" ;;
+        "Select an option (1 or 2):") printf '%s' "请选择一项（1 或 2）：" ;;
+        "Please enter your selection [0-28]:") printf '%s' "请输入你的选择［0-28］：" ;;
+        "Please enter the correct number [0-28]") printf '%s' "请输入正确的数字［0-28］" ;;
+        "Please enter your server's public IPv4 address:") printf '%s' "请输入服务器的公网 IPv4 地址：" ;;
+        "Invalid IPv4 address. Please try again.") printf '%s' "无效的 IPv4 地址，请重试。" ;;
+        "Could not auto-detect server IP from any provider.") printf '%s' "无法从任何服务商自动检测服务器 IP。" ;;
+        "Invalid IP address format! Please try again.") printf '%s' "IP 地址格式无效，请重试。" ;;
+        "Could not find the running panel process to signal.") printf '%s' "找不到正在运行的面板进程。" ;;
+        "Update is complete, Panel has automatically restarted") printf '%s' "更新完成，面板已自动重启" ;;
+        "Dev update is complete, Panel has automatically restarted") printf '%s' "Dev 更新完成，面板已自动重启" ;;
+        "No d3x-ui.sh published for the installed version (%s), using main") printf '%s' "当前安装版本（%s）没有对应的 d3x-ui.sh，已使用 main" ;;
+        "Updating Menu") printf '%s' "正在更新菜单" ;;
+        "Update successful. The panel has automatically restarted.") printf '%s' "更新成功，面板已自动重启。" ;;
+        "Failed to update the menu.") printf '%s' "菜单更新失败。" ;;
+        "Uninstalled Successfully.\\n") printf '%s' "卸载成功。\\n" ;;
+        "Please set the login username [default is a random username]:") printf '%s' "请设置登录用户名（默认随机生成）：" ;;
+        "Please set the login password [default is a random password]:") printf '%s' "请设置登录密码（默认随机生成）：" ;;
+        "Do you want to disable currently configured two-factor authentication? (y/n):") printf '%s' "是否关闭当前配置的两步验证？（y/n）：" ;;
+        "Two factor authentication has been disabled.") printf '%s' "两步验证已关闭。" ;;
+        "Panel login username has been reset to:  %s") printf '%s' "面板登录用户名已重置为：%s" ;;
+        "Panel login password has been reset to:  %s") printf '%s' "面板登录密码已重置为：%s" ;;
+        "Please use the new login username and password to access the D3X-UI panel. Also remember them!") printf '%s' "请使用新的用户名和密码登录 D3X-UI 面板，并妥善保管！" ;;
+        "Resetting Web Base Path") printf '%s' "正在重置访问路径" ;;
+        "Are you sure you want to reset the web base path? (y/n):") printf '%s' "确定要重置访问路径吗？（y/n）：" ;;
+        "Web base path has been reset to: %s") printf '%s' "访问路径已重置为：%s" ;;
+        "Please use the new web base path to access the panel.") printf '%s' "请使用新的访问路径访问面板。" ;;
+        "All panel settings have been reset to default.") printf '%s' "所有面板设置已重置为默认值。" ;;
+        "get current settings error, please check logs") printf '%s' "读取当前设置失败，请查看日志" ;;
+        "Database: PostgreSQL — %s") printf '%s' "数据库：PostgreSQL — %s" ;;
+        "Database: SQLite (/etc/d3x-ui/d3x-ui.db)") printf '%s' "数据库：SQLite（/etc/d3x-ui/d3x-ui.db）" ;;
+        "Panel installed, Please do not reinstall") printf '%s' "面板已安装，请勿重复安装" ;;
+        "Please install the panel first") printf '%s' "请先安装面板" ;;
+        "d3x-ui is not installed.") printf '%s' "d3x-ui 尚未安装。" ;;
+        "Upgrade script succeeded, Please rerun the script") printf '%s' "脚本升级成功，请重新运行脚本" ;;
+        "Failed to download script, Please check whether the machine can connect Github") printf '%s' "脚本下载失败，请检查机器能否连接 GitHub" ;;
+        "Access URL: https://%s:%s%s") printf '%s' "访问地址：https://%s:%s%s" ;;
+        "Access URL: http://%s:%s%s") printf '%s' "访问地址：http://%s:%s%s" ;;
+        "The certificate also covers: %s") printf '%s' "证书还覆盖：%s" ;;
+        "⚠ WARNING: No SSL certificate configured!") printf '%s' "⚠ 警告：尚未配置 SSL 证书！" ;;
+        "You can get a Let's Encrypt certificate for your IP address (valid ~6 days, auto-renews).") printf '%s' "可以为服务器 IP 申请 Let's Encrypt 证书（有效期约 6 天，自动续期）。" ;;
+        "Generate SSL certificate for IP now? [y/N]:") printf '%s' "现在为 IP 生成 SSL 证书吗？［y/N］：" ;;
+        "IP certificate setup failed.") printf '%s' "IP 证书配置失败。" ;;
+        "You can try again via main menu option 20 (SSL Certificate Management).") printf '%s' "可稍后通过主菜单选项 20（SSL 证书管理）重试。" ;;
+        "For security, please configure SSL certificate using main menu option 20 (SSL Certificate Management)") printf '%s' "出于安全考虑，请通过主菜单选项 20（SSL 证书管理）配置 SSL 证书" ;;
+        "The port is set, Please restart the panel now, and use the new port %s to access web panel") printf '%s' "端口已设置，请立即重启面板，并使用新端口 %s 访问" ;;
+        "Panel is secure with SSL.") printf '%s' "面板已启用 SSL，安全状态正常。" ;;
+        "\\nWarning: No Cert and Key found! The panel is not secure.") printf '%s' "\\n警告：未找到证书和私钥！面板当前不安全。" ;;
+        "Panel is running, No need to start again, If you need to restart, please select restart") printf '%s' "面板正在运行，无需重复启动；如需重启请选择「重启」" ;;
+        "Panel process is not running inside this container.") printf '%s' "容器内没有运行中的面板进程。" ;;
+        "In Docker the panel is the container's main process. Restart the container to bring it back up:") printf '%s' "在 Docker 中面板是容器主进程，请重启容器以恢复：" ;;
+        "d3x-ui Started Successfully") printf '%s' "d3x-ui 启动成功" ;;
+        "panel Failed to start, Probably because it takes longer than two seconds to start, Please check the log information later") printf '%s' "面板启动失败，可能是启动耗时超过两秒，请稍后查看日志" ;;
+        "Panel stopped, No need to stop again!") printf '%s' "面板已停止，无需重复停止！" ;;
+        "In Docker the panel runs as the container's main process.") printf '%s' "在 Docker 中面板以容器主进程运行。" ;;
+        "To stop it, stop the container from the host:") printf '%s' "要停止它，请在宿主机上停止容器：" ;;
+        "d3x-ui and xray stopped successfully") printf '%s' "d3x-ui 和 xray 已停止" ;;
+        "Panel stop failed, Probably because the stop time exceeds two seconds, Please check the log information later") printf '%s' "面板停止失败，可能是停止耗时超过两秒，请稍后查看日志" ;;
+        "Restart signal sent to the panel and xray-core.") printf '%s' "已向面板和 xray-core 发送重启信号。" ;;
+        "d3x-ui and xray Restarted successfully") printf '%s' "d3x-ui 和 xray 重启成功" ;;
+        "Panel restart failed, Please check the log information later") printf '%s' "面板重启失败，请稍后查看日志" ;;
+        "Panel restart failed, Probably because it takes longer than two seconds to start, Please check the log information later") printf '%s' "面板重启失败，可能是启动耗时超过两秒，请稍后查看日志" ;;
+        "xray-core Restart signal sent successfully, Please check the log information to confirm whether xray restarted successfully") printf '%s' "已发送 xray-core 重启信号，请查看日志确认是否重启成功" ;;
+        "Panel state: Running") printf '%s' "面板状态：运行中" ;;
+        "Panel state: Not Running") printf '%s' "面板状态：未运行" ;;
+        "Panel state: Not Installed") printf '%s' "面板状态：未安装" ;;
+        "Start automatically: Managed by Docker") printf '%s' "开机自启：由 Docker 管理" ;;
+        "Start automatically: Yes") printf '%s' "开机自启：是" ;;
+        "Start automatically: No") printf '%s' "开机自启：否" ;;
+        "xray state: Running") printf '%s' "xray 状态：运行中" ;;
+        "xray state: Not Running") printf '%s' "xray 状态：未运行" ;;
+        "mtproto inbound %s (%s): Running") printf '%s' "mtproto 入站 %s（%s）：运行中" ;;
+        "mtproto inbound %s (%s): Not Running") printf '%s' "mtproto 入站 %s（%s）：未运行" ;;
+        "Autostart is controlled by the Docker restart policy (e.g. 'restart: unless-stopped' in docker-compose.yml).") printf '%s' "开机自启由 Docker 重启策略控制（如 docker-compose.yml 中的 'restart: unless-stopped'）。" ;;
+        "There is no service to enable inside the container.") printf '%s' "容器内没有可启用的系统服务。" ;;
+        "d3x-ui Set to boot automatically on startup successfully") printf '%s' "d3x-ui 已设置开机自启" ;;
+        "d3x-ui Failed to set Autostart") printf '%s' "d3x-ui 设置开机自启失败" ;;
+        "Set 'restart: no' for the container on the host to disable autostart.") printf '%s' "请在宿主机上为容器设置 'restart: no' 以关闭自启。" ;;
+        "d3x-ui Autostart Cancelled successfully") printf '%s' "d3x-ui 已取消开机自启" ;;
+        "d3x-ui Failed to cancel autostart") printf '%s' "d3x-ui 取消开机自启失败" ;;
+        "\\t1. Debug Log") printf '%s' "\\t1. 调试日志" ;;
+        "\\t2. Clear All logs") printf '%s' "\\t2. 清空全部日志" ;;
+        "\\t0. Back to Main Menu") printf '%s' "\\t0. 返回主菜单" ;;
+        "\\t1. Enable BBR") printf '%s' "\\t1. 启用 BBR" ;;
+        "\\t2. Disable BBR") printf '%s' "\\t2. 关闭 BBR" ;;
+        "BBR is not currently enabled.") printf '%s' "BBR 当前未启用。" ;;
+        "BBR has been replaced with CUBIC successfully.") printf '%s' "BBR 已成功替换为 CUBIC。" ;;
+        "Failed to replace BBR with CUBIC. Please check your system configuration.") printf '%s' "BBR 替换为 CUBIC 失败，请检查系统配置。" ;;
+        "BBR is already enabled!") printf '%s' "BBR 已经启用！" ;;
+        "BBR has been enabled successfully.") printf '%s' "BBR 启用成功。" ;;
+        "Failed to enable BBR. Please check your system configuration.") printf '%s' "BBR 启用失败，请检查系统配置。" ;;
+        "\\t1. Install Firewall") printf '%s' "\\t1. 安装防火墙" ;;
+        "\\t2. Port List [numbered]") printf '%s' "\\t2. 端口列表［编号］" ;;
+        "\\t3. Open Ports") printf '%s' "\\t3. 开放端口" ;;
+        "\\t4. Delete Ports from List") printf '%s' "\\t4. 从列表删除端口" ;;
+        "\\t5. Enable Firewall") printf '%s' "\\t5. 启用防火墙" ;;
+        "\\t6. Disable Firewall") printf '%s' "\\t6. 关闭防火墙" ;;
+        "\\t7. Firewall Status") printf '%s' "\\t7. 防火墙状态" ;;
+        "Enter the ports you want to open (e.g. 80,443,2053 or range 400-500):") printf '%s' "请输入要开放的端口（如 80,443,2053 或区间 400-500）：" ;;
+        "Enter the rule numbers you want to delete (1, 2, etc.):") printf '%s' "请输入要删除的规则编号（1、2 等）：" ;;
+        "Enter the ports you want to delete (e.g. 80,443,2053 or range 400-500):") printf '%s' "请输入要删除的端口（如 80,443,2053 或区间 400-500）：" ;;
+        "update_geofiles: unknown dataset '%s'") printf '%s' "update_geofiles：未知数据集 '%s'" ;;
+        "%s.dat: download failed") printf '%s' "%s.dat：下载失败" ;;
+        "%s.dat: already up to date") printf '%s' "%s.dat：已是最新" ;;
+        "%s.dat: downloaded file is empty") printf '%s' "%s.dat：下载的文件为空" ;;
+        "%s.dat: failed to install") printf '%s' "%s.dat：安装失败" ;;
+        "%s.dat: updated") printf '%s' "%s.dat：已更新" ;;
+        "Some %s could not be updated. Check the errors above.") printf '%s' "部分 %s 更新失败，请查看上方错误信息。" ;;
+        "%s have been updated successfully!") printf '%s' "%s 更新成功！" ;;
+        "%s are already up to date, restart is not needed.") printf '%s' "%s 已是最新，无需重启。" ;;
+        "\\t1. Loyalsoldier (geoip.dat, geosite.dat)") printf '%s' "\\t1. Loyalsoldier（geoip.dat、geosite.dat）" ;;
+        "\\t2. chocolate4u (geoip_IR.dat, geosite_IR.dat)") printf '%s' "\\t2. chocolate4u（geoip_IR.dat、geosite_IR.dat）" ;;
+        "\\t3. runetfreedom (geoip_RU.dat, geosite_RU.dat)") printf '%s' "\\t3. runetfreedom（geoip_RU.dat、geosite_RU.dat）" ;;
+        "\\t4. All") printf '%s' "\\t4. 全部" ;;
+        "acme.sh is already installed.") printf '%s' "acme.sh 已安装。" ;;
+        "Installing acme.sh...") printf '%s' "正在安装 acme.sh……" ;;
+        "Installation of acme.sh failed.") printf '%s' "acme.sh 安装失败。" ;;
+        "Installation of acme.sh succeeded.") printf '%s' "acme.sh 安装成功。" ;;
+        "acme.sh not found, installing...") printf '%s' "未找到 acme.sh，正在安装……" ;;
+        "Failed to install acme.sh") printf '%s' "acme.sh 安装失败" ;;
+        "install acme failed, please check logs") printf '%s' "acme 安装失败，请查看日志" ;;
+        "Install acme failed, please check logs.") printf '%s' "acme 安装失败，请查看日志。" ;;
+        "install socat failed, please check logs") printf '%s' "socat 安装失败，请查看日志" ;;
+        "install socat succeed...") printf '%s' "socat 安装成功……" ;;
+        "\\t1. Get SSL (Domain)") printf '%s' "\\t1. 申请 SSL（域名）" ;;
+        "\\t2. Revoke & Remove") printf '%s' "\\t2. 吊销并删除" ;;
+        "\\t3. Force Renew") printf '%s' "\\t3. 强制续期" ;;
+        "\\t4. Show Existing Domains") printf '%s' "\\t4. 查看已有域名" ;;
+        "\\t5. Set Cert paths for the panel") printf '%s' "\\t5. 为面板设置证书路径" ;;
+        "\\t6. Get SSL for IP Address (6-day cert, auto-renews)") printf '%s' "\\t6. 为 IP 申请 SSL（6 天证书，自动续期）" ;;
+        "Please enter a domain from the list to revoke and remove the certificate:") printf '%s' "请从列表中输入要吊销并删除证书的域名：" ;;
+        "Certificate revoked and removed for domain: %s") printf '%s' "已吊销并删除域名证书：%s" ;;
+        "Cleared panel certificate paths referencing %s; restarting panel.") printf '%s' "已清除引用 %s 的面板证书路径，正在重启面板。" ;;
+        "Please enter a domain from the list to renew the SSL certificate:") printf '%s' "请从列表中输入要续期 SSL 证书的域名：" ;;
+        "Certificate forcefully renewed for domain: %s") printf '%s' "已强制续期域名证书：%s" ;;
+        "Domain: %s") printf '%s' "域名：%s" ;;
+        "\\tCertificate Path: %s") printf '%s' "\\t证书路径：%s" ;;
+        "\\tPrivate Key Path: %s") printf '%s' "\\t私钥路径：%s" ;;
+        "Domain: %s - Certificate or Key missing.") printf '%s' "域名：%s —— 证书或私钥缺失。" ;;
+        "Panel certificate (custom path): %s") printf '%s' "面板证书（自定义路径）：%s" ;;
+        "\\tCovers: %s") printf '%s' "\\t覆盖范围：%s" ;;
+        "\\t1. Use a certificate from /root/cert") printf '%s' "\\t1. 使用 /root/cert 中的证书" ;;
+        "\\t2. Enter custom certificate file paths (e.g. certbot, /etc/letsencrypt/...)") printf '%s' "\\t2. 手动输入证书文件路径（如 certbot、/etc/letsencrypt/……）" ;;
+        "Certificate file path (fullchain):") printf '%s' "证书文件路径（fullchain）：" ;;
+        "Private key file path:") printf '%s' "私钥文件路径：" ;;
+        "Please choose a domain to set the panel paths:") printf '%s' "请选择一个域名来设置面板路径：" ;;
+        "Please enter your domain name:") printf '%s' "请输入你的域名：" ;;
+        "Domain name cannot be empty. Please try again.") printf '%s' "域名不能为空，请重试。" ;;
+        "Invalid domain format: %s. Please enter a valid domain name.") printf '%s' "域名格式无效：%s，请输入有效的域名。" ;;
+        "Your domain is: %s, checking it...") printf '%s' "你的域名是：%s，正在检查……" ;;
+        "Existing certificate found for %s, will reuse it.") printf '%s' "发现 %s 的已有证书，将直接复用。" ;;
+        "Your domain is ready for issuing certificates now...") printf '%s' "你的域名现在可以签发证书了……" ;;
+        "Issuing certificate failed, please check logs.") printf '%s' "证书签发失败，请查看日志。" ;;
+        "Issuing certificate succeeded, installing certificates...") printf '%s' "证书签发成功，正在安装证书……" ;;
+        "Using existing certificate, installing certificates...") printf '%s' "使用已有证书，正在安装证书……" ;;
+        "Default --reloadcmd for ACME is: d3x-ui restart") printf '%s' "ACME 默认的 --reloadcmd 为：d3x-ui restart" ;;
+        "This command will run on every certificate issue and renew.") printf '%s' "该命令会在每次签发和续期证书时执行。" ;;
+        "Would you like to modify --reloadcmd for ACME? (y/n):") printf '%s' "是否修改 ACME 的 --reloadcmd？（y/n）：" ;;
+        "\\n\\t1. Preset: systemctl reload nginx ; d3x-ui restart") printf '%s' "\\n\\t1. 预设：systemctl reload nginx ; d3x-ui restart" ;;
+        "\\t2. Input your own command") printf '%s' "\\t2. 输入你自己的命令" ;;
+        "\\t0. Keep default reloadcmd") printf '%s' "\\t0. 保持默认 reloadcmd" ;;
+        "Reloadcmd is: systemctl reload nginx ; d3x-ui restart") printf '%s' "reloadcmd 为：systemctl reload nginx ; d3x-ui restart" ;;
+        "It's recommended to put d3x-ui restart at the end, so it won't raise an error if other services fails") printf '%s' "建议把 d3x-ui restart 放在最后，这样其他服务失败时不会报错" ;;
+        "Please enter your reloadcmd (example: systemctl reload nginx ; d3x-ui restart):") printf '%s' "请输入你的 reloadcmd（示例：systemctl reload nginx ; d3x-ui restart）：" ;;
+        "Your reloadcmd is: %s") printf '%s' "你的 reloadcmd 为：%s" ;;
+        "Keep default reloadcmd") printf '%s' "保持默认 reloadcmd" ;;
+        "Installing certificate succeeded, enabling auto renew...") printf '%s' "证书安装成功，正在开启自动续期……" ;;
+        "Installing certificate failed, exiting.") printf '%s' "证书安装失败，即将退出。" ;;
+        "Auto renew failed, certificate details:") printf '%s' "自动续期失败，证书详情：" ;;
+        "Auto renew succeeded, certificate details:") printf '%s' "自动续期成功，证书详情：" ;;
+        "Panel paths set for domain: %s") printf '%s' "面板路径已设置为域名：%s" ;;
+        "Panel paths set for IP: %s") printf '%s' "面板路径已设置为 IP：%s" ;;
+        "- Certificate File: %s") printf '%s' "- 证书文件：%s" ;;
+        "- Private Key File: %s") printf '%s' "- 私钥文件：%s" ;;
+        "- Validity: ~6 days (auto-renews via acme.sh cron)") printf '%s' "- 有效期：约 6 天（通过 acme.sh 计划任务自动续期）" ;;
+        "Panel will restart to apply SSL certificate...") printf '%s' "面板将重启以应用 SSL 证书……" ;;
+        "Error: Certificate or private key file not found for domain: %s.") printf '%s' "错误：找不到域名 %s 的证书或私钥文件。" ;;
+        "Error: Certificate or private key file not found for IP: %s.") printf '%s' "错误：找不到 IP %s 的证书或私钥文件。" ;;
+        "Skipping panel path setting.") printf '%s' "已跳过面板路径设置。" ;;
+        "Certificate files not found after installation") printf '%s' "安装后未找到证书文件" ;;
+        "Certificate files installed successfully") printf '%s' "证书文件安装成功" ;;
+        "Would you like to set this certificate for the panel? (y/n):") printf '%s' "是否将该证书设置给面板使用？（y/n）：" ;;
+        "Let's Encrypt SSL Certificate for IP Address") printf '%s' "Let's Encrypt IP 地址 SSL 证书" ;;
+        "This will obtain a certificate for your server's IP using the shortlived profile.") printf '%s' "将使用 shortlived 配置为服务器 IP 签发证书。" ;;
+        "Certificate valid for ~6 days, auto-renews via acme.sh cron job.") printf '%s' "证书有效期约 6 天，通过 acme.sh 计划任务自动续期。" ;;
+        "Port 80 must be open and accessible from the internet.") printf '%s' "80 端口必须开放且可从公网访问。" ;;
+        "Starting automatic SSL certificate generation for server IP...") printf '%s' "正在为服务器 IP 自动生成 SSL 证书……" ;;
+        "Using Let's Encrypt shortlived profile (~6 days validity, auto-renews)") printf '%s' "使用 Let's Encrypt shortlived 配置（约 6 天有效期，自动续期）" ;;
+        "Server IP detected: %s") printf '%s' "检测到服务器 IP：%s" ;;
+        "Issuing certificate for server IP: %s") printf '%s' "正在为服务器 IP 签发证书：%s" ;;
+        "Do you have an IPv6 address to include? (leave empty to skip):") printf '%s' "是否有 IPv6 地址需要一并加入？（留空跳过）：" ;;
+        "Including IPv6 address: %s") printf '%s' "包含 IPv6 地址：%s" ;;
+        "Port to use for ACME HTTP-01 listener (default 80):") printf '%s' "ACME HTTP-01 监听端口（默认 80）：" ;;
+        "Invalid port provided. Falling back to 80.") printf '%s' "端口无效，已回退为 80。" ;;
+        "Invalid port provided.") printf '%s' "端口无效。" ;;
+        "Using port %s to issue certificate for IP: %s") printf '%s' "使用端口 %s 为 IP 签发证书：%s" ;;
+        "Reminder: Let's Encrypt still reaches port 80; forward external port 80 to %s for validation.") printf '%s' "提醒：Let's Encrypt 仍然访问 80 端口；请把外网 80 端口转发到 %s 以完成验证。" ;;
+        "Port %s is currently in use.") printf '%s' "端口 %s 当前被占用。" ;;
+        "Enter another port for acme.sh standalone listener (leave empty to abort):") printf '%s' "请输入 acme.sh 独立监听的另一个端口（留空中止）：" ;;
+        "Port %s is busy; cannot proceed with issuance.") printf '%s' "端口 %s 被占用，无法继续签发。" ;;
+        "Port %s is free and ready for standalone validation.") printf '%s' "端口 %s 空闲，可以进行独立验证。" ;;
+        "Failed to issue certificate for IP: %s") printf '%s' "IP 证书签发失败：%s" ;;
+        "Make sure port %s is open and the server is accessible from the internet") printf '%s' "请确保端口 %s 开放，且服务器可从公网访问" ;;
+        "Certificate issued successfully for IP: %s") printf '%s' "IP 证书签发成功：%s" ;;
+        "****** Instructions for Use ******") printf '%s' "****** 使用说明 ******" ;;
+        "Follow the steps below to complete the process:") printf '%s' "按以下步骤完成操作：" ;;
+        "1. A Cloudflare API Token (recommended, scoped to Zone:DNS:Edit) or the Global API Key + registered email.") printf '%s' "1. Cloudflare API Token（推荐，权限限定为 Zone:DNS:Edit）或 Global API Key + 注册邮箱。" ;;
+        "2. The Domain Name.") printf '%s' "2. 域名。" ;;
+        "3. Once the certificate is issued, you will be prompted to set the certificate for the panel (optional).") printf '%s' "3. 证书签发后，会提示是否设置给面板使用（可选）。" ;;
+        "4. The script also supports automatic renewal of the SSL certificate after installation.") printf '%s' "4. 脚本还支持安装后的 SSL 证书自动续期。" ;;
+        "Please set a domain name:") printf '%s' "请设置域名：" ;;
+        "Input your domain here:") printf '%s' "在此输入你的域名：" ;;
+        "Your domain name is set to: %s") printf '%s' "你的域名已设置为：%s" ;;
+        "Are you using a Cloudflare API Token or Global API Key? (t/g) [Default t]:") printf '%s' "你使用的是 Cloudflare API Token 还是 Global API Key？（t/g）［默认 t］：" ;;
+        "Please set the Global API Key:") printf '%s' "请设置 Global API Key：" ;;
+        "Input your key here:") printf '%s' "在此输入你的 Key：" ;;
+        "Please set up the registered email:") printf '%s' "请设置注册邮箱：" ;;
+        "Input your email here:") printf '%s' "在此输入你的邮箱：" ;;
+        "Please set the API Token:") printf '%s' "请设置 API Token：" ;;
+        "Input your token here:") printf '%s' "在此输入你的 Token：" ;;
+        "Default CA, Let'sEncrypt fail, script exiting...") printf '%s' "默认 CA（Let's Encrypt）签发失败，脚本退出……" ;;
+        "Certificate issuance failed, script exiting...") printf '%s' "证书签发失败，脚本退出……" ;;
+        "Certificate issued successfully, Installing...") printf '%s' "证书签发成功，正在安装……" ;;
+        "Failed to create directory: %s") printf '%s' "目录创建失败：%s" ;;
+        "Certificate installation failed, script exiting...") printf '%s' "证书安装失败，脚本退出……" ;;
+        "Certificate installed successfully, Turning on automatic updates...") printf '%s' "证书安装成功，正在开启自动更新……" ;;
+        "Auto update setup failed, script exiting...") printf '%s' "自动更新设置失败，脚本退出……" ;;
+        "The certificate is installed and auto-renewal is turned on. Specific information is as follows:") printf '%s' "证书已安装并开启自动续期，详细信息如下：" ;;
+        "\\n\\t1. Install Fail2ban and configure IP Limit") printf '%s' "\\n\\t1. 安装 Fail2ban 并配置 IP 限制" ;;
+        "\\t2. Change Ban Duration") printf '%s' "\\t2. 修改封禁时长" ;;
+        "\\t3. Unban Everyone") printf '%s' "\\t3. 解封所有人" ;;
+        "\\t4. Ban Logs") printf '%s' "\\t4. 封禁日志" ;;
+        "\\t5. Ban an IP Address") printf '%s' "\\t5. 封禁指定 IP" ;;
+        "\\t6. Unban an IP Address") printf '%s' "\\t6. 解封指定 IP" ;;
+        "\\t7. Real-Time Logs") printf '%s' "\\t7. 实时日志" ;;
+        "\\t8. Service Status") printf '%s' "\\t8. 服务状态" ;;
+        "\\t9. Service Restart") printf '%s' "\\t9. 重启服务" ;;
+        "\\t10. Uninstall Fail2ban and IP Limit") printf '%s' "\\t10. 卸载 Fail2ban 与 IP 限制" ;;
+        "\\t1. Only remove IP Limit configurations") printf '%s' "\\t1. 仅移除 IP 限制配置" ;;
+        "\\t2. Uninstall Fail2ban and IP Limit") printf '%s' "\\t2. 卸载 Fail2ban 与 IP 限制" ;;
+        "Please enter new Ban Duration in Minutes [default 30]:") printf '%s' "请输入新的封禁时长（分钟）［默认 30］：" ;;
+        "%s is not a number! Please, try again.") printf '%s' "%s 不是数字，请重试。" ;;
+        "All users Unbanned successfully.") printf '%s' "已成功解封所有用户。" ;;
+        "Enter the IP address you want to ban:") printf '%s' "请输入要封禁的 IP 地址：" ;;
+        "IP Address %s has been banned successfully.") printf '%s' "IP 地址 %s 已封禁成功。" ;;
+        "Enter the IP address you want to unban:") printf '%s' "请输入要解封的 IP 地址：" ;;
+        "IP Address %s has been unbanned successfully.") printf '%s' "IP 地址 %s 已解封成功。" ;;
+        "XUI_ENABLE_FAIL2BAN=%s, skipping Fail2ban setup.\\n") printf '%s' "XUI_ENABLE_FAIL2BAN=%s，跳过 Fail2ban 配置。\\n" ;;
+        "Fail2ban is not installed. Installing now...!\\n") printf '%s' "Fail2ban 未安装，正在安装……！\\n" ;;
+        "Could not enable the EPEL repository; fail2ban is only available from EPEL on this distro.") printf '%s' "无法启用 EPEL 源；该发行版的 fail2ban 仅在 EPEL 中提供。" ;;
+        "Unsupported operating system. Please check the script and install the necessary packages manually.\\n") printf '%s' "不支持的操作系统，请检查脚本并手动安装所需软件包。\\n" ;;
+        "Unsupported operating system. Please uninstall Fail2ban manually.\\n") printf '%s' "不支持的操作系统，请手动卸载 Fail2ban。\\n" ;;
+        "Fail2ban installation failed.\\n") printf '%s' "Fail2ban 安装失败。\\n" ;;
+        "Fail2ban installed successfully!\\n") printf '%s' "Fail2ban 安装成功！\\n" ;;
+        "Fail2ban is already installed.\\n") printf '%s' "Fail2ban 已安装。\\n" ;;
+        "Configuring IP Limit...\\n") printf '%s' "正在配置 IP 限制……\\n" ;;
+        "IP Limit installed and configured successfully!\\n") printf '%s' "IP 限制安装并配置成功！\\n" ;;
+        "IP Limit removed successfully!\\n") printf '%s' "IP 限制已移除！\\n" ;;
+        "Fail2ban and IP Limit removed successfully!\\n") printf '%s' "Fail2ban 与 IP 限制已移除！\\n" ;;
+        "Checking ban logs...\\n") printf '%s' "正在检查封禁日志……\\n" ;;
+        "Fail2ban service is not running!\\n") printf '%s' "Fail2ban 服务未运行！\\n" ;;
+        "Recent system ban activities from fail2ban.log:") printf '%s' "fail2ban.log 中最近的封禁活动：" ;;
+        "No recent system ban activities found") printf '%s' "未发现最近的封禁活动" ;;
+        "3X-IPL ban log entries:") printf '%s' "3X-IPL 封禁日志记录：" ;;
+        "No ban entries found") printf '%s' "未发现封禁记录" ;;
+        "Ban log file is empty") printf '%s' "封禁日志文件为空" ;;
+        "Ban log file not found at: %s") printf '%s' "找不到封禁日志文件：%s" ;;
+        "\\nCurrent jail status:") printf '%s' "\\n当前 jail 状态：" ;;
+        "Unable to get jail status") printf '%s' "无法获取 jail 状态" ;;
+        "Ip Limit jail files created with a bantime of %s minutes.") printf '%s' "IP 限制 jail 文件已创建，封禁时长 %s 分钟。" ;;
+        "Removing conflicts of [3x-ipl] in jail (%s)!\\n") printf '%s' "正在清除 jail（%s）中 [3x-ipl] 的冲突项！\\n" ;;
+        "\\nCurrent SSH Port Forwarding Configuration:") printf '%s' "\\n当前 SSH 端口转发配置：" ;;
+        "Standard SSH command:") printf '%s' "标准 SSH 命令：" ;;
+        "\\nIf using SSH key:") printf '%s' "\\n如使用 SSH 密钥：" ;;
+        "\\nAfter connecting, access the panel at:") printf '%s' "\\n连接后通过以下地址访问面板：" ;;
+        "\\nChoose an option:") printf '%s' "\\n请选择一项：" ;;
+        "1. Set listen IP") printf '%s' "1. 设置监听 IP" ;;
+        "2. Clear listen IP") printf '%s' "2. 清除监听 IP" ;;
+        "\\nNo listenIP configured. Choose an option:") printf '%s' "\\n尚未配置监听 IP，请选择：" ;;
+        "1. Use default IP (127.0.0.1)") printf '%s' "1. 使用默认 IP（127.0.0.1）" ;;
+        "2. Set a custom IP") printf '%s' "2. 设置自定义 IP" ;;
+        "Enter custom IP to listen on:") printf '%s' "请输入要监听的自定义 IP：" ;;
+        "listen IP has been set to %s.") printf '%s' "监听 IP 已设置为 %s。" ;;
+        "\\nSSH Port Forwarding Configuration:") printf '%s' "\\nSSH 端口转发配置：" ;;
+        "Current listen IP is already set to %s.") printf '%s' "当前监听 IP 已是 %s。" ;;
+        "Listen IP has been cleared.") printf '%s' "监听 IP 已清除。" ;;
+        "PostgreSQL does not appear to be installed on this system.") printf '%s' "系统上似乎未安装 PostgreSQL。" ;;
+        "PostgreSQL is listening on port 5432:") printf '%s' "PostgreSQL 正在监听 5432 端口：" ;;
+        "Nothing is listening on port 5432 - the database is not running.") printf '%s' "5432 端口无监听——数据库未在运行。" ;;
+        "PostgreSQL stop signal sent.") printf '%s' "已发送 PostgreSQL 停止信号。" ;;
+        "PostgreSQL set to start automatically on boot.") printf '%s' "PostgreSQL 已设置开机自启。" ;;
+        "Failed to enable PostgreSQL autostart.") printf '%s' "PostgreSQL 开机自启设置失败。" ;;
+        "No PostgreSQL log found.") printf '%s' "未找到 PostgreSQL 日志。" ;;
+        "PostgreSQL is not installed. Use option 1 (Install PostgreSQL) in this menu first.") printf '%s' "PostgreSQL 未安装，请先使用本菜单选项 1（安装 PostgreSQL）。" ;;
+        "This panel was using PostgreSQL.") printf '%s' "该面板此前使用 PostgreSQL。" ;;
+        "WARNING: purging removes the PostgreSQL server and ALL of its databases on") printf '%s' "警告：清除操作会删除 PostgreSQL 服务器及这台机器上的全部数据库，" ;;
+        "this machine, including any used by other applications. This cannot be undone.") printf '%s' "包括其他应用正在使用的数据库。此操作不可恢复。" ;;
+        "Left PostgreSQL installed; its data was not removed.") printf '%s' "已保留 PostgreSQL 安装，数据未删除。" ;;
+        "Unsupported distro for automatic PostgreSQL purge: %s. Remove it manually.") printf '%s' "不支持的发行版，无法自动清除 PostgreSQL：%s，请手动删除。" ;;
+        "PostgreSQL has been purged.") printf '%s' "PostgreSQL 已清除。" ;;
+        "PostgreSQL %s is not available for this system; installing the distribution's PostgreSQL instead.") printf '%s' "系统没有 PostgreSQL %s，改为安装发行版自带的 PostgreSQL。" ;;
+        "Unsupported distro for automatic PostgreSQL install: %s") printf '%s' "不支持的发行版，无法自动安装 PostgreSQL：%s" ;;
+        "Warning: could not update pg_hba.conf; PostgreSQL may reject the panel's TCP login (ident auth).") printf '%s' "警告：未能更新 pg_hba.conf；PostgreSQL 可能拒绝面板的 TCP 登录（ident 认证）。" ;;
+        "Installing PostgreSQL client tools (pg_dump/pg_restore)...") printf '%s' "正在安装 PostgreSQL 客户端工具（pg_dump/pg_restore）……" ;;
+        "Invalid PostgreSQL major version '%s' (expected a number like 17).") printf '%s' "PostgreSQL 主版本号 '%s' 无效（应为类似 17 的数字）。" ;;
+        "PostgreSQL client tools are already installed (version %s).") printf '%s' "PostgreSQL 客户端工具已安装（版本 %s）。" ;;
+        "Installed PostgreSQL client tools are version %s; version %s or newer is required.") printf '%s' "已安装的 PostgreSQL 客户端工具版本为 %s；需要 %s 或更新版本。" ;;
+        "Note: packages installed inside the container are lost when the container is recreated.") printf '%s' "注意：容器内安装的软件包在容器重建后会丢失。" ;;
+        "postgresql-client-%s is not in the distribution repositories; adding the official PostgreSQL apt repository...") printf '%s' "发行版仓库中没有 postgresql-client-%s；正在添加官方 PostgreSQL apt 源……" ;;
+        "Could not determine the Enterprise Linux release; install the PostgreSQL %s client tools manually.") printf '%s' "无法确定 Enterprise Linux 版本；请手动安装 PostgreSQL %s 客户端工具。" ;;
+        "postgresql%s is not in the enabled repositories; adding the official PostgreSQL yum repository...") printf '%s' "启用的仓库中没有 postgresql%s；正在添加官方 PostgreSQL yum 源……" ;;
+        "Unsupported OS '%s'; install the PostgreSQL client tools manually.") printf '%s' "不支持的操作系统 '%s'；请手动安装 PostgreSQL 客户端工具。" ;;
+        "pg_dump/pg_restore are still unavailable after installation.") printf '%s' "安装后仍无法使用 pg_dump/pg_restore。" ;;
+        "PostgreSQL client tools are version %s after installation but %s or newer is required; install them manually.") printf '%s' "安装后的 PostgreSQL 客户端工具版本为 %s，但需要 %s 或更新版本；请手动安装。" ;;
+        "PostgreSQL client tools are ready (version %s).") printf '%s' "PostgreSQL 客户端工具就绪（版本 %s）。" ;;
+        "PostgreSQL already appears to be installed on this system.") printf '%s' "系统上似乎已安装 PostgreSQL。" ;;
+        "Installing PostgreSQL server and creating a dedicated user/database...") printf '%s' "正在安装 PostgreSQL 并创建专用用户/数据库……" ;;
+        "PostgreSQL installation failed.") printf '%s' "PostgreSQL 安装失败。" ;;
+        "Could not install pg_dump/pg_restore (panel DB backup may be unavailable).") printf '%s' "未能安装 pg_dump/pg_restore（面板数据库备份可能不可用）。" ;;
+        "PostgreSQL is installed and ready.") printf '%s' "PostgreSQL 已安装就绪。" ;;
+        "Connection DSN: %s") printf '%s' "连接 DSN：%s" ;;
+        "Use option 2 to migrate your SQLite data and switch the panel to PostgreSQL.") printf '%s' "使用选项 2 迁移 SQLite 数据并把面板切换到 PostgreSQL。" ;;
+        "This copies your current SQLite data into a PostgreSQL database,") printf '%s' "此操作会把当前 SQLite 数据复制到 PostgreSQL 数据库，" ;;
+        "then switches the panel to PostgreSQL and restarts it.") printf '%s' "然后把面板切换到 PostgreSQL 并重启。" ;;
+        "Any existing panel tables in the destination will be cleared and overwritten.") printf '%s' "目标库中已有的面板表会被清空并覆盖。" ;;
+        "A PostgreSQL database was created in this session:") printf '%s' "本次操作创建了一个 PostgreSQL 数据库：" ;;
+        "\\t1. Install PostgreSQL locally and create a dedicated user/db (recommended)") printf '%s' "\\t1. 本地安装 PostgreSQL 并创建专用用户/数据库（推荐）" ;;
+        "\\t2. Use an existing PostgreSQL server (enter DSN)") printf '%s' "\\t2. 使用已有的 PostgreSQL 服务器（输入 DSN）" ;;
+        "Enter PostgreSQL DSN (postgres://user:pass@host:port/dbname?sslmode=disable):") printf '%s' "请输入 PostgreSQL DSN（postgres://user:pass@host:port/dbname?sslmode=disable）：" ;;
+        "Installing PostgreSQL locally (this may take a moment)...") printf '%s' "正在本地安装 PostgreSQL（可能需要片刻）……" ;;
+        "PostgreSQL installation failed. Aborting migration.") printf '%s' "PostgreSQL 安装失败，迁移中止。" ;;
+        "Could not install pg_dump/pg_restore (in-panel DB backup/restore may be unavailable).") printf '%s' "未能安装 pg_dump/pg_restore（面板内数据库备份/恢复可能不可用）。" ;;
+        "Stopping panel to take a consistent snapshot...") printf '%s' "正在停止面板以进行一致性快照……" ;;
+        "Migrating data into PostgreSQL...") printf '%s' "正在把数据迁移到 PostgreSQL……" ;;
+        "Migration failed. The panel was NOT switched to PostgreSQL.") printf '%s' "迁移失败，面板未切换到 PostgreSQL。" ;;
+        "Wrote database settings to %s (XUI_DB_TYPE=postgres).") printf '%s' "数据库配置已写入 %s（XUI_DB_TYPE=postgres）。" ;;
+        "Restarting panel on PostgreSQL...") printf '%s' "正在以 PostgreSQL 重启面板……" ;;
+        "Migration complete. The panel is now running on PostgreSQL.") printf '%s' "迁移完成，面板现已运行在 PostgreSQL 上。" ;;
+        "Panel did not come up. Check logs (main menu option 17). Your SQLite data is left intact.") printf '%s' "面板未启动。请查看日志（主菜单选项 17）。SQLite 数据未受影响。" ;;
+        "\\t1. Install PostgreSQL (server + client + xui db)") printf '%s' "\\t1. 安装 PostgreSQL（服务端 + 客户端 + xui 数据库）" ;;
+        "\\t2. Migrate SQLite -> PostgreSQL") printf '%s' "\\t2. 迁移 SQLite -> PostgreSQL" ;;
+        "\\t3. Status (clusters & port 5432)") printf '%s' "\\t3. 状态（集群与 5432 端口）" ;;
+        "\\t4. Start PostgreSQL") printf '%s' "\\t4. 启动 PostgreSQL" ;;
+        "\\t5. Stop PostgreSQL") printf '%s' "\\t5. 停止 PostgreSQL" ;;
+        "\\t6. Restart PostgreSQL") printf '%s' "\\t6. 重启 PostgreSQL" ;;
+        "\\t7. Enable Autostart on boot") printf '%s' "\\t7. 设置开机自启" ;;
+        "\\t8. View PostgreSQL Log") printf '%s' "\\t8. 查看 PostgreSQL 日志" ;;
+        "\\t9. Convert SQLite .db <-> .dump") printf '%s' "\\t9. 转换 SQLite .db <-> .dump" ;;
+        "\\t10. Install/Upgrade client tools (pg_dump/pg_restore)") printf '%s' "\\t10. 安装/升级客户端工具（pg_dump/pg_restore）" ;;
+        "Required PostgreSQL major version (empty = any):") printf '%s' "所需 PostgreSQL 主版本号（留空为任意）：" ;;
+        "d3x-ui binary not found at %s. Is the panel installed?") printf '%s' "在 %s 找不到 d3x-ui 二进制，面板安装了吗？" ;;
+        "This d3x-ui build does not support .db <-> .dump conversion yet.") printf '%s' "当前 d3x-ui 版本尚不支持 .db <-> .dump 转换。" ;;
+        "Update the panel first (d3x-ui update) to a version with 'migrate-db --dump/--restore'.") printf '%s' "请先更新面板（d3x-ui update）到支持 'migrate-db --dump/--restore' 的版本。" ;;
+        "Input file not found: %s") printf '%s' "找不到输入文件：%s" ;;
+        "Usage: d3x-ui migrateDB [file.db|file.dump] [output]") printf '%s' "用法：d3x-ui migrateDB [file.db|file.dump] [输出文件]" ;;
+        "Dumping SQLite database to SQL text:") printf '%s' "正在把 SQLite 数据库导出为 SQL 文本：" ;;
+        "%s -> %s") printf '%s' "%s -> %s" ;;
+        "Done. Wrote %s.") printf '%s' "完成，已写出 %s。" ;;
+        "Dump failed.") printf '%s' "导出失败。" ;;
+        "Refusing to restore into the live database (%s) while d3x-ui is running.") printf '%s' "d3x-ui 运行期间拒绝恢复到在线数据库（%s）。" ;;
+        "Stop the panel first (d3x-ui stop) or choose a different output path.") printf '%s' "请先停止面板（d3x-ui stop），或选择其他输出路径。" ;;
+        "Rebuilding SQLite database from SQL text:") printf '%s' "正在从 SQL 文本重建 SQLite 数据库：" ;;
+        "Done. Created %s.") printf '%s' "完成，已创建 %s。" ;;
+        "Restore failed.") printf '%s' "恢复失败。" ;;
+        "Convert between a SQLite .db and a portable .dump (direction auto-detected).") printf '%s' "在 SQLite .db 与可移植 .dump 之间转换（自动识别方向）。" ;;
+        "Input file [%s]:") printf '%s' "输入文件［%s］：" ;;
+        "Output file (leave empty to auto-name next to input):") printf '%s' "输出文件（留空则自动在输入旁命名）：" ;;
+        "D3X-UI Panel Management Script") printf '%s' "D3X-UI 面板管理脚本" ;;
+        "Exit Script") printf '%s' "退出脚本" ;;
+        "Install") printf '%s' "安装" ;;
+        "Update") printf '%s' "更新" ;;
+        "Update to Dev Channel (latest commit)") printf '%s' "更新到 Dev 频道（最新提交）" ;;
+        "Update Menu") printf '%s' "更新菜单" ;;
+        "Legacy Version") printf '%s' "旧版版本" ;;
+        "Uninstall") printf '%s' "卸载" ;;
+        "Reset Username & Password") printf '%s' "重置用户名和密码" ;;
+        "Reset Web Base Path") printf '%s' "重置访问路径" ;;
+        "Reset Settings") printf '%s' "重置设置" ;;
+        "Change Port") printf '%s' "修改端口" ;;
+        "View Current Settings") printf '%s' "查看当前设置" ;;
+        "Start") printf '%s' "启动" ;;
+        "Stop") printf '%s' "停止" ;;
+        "Restart") printf '%s' "重启" ;;
+        "Restart Xray") printf '%s' "重启 Xray" ;;
+        "Check Status") printf '%s' "查看状态" ;;
+        "Logs Management") printf '%s' "日志管理" ;;
+        "Enable Autostart") printf '%s' "启用开机自启" ;;
+        "Disable Autostart") printf '%s' "关闭开机自启" ;;
+        "SSL Certificate Management") printf '%s' "SSL 证书管理" ;;
+        "Cloudflare SSL Certificate") printf '%s' "Cloudflare SSL 证书" ;;
+        "IP Limit Management") printf '%s' "IP 限制管理" ;;
+        "Firewall Management") printf '%s' "防火墙管理" ;;
+        "SSH Port Forwarding Management") printf '%s' "SSH 端口转发管理" ;;
+        "PostgreSQL Management") printf '%s' "PostgreSQL 管理" ;;
+        "Enable BBR") printf '%s' "启用 BBR" ;;
+        "Update Geo Files") printf '%s' "更新 Geo 文件" ;;
+        "Speedtest by Ookla") printf '%s' "Ookla 测速" ;;
+        "d3x-ui control menu usages (subcommands):") printf '%s' "d3x-ui 控制菜单用法（子命令）：" ;;
+        "Admin Management Script") printf '%s' "管理脚本主菜单" ;;
+        "Current Status") printf '%s' "当前状态" ;;
+        "Current Settings") printf '%s' "当前设置" ;;
+        "Enable Autostart on OS Startup") printf '%s' "设置系统开机自启" ;;
+        "Disable Autostart on OS Startup") printf '%s' "取消系统开机自启" ;;
+        "Check logs") printf '%s' "查看日志" ;;
+        "Check Fail2ban ban logs") printf '%s' "查看 Fail2ban 封禁日志" ;;
+        "Update to Dev channel (latest)") printf '%s' "更新到 Dev 频道（最新）" ;;
+        "Update all geo files") printf '%s' "更新全部 geo 文件" ;;
+        "Convert .db <-> .dump (SQLite)") printf '%s' "转换 .db <-> .dump（SQLite）" ;;
+        "Upgrade pg_dump/pg_restore tools") printf '%s' "升级 pg_dump/pg_restore 工具" ;;
+        "Legacy version") printf '%s' "旧版版本" ;;
+        "Your input %s is invalid, will use default port 80.") printf '%s' "输入的 %s 无效，将使用默认端口 80。" ;;
+        "Will use port: %s to issue certificates. Please make sure this port is open.") printf '%s' "将使用端口 %s 签发证书，请确保该端口开放。" ;;
+        "Please choose which port to use (default is 80):") printf '%s' "请选择要使用的端口（默认 80）：" ;;
+        "0. Back to Main Menu") printf '%s' "0. 返回主菜单" ;;
+        "The certificate also covers:") printf '%s' "证书还覆盖：" ;;
+        "firewalld was pulled in by fail2ban and has been disabled so it does not block your ports after a reboot.") printf '%s' "firewalld 是被 fail2ban 顺带安装的，已禁用，以免重启后拦截你的端口。" ;;
+        *) printf '%s' "$1" ;;
+    esac
+}
+
+# xui_tr <key> [args...]
+# Returns the translated key. Each %s in the wording takes the next arg and
+# leftover args are appended (the value after a label such as "Password: ").
+xui_tr() {
+    local key="$1"
+    shift
+    local out="$key"
+    if [[ "$XUI_LANG_RESOLVED" == "zh" ]]; then
+        out="$(xui_zh "$key")"
+    fi
+    local res="" rest="$out" suffix="" a ph='%s'
+    for a in "$@"; do
+        if [[ "$rest" == *"$ph"* ]]; then
+            res+="${rest%%"$ph"*}$a"
+            rest="${rest#*"$ph"}"
+        else
+            suffix+="$a"
+        fi
+    done
+    printf '%s' "$res$rest$suffix"
+}
+
+# Terminal display width of a string in columns (CJK = 2).
+xui_width() {
+    local LC_ALL=C
+    local s="$1" w=0 i=0 b
+    while (( i < ${#s} )); do
+        printf -v b '%d' "'${s:i:1}"
+        if (( b < 0x80 )); then w=$((w + 1)); i=$((i + 1))
+        elif (( b < 0xC0 )); then w=$((w + 1)); i=$((i + 1))
+        elif (( b < 0xE0 )); then w=$((w + 1)); i=$((i + 2))
+        elif (( b < 0xF0 )); then w=$((w + 2)); i=$((i + 3))
+        else w=$((w + 2)); i=$((i + 4)); fi
+    done
+    printf '%d' "$w"
+}
+
+# Width-aware box rows. The menu frame is 48 columns wide, the usage frame 66.
+menu_title() {
+    local t; t="$(xui_tr "$1")"
+    printf '\u2502  %s%s%s%*s\u2502\n' "$green" "$t" "$plain" $((48 - 2 - $(xui_width "$t"))) ""
+}
+menu_line() {
+    local t; t="$(xui_tr "$2")"
+    printf '\u2502  %s%s.%s %s%*s\u2502\n' "$green" "$1" "$plain" "$t" $((44 - ${#1} - $(xui_width "$t"))) ""
+}
+usage_title() {
+    local t; t="$(xui_tr "$1")"
+    printf '\u2502  %s%s%s%*s\u2502\n' "$blue" "$t" "$plain" $((66 - 2 - $(xui_width "$t"))) ""
+}
+usage_line() {
+    local t; t="$(xui_tr "$2")"
+    printf '\u2502  %s%s%s%*s- %s%*s\u2502\n' "$blue" "$1" "$plain" $((29 - ${#1})) "" "$t" $((33 - $(xui_width "$t"))) ""
+}
+
 #Add some basic function here
 function LOGD() {
-    echo -e "${yellow}[DEG] $* ${plain}"
+    echo -e "${yellow}[DEG] $(xui_tr "$*") ${plain}"
 }
 
 function LOGE() {
-    echo -e "${red}[ERR] $* ${plain}"
+    echo -e "${red}[ERR] $(xui_tr "$*") ${plain}"
 }
 
 function LOGI() {
-    echo -e "${green}[INF] $* ${plain}"
+    echo -e "${green}[INF] $(xui_tr "$*") ${plain}"
 }
 
 # Port helpers: detect listener and owning process (best effort)
@@ -100,12 +598,12 @@ iplimit_banned_log_path="${log_folder}/3xipl-banned.log"
 
 confirm() {
     if [[ $# -gt 1 ]]; then
-        echo && read -rp "$1 [Default $2]: " temp
+        echo && read -rp "$(xui_tr '%s [Default %s]:' "$1" "$2")" temp
         if [[ "${temp}" == "" ]]; then
             temp=$2
         fi
     else
-        read -rp "$1 [y/n]: " temp
+        read -rp "$(xui_tr '%s [y/n]:' "$1")" temp
     fi
     if [[ "${temp}" == "y" || "${temp}" == "Y" ]]; then
         return 0
@@ -216,13 +714,13 @@ installed_script_url() {
     if [[ "$ver" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && curl -fsIL -o /dev/null "https://raw.githubusercontent.com/mekkhalawang/d3x-ui/v${ver}/d3x-ui.sh"; then
         echo "https://raw.githubusercontent.com/mekkhalawang/d3x-ui/v${ver}/d3x-ui.sh"
     else
-        echo -e "${yellow}No d3x-ui.sh published for the installed version (${ver:-unknown}), using main${plain}" >&2
+        echo -e "${yellow}$(xui_tr 'No d3x-ui.sh published for the installed version (%s), using main' "${ver:-unknown}")${plain}" >&2
         echo "https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/d3x-ui.sh"
     fi
 }
 
 update_menu() {
-    echo -e "${yellow}Updating Menu${plain}"
+    echo -e "${yellow}$(xui_tr 'Updating Menu')${plain}"
     confirm "This function will update the menu to the latest changes." "y"
     if [[ $? != 0 ]]; then
         LOGE "Cancelled"
@@ -234,10 +732,10 @@ update_menu() {
 
     if replace_xui_script "$(installed_script_url)" "false"; then
         chmod +x ${xui_folder}/d3x-ui.sh
-        echo -e "${green}Update successful. The panel has automatically restarted.${plain}"
+        echo -e "${green}$(xui_tr 'Update successful. The panel has automatically restarted.')${plain}"
         exit 0
     else
-        echo -e "${red}Failed to update the menu.${plain}"
+        echo -e "${red}$(xui_tr 'Failed to update the menu.')${plain}"
         return 1
     fi
 }
@@ -320,7 +818,7 @@ uninstall() {
     fi
 
     echo ""
-    echo -e "Uninstalled Successfully.\n"
+    echo -e "$(xui_tr 'Uninstalled Successfully.\n')"
     echo "If you need to install this panel again, you can use below command:"
     echo -e "${green}bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/master/install.sh)${plain}"
     echo ""
@@ -338,22 +836,22 @@ reset_user() {
         return 0
     fi
 
-    read -rp "Please set the login username [default is a random username]: " config_account
+    read -rp "$(xui_tr 'Please set the login username [default is a random username]:')" config_account
     [[ -z $config_account ]] && config_account=$(gen_random_string 10)
-    read -rp "Please set the login password [default is a random password]: " config_password
+    read -rp "$(xui_tr 'Please set the login password [default is a random password]:')" config_password
     [[ -z $config_password ]] && config_password=$(gen_random_string 18)
 
-    read -rp "Do you want to disable currently configured two-factor authentication? (y/n): " twoFactorConfirm
+    read -rp "$(xui_tr 'Do you want to disable currently configured two-factor authentication? (y/n):')" twoFactorConfirm
     if [[ $twoFactorConfirm != "y" && $twoFactorConfirm != "Y" ]]; then
         ${xui_folder}/d3x-ui setting -username "${config_account}" -password "${config_password}" > /dev/null 2>&1
     else
         ${xui_folder}/d3x-ui setting -username "${config_account}" -password "${config_password}" -resetTwoFactor=true > /dev/null 2>&1
-        echo -e "Two factor authentication has been disabled."
+        echo -e "$(xui_tr 'Two factor authentication has been disabled.')"
     fi
 
-    echo -e "Panel login username has been reset to: ${green} ${config_account} ${plain}"
-    echo -e "Panel login password has been reset to: ${green} ${config_password} ${plain}"
-    echo -e "${green} Please use the new login username and password to access the D3X-UI panel. Also remember them! ${plain}"
+    echo -e "${green}$(xui_tr 'Panel login username has been reset to:  %s' "${config_account}")${plain}"
+    echo -e "${green}$(xui_tr 'Panel login password has been reset to:  %s' "${config_password}")${plain}"
+    echo -e "${green}$(xui_tr 'Please use the new login username and password to access the D3X-UI panel. Also remember them!')${plain}"
     confirm_restart
 }
 
@@ -365,11 +863,11 @@ gen_random_string() {
 }
 
 reset_webbasepath() {
-    echo -e "${yellow}Resetting Web Base Path${plain}"
+    echo -e "${yellow}$(xui_tr 'Resetting Web Base Path')${plain}"
 
-    read -rp "Are you sure you want to reset the web base path? (y/n): " confirm
+    read -rp "$(xui_tr 'Are you sure you want to reset the web base path? (y/n):')" confirm
     if [[ $confirm != "y" && $confirm != "Y" ]]; then
-        echo -e "${yellow}Operation canceled.${plain}"
+        echo -e "${yellow}$(xui_tr 'Operation canceled.')${plain}"
         return
     fi
 
@@ -378,8 +876,8 @@ reset_webbasepath() {
     # Apply the new web base path setting
     ${xui_folder}/d3x-ui setting -webBasePath "${config_webBasePath}" > /dev/null 2>&1
 
-    echo -e "Web base path has been reset to: ${green}${config_webBasePath}${plain}"
-    echo -e "${green}Please use the new web base path to access the panel.${plain}"
+    echo -e "${green}$(xui_tr 'Web base path has been reset to: %s' "${config_webBasePath}")${plain}"
+    echo -e "${green}$(xui_tr 'Please use the new web base path to access the panel.')${plain}"
     restart
 }
 
@@ -392,7 +890,7 @@ reset_config() {
         return 0
     fi
     ${xui_folder}/d3x-ui setting -reset
-    echo -e "All panel settings have been reset to default."
+    echo -e "$(xui_tr 'All panel settings have been reset to default.')"
     restart
 }
 
@@ -412,9 +910,9 @@ check_config() {
         dsn="$(grep -E '^XUI_DB_DSN=' "$db_env_file" | head -1 | cut -d= -f2-)"
         local dsn_safe
         dsn_safe="$(echo "$dsn" | sed -E 's|(://[^:/@]+:)[^@]+@|\1****@|')"
-        echo -e "${green}Database: PostgreSQL — ${dsn_safe}${plain}"
+        echo -e "${green}$(xui_tr 'Database: PostgreSQL — %s' "${dsn_safe}")${plain}"
     else
-        echo -e "${green}Database: SQLite (/etc/d3x-ui/d3x-ui.db)${plain}"
+        echo -e "${green}$(xui_tr 'Database: SQLite (/etc/d3x-ui/d3x-ui.db)')${plain}"
     fi
 
     local existing_webBasePath=$(echo "$info" | grep -Eo 'webBasePath: .+' | awk '{print $2}')
@@ -440,12 +938,12 @@ check_config() {
     done
 
     if [[ -z "$server_ip" ]]; then
-        echo -e "${yellow}Could not auto-detect server IP from any provider.${plain}"
+        echo -e "${yellow}$(xui_tr 'Could not auto-detect server IP from any provider.')${plain}"
         while [[ -z "$server_ip" ]]; do
-            read -rp "Please enter your server's public IPv4 address: " server_ip
+            read -rp "$(xui_tr "Please enter your server's public IPv4 address:")" server_ip
             server_ip="${server_ip// /}"
             if [[ ! "$server_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-                echo -e "${red}Invalid IPv4 address. Please try again.${plain}"
+                echo -e "${red}$(xui_tr 'Invalid IPv4 address. Please try again.')${plain}"
                 server_ip=""
             fi
         done
@@ -466,32 +964,32 @@ check_config() {
         fi
 
         if [[ "$domain" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
-            echo -e "${green}Access URL: https://${domain}:${existing_port}${existing_webBasePath}${plain}"
+            echo -e "${green}$(xui_tr 'Access URL: https://%s:%s%s' "${domain}" "${existing_port}" "${existing_webBasePath}")${plain}"
         else
-            echo -e "${green}Access URL: https://${server_ip}:${existing_port}${existing_webBasePath}${plain}"
+            echo -e "${green}$(xui_tr 'Access URL: https://%s:%s%s' "${server_ip}" "${existing_port}" "${existing_webBasePath}")${plain}"
         fi
         if [[ -n "$cert_sans" && $(echo "$cert_sans" | wc -l) -gt 1 ]]; then
-            echo -e "${yellow}The certificate also covers:${plain} $(echo "$cert_sans" | grep -vx "$domain" | tr '\n' ' ')"
+            echo -e "${yellow}$(xui_tr 'The certificate also covers:')${plain} $(echo "$cert_sans" | grep -vx "$domain" | tr '\n' ' ')"
         fi
     else
-        echo -e "${red}⚠ WARNING: No SSL certificate configured!${plain}"
-        echo -e "${yellow}You can get a Let's Encrypt certificate for your IP address (valid ~6 days, auto-renews).${plain}"
-        read -rp "Generate SSL certificate for IP now? [y/N]: " gen_ssl
+        echo -e "${red}$(xui_tr '⚠ WARNING: No SSL certificate configured!')${plain}"
+        echo -e "${yellow}$(xui_tr "You can get a Let's Encrypt certificate for your IP address (valid ~6 days, auto-renews).")${plain}"
+        read -rp "$(xui_tr 'Generate SSL certificate for IP now? [y/N]:')" gen_ssl
         if [[ "$gen_ssl" == "y" || "$gen_ssl" == "Y" ]]; then
             stop 0 > /dev/null 2>&1
             ssl_cert_issue_for_ip
             if [[ $? -eq 0 ]]; then
-                echo -e "${green}Access URL: https://${server_ip}:${existing_port}${existing_webBasePath}${plain}"
+                echo -e "${green}$(xui_tr 'Access URL: https://%s:%s%s' "${server_ip}" "${existing_port}" "${existing_webBasePath}")${plain}"
                 # ssl_cert_issue_for_ip already restarts the panel, but ensure it's running
                 start 0 > /dev/null 2>&1
             else
                 LOGE "IP certificate setup failed."
-                echo -e "${yellow}You can try again via main menu option 20 (SSL Certificate Management).${plain}"
+                echo -e "${yellow}$(xui_tr 'You can try again via main menu option 20 (SSL Certificate Management).')${plain}"
                 start 0 > /dev/null 2>&1
             fi
         else
-            echo -e "${yellow}Access URL: http://${server_ip}:${existing_port}${existing_webBasePath}${plain}"
-            echo -e "${yellow}For security, please configure SSL certificate using main menu option 20 (SSL Certificate Management)${plain}"
+            echo -e "${yellow}$(xui_tr 'Access URL: http://%s:%s%s' "${server_ip}" "${existing_port}" "${existing_webBasePath}")${plain}"
+            echo -e "${yellow}$(xui_tr 'For security, please configure SSL certificate using main menu option 20 (SSL Certificate Management)')${plain}"
         fi
     fi
 }
@@ -504,7 +1002,7 @@ set_port() {
         before_show_menu
     else
         ${xui_folder}/d3x-ui setting -port ${port}
-        echo -e "The port is set, Please restart the panel now, and use the new port ${green}${port}${plain} to access web panel"
+        echo -e "${green}$(xui_tr 'The port is set, Please restart the panel now, and use the new port %s to access web panel' "${port}")${plain}"
         confirm_restart
     fi
 }
@@ -712,9 +1210,9 @@ disable() {
 
 show_log() {
     if [[ $release == "alpine" ]]; then
-        echo -e "${green}\t1.${plain} Debug Log"
-        echo -e "${green}\t0.${plain} Back to Main Menu"
-        read -rp "Choose an option: " choice
+        echo -e "${green}$(xui_tr '\t1. Debug Log')${plain}"
+        echo -e "${green}$(xui_tr '\t0. Back to Main Menu')${plain}"
+        read -rp "$(xui_tr 'Choose an option:')" choice
 
         case "$choice" in
             0)
@@ -727,15 +1225,15 @@ show_log() {
                 fi
                 ;;
             *)
-                echo -e "${red}Invalid option. Please select a valid number.${plain}\n"
+                echo -e "${red}$(xui_tr 'Invalid option. Please select a valid number.\n')${plain}"
                 show_log
                 ;;
         esac
     else
-        echo -e "${green}\t1.${plain} Debug Log"
-        echo -e "${green}\t2.${plain} Clear All logs"
-        echo -e "${green}\t0.${plain} Back to Main Menu"
-        read -rp "Choose an option: " choice
+        echo -e "${green}$(xui_tr '\t1. Debug Log')${plain}"
+        echo -e "${green}$(xui_tr '\t2. Clear All logs')${plain}"
+        echo -e "${green}$(xui_tr '\t0. Back to Main Menu')${plain}"
+        read -rp "$(xui_tr 'Choose an option:')" choice
 
         case "$choice" in
             0)
@@ -754,7 +1252,7 @@ show_log() {
                 restart
                 ;;
             *)
-                echo -e "${red}Invalid option. Please select a valid number.${plain}\n"
+                echo -e "${red}$(xui_tr 'Invalid option. Please select a valid number.\n')${plain}"
                 show_log
                 ;;
         esac
@@ -762,10 +1260,10 @@ show_log() {
 }
 
 bbr_menu() {
-    echo -e "${green}\t1.${plain} Enable BBR"
-    echo -e "${green}\t2.${plain} Disable BBR"
-    echo -e "${green}\t0.${plain} Back to Main Menu"
-    read -rp "Choose an option: " choice
+    echo -e "${green}$(xui_tr '\t1. Enable BBR')${plain}"
+    echo -e "${green}$(xui_tr '\t2. Disable BBR')${plain}"
+    echo -e "${green}$(xui_tr '\t0. Back to Main Menu')${plain}"
+    read -rp "$(xui_tr 'Choose an option:')" choice
     case "$choice" in
         0)
             show_menu
@@ -779,7 +1277,7 @@ bbr_menu() {
             bbr_menu
             ;;
         *)
-            echo -e "${red}Invalid option. Please select a valid number.${plain}\n"
+            echo -e "${red}$(xui_tr 'Invalid option. Please select a valid number.\n')${plain}"
             bbr_menu
             ;;
     esac
@@ -788,7 +1286,7 @@ bbr_menu() {
 disable_bbr() {
 
     if [[ $(sysctl -n net.ipv4.tcp_congestion_control) != "bbr" ]] || [[ ! $(sysctl -n net.core.default_qdisc) =~ ^(fq|cake)$ ]]; then
-        echo -e "${yellow}BBR is not currently enabled.${plain}"
+        echo -e "${yellow}$(xui_tr 'BBR is not currently enabled.')${plain}"
         before_show_menu
     fi
 
@@ -810,15 +1308,15 @@ disable_bbr() {
     fi
 
     if [[ $(sysctl -n net.ipv4.tcp_congestion_control) != "bbr" ]]; then
-        echo -e "${green}BBR has been replaced with CUBIC successfully.${plain}"
+        echo -e "${green}$(xui_tr 'BBR has been replaced with CUBIC successfully.')${plain}"
     else
-        echo -e "${red}Failed to replace BBR with CUBIC. Please check your system configuration.${plain}"
+        echo -e "${red}$(xui_tr 'Failed to replace BBR with CUBIC. Please check your system configuration.')${plain}"
     fi
 }
 
 enable_bbr() {
     if [[ $(sysctl -n net.ipv4.tcp_congestion_control) == "bbr" ]] && [[ $(sysctl -n net.core.default_qdisc) =~ ^(fq|cake)$ ]]; then
-        echo -e "${green}BBR is already enabled!${plain}"
+        echo -e "${green}$(xui_tr 'BBR is already enabled!')${plain}"
         before_show_menu
     fi
 
@@ -848,9 +1346,9 @@ enable_bbr() {
 
     # Verify that BBR is enabled
     if [[ $(sysctl -n net.ipv4.tcp_congestion_control) == "bbr" ]]; then
-        echo -e "${green}BBR has been enabled successfully.${plain}"
+        echo -e "${green}$(xui_tr 'BBR has been enabled successfully.')${plain}"
     else
-        echo -e "${red}Failed to enable BBR. Please check your system configuration.${plain}"
+        echo -e "${red}$(xui_tr 'Failed to enable BBR. Please check your system configuration.')${plain}"
     fi
 }
 
@@ -962,15 +1460,15 @@ show_status() {
     check_status
     case $? in
         0)
-            echo -e "Panel state: ${green}Running${plain}"
+            echo -e "${green}$(xui_tr 'Panel state: Running')${plain}"
             show_enable_status
             ;;
         1)
-            echo -e "Panel state: ${yellow}Not Running${plain}"
+            echo -e "${yellow}$(xui_tr 'Panel state: Not Running')${plain}"
             show_enable_status
             ;;
         2)
-            echo -e "Panel state: ${red}Not Installed${plain}"
+            echo -e "${red}$(xui_tr 'Panel state: Not Installed')${plain}"
             ;;
     esac
     show_xray_status
@@ -979,14 +1477,14 @@ show_status() {
 
 show_enable_status() {
     if [[ "${running_in_docker}" == "true" ]]; then
-        echo -e "Start automatically: ${green}Managed by Docker${plain}"
+        echo -e "${green}$(xui_tr 'Start automatically: Managed by Docker')${plain}"
         return
     fi
     check_enabled
     if [[ $? == 0 ]]; then
-        echo -e "Start automatically: ${green}Yes${plain}"
+        echo -e "${green}$(xui_tr 'Start automatically: Yes')${plain}"
     else
-        echo -e "Start automatically: ${red}No${plain}"
+        echo -e "${red}$(xui_tr 'Start automatically: No')${plain}"
     fi
 }
 
@@ -1002,9 +1500,9 @@ check_xray_status() {
 show_xray_status() {
     check_xray_status
     if [[ $? == 0 ]]; then
-        echo -e "xray state: ${green}Running${plain}"
+        echo -e "${green}$(xui_tr 'xray state: Running')${plain}"
     else
-        echo -e "xray state: ${red}Not Running${plain}"
+        echo -e "${red}$(xui_tr 'xray state: Not Running')${plain}"
     fi
 }
 
@@ -1028,23 +1526,23 @@ show_mtproto_status() {
         id=$(echo "${name}" | sed -E 's/mtg-([0-9]+)\.toml/\1/')
         bind=$(grep -E '^[[:space:]]*bind-to' "$f" | head -1 | cut -d'"' -f2)
         if echo "${running}" | grep -qx "${name}"; then
-            echo -e "mtproto inbound ${id} (${bind}): ${green}Running${plain}"
+            echo -e "${green}$(xui_tr 'mtproto inbound %s (%s): Running' "${id}" "${bind}")${plain}"
         else
-            echo -e "mtproto inbound ${id} (${bind}): ${red}Not Running${plain}"
+            echo -e "${red}$(xui_tr 'mtproto inbound %s (%s): Not Running' "${id}" "${bind}")${plain}"
         fi
     done
 }
 
 firewall_menu() {
-    echo -e "${green}\t1.${plain} ${green}Install${plain} Firewall"
-    echo -e "${green}\t2.${plain} Port List [numbered]"
-    echo -e "${green}\t3.${plain} ${green}Open${plain} Ports"
-    echo -e "${green}\t4.${plain} ${red}Delete${plain} Ports from List"
-    echo -e "${green}\t5.${plain} ${green}Enable${plain} Firewall"
-    echo -e "${green}\t6.${plain} ${red}Disable${plain} Firewall"
-    echo -e "${green}\t7.${plain} Firewall Status"
-    echo -e "${green}\t0.${plain} Back to Main Menu"
-    read -rp "Choose an option: " choice
+    echo -e "${green}$(xui_tr '\t1. Install Firewall')${plain}"
+    echo -e "${green}$(xui_tr '\t2. Port List [numbered]')${plain}"
+    echo -e "${green}$(xui_tr '\t3. Open Ports')${plain}"
+    echo -e "${green}$(xui_tr '\t4. Delete Ports from List')${plain}"
+    echo -e "${green}$(xui_tr '\t5. Enable Firewall')${plain}"
+    echo -e "${green}$(xui_tr '\t6. Disable Firewall')${plain}"
+    echo -e "${green}$(xui_tr '\t7. Firewall Status')${plain}"
+    echo -e "${green}$(xui_tr '\t0. Back to Main Menu')${plain}"
+    read -rp "$(xui_tr 'Choose an option:')" choice
     case "$choice" in
         0)
             show_menu
@@ -1078,7 +1576,7 @@ firewall_menu() {
             firewall_menu
             ;;
         *)
-            echo -e "${red}Invalid option. Please select a valid number.${plain}\n"
+            echo -e "${red}$(xui_tr 'Invalid option. Please select a valid number.\n')${plain}"
             firewall_menu
             ;;
     esac
@@ -1112,7 +1610,7 @@ install_firewall() {
 
 open_ports() {
     # Prompt the user to enter the ports they want to open
-    read -rp "Enter the ports you want to open (e.g. 80,443,2053 or range 400-500): " ports
+    read -rp "$(xui_tr 'Enter the ports you want to open (e.g. 80,443,2053 or range 400-500):')" ports
 
     # Check if the input is valid
     if ! [[ $ports =~ ^([0-9]+|[0-9]+-[0-9]+)(,([0-9]+|[0-9]+-[0-9]+))*$ ]]; then
@@ -1160,11 +1658,11 @@ delete_ports() {
     echo "Do you want to delete rules by:"
     echo "1) Rule numbers"
     echo "2) Ports"
-    read -rp "Enter your choice (1 or 2): " choice
+    read -rp "$(xui_tr 'Enter your choice (1 or 2):')" choice
 
     if [[ $choice -eq 1 ]]; then
         # Deleting by rule numbers
-        read -rp "Enter the rule numbers you want to delete (1, 2, etc.): " rule_numbers
+        read -rp "$(xui_tr 'Enter the rule numbers you want to delete (1, 2, etc.):')" rule_numbers
 
         # Validate the input
         if ! [[ $rule_numbers =~ ^([0-9]+)(,[0-9]+)*$ ]]; then
@@ -1183,7 +1681,7 @@ delete_ports() {
 
     elif [[ $choice -eq 2 ]]; then
         # Deleting by ports
-        read -rp "Enter the ports you want to delete (e.g. 80,443,2053 or range 400-500): " ports
+        read -rp "$(xui_tr 'Enter the ports you want to delete (e.g. 80,443,2053 or range 400-500):')" ports
 
         # Validate the input
         if ! [[ $ports =~ ^([0-9]+|[0-9]+-[0-9]+)(,([0-9]+|[0-9]+-[0-9]+))*$ ]]; then
@@ -1249,7 +1747,7 @@ update_geofiles() {
             dat_source="runetfreedom/russia-v2ray-rules-dat"
             ;;
         *)
-            echo -e "${red}update_geofiles: unknown dataset '${1}'${plain}"
+            echo -e "${red}$(xui_tr "update_geofiles: unknown dataset '%s'" "${1}")${plain}"
             return 1
             ;;
     esac
@@ -1265,24 +1763,24 @@ update_geofiles() {
         http_code=$(curl -sSfLRo "$temp_file" -z "$dest" -w '%{http_code}' \
             https://github.com/${dat_source}/releases/latest/download/${remote_file}.dat)
         if [[ $? -ne 0 ]]; then
-            echo -e "${red}${dat}.dat: download failed${plain}"
+            echo -e "${red}$(xui_tr '%s.dat: download failed' "${dat}")${plain}"
             rm -f "$temp_file"
             failed=1
         elif [[ "$http_code" == "304" ]]; then
-            echo -e "${dat}.dat: already up to date"
+            echo -e "$(xui_tr '%s.dat: already up to date' "${dat}")"
             rm -f "$temp_file"
         elif [[ ! -s "$temp_file" ]]; then
-            echo -e "${red}${dat}.dat: downloaded file is empty${plain}"
+            echo -e "${red}$(xui_tr '%s.dat: downloaded file is empty' "${dat}")${plain}"
             rm -f "$temp_file"
             failed=1
         else
             mv -f "$temp_file" "$dest"
             if [[ $? -ne 0 ]]; then
-                echo -e "${red}${dat}.dat: failed to install${plain}"
+                echo -e "${red}$(xui_tr '%s.dat: failed to install' "${dat}")${plain}"
                 rm -f "$temp_file"
                 failed=1
             else
-                echo -e "${green}${dat}.dat: updated${plain}"
+                echo -e "${green}$(xui_tr '%s.dat: updated' "${dat}")${plain}"
                 geo_updated=1
             fi
         fi
@@ -1296,22 +1794,22 @@ run_geo_update() {
     geo_updated=0
     "$@"
     if [[ $? -ne 0 ]]; then
-        echo -e "${red}Some ${name} could not be updated. Check the errors above.${plain}"
+        echo -e "${red}$(xui_tr 'Some %s could not be updated. Check the errors above.' "${name}")${plain}"
     elif [[ $geo_updated -eq 1 ]]; then
-        echo -e "${green}${name} have been updated successfully!${plain}"
+        echo -e "${green}$(xui_tr '%s have been updated successfully!' "${name}")${plain}"
         restart
     else
-        echo -e "${green}${name} are already up to date, restart is not needed.${plain}"
+        echo -e "${green}$(xui_tr '%s are already up to date, restart is not needed.' "${name}")${plain}"
     fi
 }
 
 update_geo() {
-    echo -e "${green}\t1.${plain} Loyalsoldier (geoip.dat, geosite.dat)"
-    echo -e "${green}\t2.${plain} chocolate4u (geoip_IR.dat, geosite_IR.dat)"
-    echo -e "${green}\t3.${plain} runetfreedom (geoip_RU.dat, geosite_RU.dat)"
-    echo -e "${green}\t4.${plain} All"
-    echo -e "${green}\t0.${plain} Back to Main Menu"
-    read -rp "Choose an option: " choice
+    echo -e "${green}$(xui_tr '\t1. Loyalsoldier (geoip.dat, geosite.dat)')${plain}"
+    echo -e "${green}$(xui_tr '\t2. chocolate4u (geoip_IR.dat, geosite_IR.dat)')${plain}"
+    echo -e "${green}$(xui_tr '\t3. runetfreedom (geoip_RU.dat, geosite_RU.dat)')${plain}"
+    echo -e "${green}$(xui_tr '\t4. All')${plain}"
+    echo -e "${green}$(xui_tr '\t0. Back to Main Menu')${plain}"
+    read -rp "$(xui_tr 'Choose an option:')" choice
 
     case "$choice" in
         0)
@@ -1330,7 +1828,7 @@ update_geo() {
             run_geo_update "geo files" update_all_geofiles
             ;;
         *)
-            echo -e "${red}Invalid option. Please select a valid number.${plain}\n"
+            echo -e "${red}$(xui_tr 'Invalid option. Please select a valid number.\n')${plain}"
             update_geo
             ;;
     esac
@@ -1360,15 +1858,15 @@ install_acme() {
 }
 
 ssl_cert_issue_main() {
-    echo -e "${green}\t1.${plain} Get SSL (Domain)"
-    echo -e "${green}\t2.${plain} Revoke & Remove"
-    echo -e "${green}\t3.${plain} Force Renew"
-    echo -e "${green}\t4.${plain} Show Existing Domains"
-    echo -e "${green}\t5.${plain} Set Cert paths for the panel"
-    echo -e "${green}\t6.${plain} Get SSL for IP Address (6-day cert, auto-renews)"
-    echo -e "${green}\t0.${plain} Back to Main Menu"
+    echo -e "${green}$(xui_tr '\t1. Get SSL (Domain)')${plain}"
+    echo -e "${green}$(xui_tr '\t2. Revoke & Remove')${plain}"
+    echo -e "${green}$(xui_tr '\t3. Force Renew')${plain}"
+    echo -e "${green}$(xui_tr '\t4. Show Existing Domains')${plain}"
+    echo -e "${green}$(xui_tr '\t5. Set Cert paths for the panel')${plain}"
+    echo -e "${green}$(xui_tr '\t6. Get SSL for IP Address (6-day cert, auto-renews)')${plain}"
+    echo -e "${green}$(xui_tr '\t0. Back to Main Menu')${plain}"
 
-    read -rp "Choose an option: " choice
+    read -rp "$(xui_tr 'Choose an option:')" choice
     case "$choice" in
         0)
             show_menu
@@ -1384,7 +1882,7 @@ ssl_cert_issue_main() {
             else
                 echo "Existing domains:"
                 echo "$domains"
-                read -rp "Please enter a domain from the list to revoke and remove the certificate: " domain
+                read -rp "$(xui_tr 'Please enter a domain from the list to revoke and remove the certificate:')" domain
                 if echo "$domains" | grep -qw "$domain"; then
                     # The IP-cert flow (option 6) stores files under /root/cert/ip, but acme.sh
                     # tracks the cert under the actual IP address(es). Resolve those so renewal
@@ -1402,14 +1900,14 @@ ssl_cert_issue_main() {
                     done
                     # Delete the local certificate files for this domain.
                     rm -rf "/root/cert/${domain}"
-                    LOGI "Certificate revoked and removed for domain: ${domain}"
+                    LOGI "$(xui_tr 'Certificate revoked and removed for domain: %s' "${domain}")"
 
                     # If the panel currently serves this domain's cert, clear the stored paths
                     # so it stops loading the now-deleted files, then restart.
                     local existing_cert=$(${xui_folder}/d3x-ui setting -getCert true | grep 'cert:' | awk -F': ' '{print $2}' | tr -d '[:space:]')
                     if [[ "${existing_cert}" == "/root/cert/${domain}/"* ]]; then
                         ${xui_folder}/d3x-ui cert -reset
-                        LOGI "Cleared panel certificate paths referencing ${domain}; restarting panel."
+                        LOGI "$(xui_tr 'Cleared panel certificate paths referencing %s; restarting panel.' "${domain}")"
                         restart
                     fi
                 else
@@ -1425,10 +1923,10 @@ ssl_cert_issue_main() {
             else
                 echo "Existing domains:"
                 echo "$domains"
-                read -rp "Please enter a domain from the list to renew the SSL certificate: " domain
+                read -rp "$(xui_tr 'Please enter a domain from the list to renew the SSL certificate:')" domain
                 if echo "$domains" | grep -qw "$domain"; then
                     ~/.acme.sh/acme.sh --renew -d ${domain} --force
-                    LOGI "Certificate forcefully renewed for domain: $domain"
+                    LOGI "$(xui_tr 'Certificate forcefully renewed for domain: %s' "$domain")"
                 else
                     echo "Invalid domain entered."
                 fi
@@ -1445,11 +1943,11 @@ ssl_cert_issue_main() {
                     local cert_path="/root/cert/${domain}/fullchain.pem"
                     local key_path="/root/cert/${domain}/privkey.pem"
                     if [[ -f "${cert_path}" && -f "${key_path}" ]]; then
-                        echo -e "Domain: ${domain}"
-                        echo -e "\tCertificate Path: ${cert_path}"
-                        echo -e "\tPrivate Key Path: ${key_path}"
+                        echo -e "$(xui_tr 'Domain: %s' "${domain}")"
+                        echo -e "$(xui_tr '\tCertificate Path: %s' "${cert_path}")"
+                        echo -e "$(xui_tr '\tPrivate Key Path: %s' "${key_path}")"
                     else
-                        echo -e "Domain: ${domain} - Certificate or Key missing."
+                        echo -e "$(xui_tr 'Domain: %s - Certificate or Key missing.' "${domain}")"
                     fi
                 done
             fi
@@ -1457,22 +1955,22 @@ ssl_cert_issue_main() {
             # (e.g. certbot under /etc/letsencrypt) — show it too (#5070).
             local panel_cert=$(${xui_folder}/d3x-ui setting -getCert true | grep 'cert:' | awk -F': ' '{print $2}' | tr -d '[:space:]')
             if [[ -n "${panel_cert}" && "${panel_cert}" != /root/cert/* ]]; then
-                echo -e "Panel certificate (custom path): ${panel_cert}"
+                echo -e "$(xui_tr 'Panel certificate (custom path): %s' "${panel_cert}")"
                 if [[ -f "${panel_cert}" ]] && command -v openssl > /dev/null 2>&1; then
                     local panel_sans=$(openssl x509 -in "${panel_cert}" -noout -ext subjectAltName 2> /dev/null \
                         | grep -Eo 'DNS:[^,[:space:]]+' | cut -d: -f2 | tr '\n' ' ')
-                    [[ -n "${panel_sans}" ]] && echo -e "\tCovers: ${panel_sans}"
+                    [[ -n "${panel_sans}" ]] && echo -e "$(xui_tr '\tCovers: %s' "${panel_sans}")"
                 fi
             fi
             ssl_cert_issue_main
             ;;
         5)
-            echo -e "${green}\t1.${plain} Use a certificate from /root/cert"
-            echo -e "${green}\t2.${plain} Enter custom certificate file paths (e.g. certbot, /etc/letsencrypt/...)"
-            read -rp "Choose an option: " pathChoice
+            echo -e "${green}$(xui_tr '\t1. Use a certificate from /root/cert')${plain}"
+            echo -e "${green}$(xui_tr '\t2. Enter custom certificate file paths (e.g. certbot, /etc/letsencrypt/...)')${plain}"
+            read -rp "$(xui_tr 'Choose an option:')" pathChoice
             if [[ "$pathChoice" == "2" ]]; then
-                read -rp "Certificate file path (fullchain): " webCertFile
-                read -rp "Private key file path: " webKeyFile
+                read -rp "$(xui_tr 'Certificate file path (fullchain):')" webCertFile
+                read -rp "$(xui_tr 'Private key file path:')" webKeyFile
                 if [[ -f "${webCertFile}" && -f "${webKeyFile}" ]]; then
                     ${xui_folder}/d3x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
                     echo "Panel certificate paths set:"
@@ -1491,7 +1989,7 @@ ssl_cert_issue_main() {
             else
                 echo "Available domains:"
                 echo "$domains"
-                read -rp "Please choose a domain to set the panel paths: " domain
+                read -rp "$(xui_tr 'Please choose a domain to set the panel paths:')" domain
 
                 if echo "$domains" | grep -qw "$domain"; then
                     local webCertFile="/root/cert/${domain}/fullchain.pem"
@@ -1523,10 +2021,10 @@ ssl_cert_issue_main() {
             ssl_cert_issue_main
             ;;
         6)
-            echo -e "${yellow}Let's Encrypt SSL Certificate for IP Address${plain}"
-            echo -e "This will obtain a certificate for your server's IP using the shortlived profile."
-            echo -e "${yellow}Certificate valid for ~6 days, auto-renews via acme.sh cron job.${plain}"
-            echo -e "${yellow}Port 80 must be open and accessible from the internet.${plain}"
+            echo -e "${yellow}$(xui_tr "Let's Encrypt SSL Certificate for IP Address")${plain}"
+            echo -e "$(xui_tr "This will obtain a certificate for your server's IP using the shortlived profile.")"
+            echo -e "${yellow}$(xui_tr 'Certificate valid for ~6 days, auto-renews via acme.sh cron job.')${plain}"
+            echo -e "${yellow}$(xui_tr 'Port 80 must be open and accessible from the internet.')${plain}"
             confirm "Do you want to proceed?" "y"
             if [[ $? == 0 ]]; then
                 ssl_cert_issue_for_ip
@@ -1535,7 +2033,7 @@ ssl_cert_issue_main() {
             ;;
 
         *)
-            echo -e "${red}Invalid option. Please select a valid number.${plain}\n"
+            echo -e "${red}$(xui_tr 'Invalid option. Please select a valid number.\n')${plain}"
             ssl_cert_issue_main
             ;;
     esac
@@ -1569,7 +2067,7 @@ ssl_cert_issue_for_ip() {
     done
 
     if [[ -n "$server_ip" ]]; then
-        LOGI "Server IP detected: ${server_ip}"
+        LOGI "$(xui_tr 'Server IP detected: %s' "${server_ip}")"
         if ! confirm "Is ${server_ip} the correct incoming public IPv4 address for this server?" "y"; then
             server_ip=""
         fi
@@ -1578,7 +2076,7 @@ ssl_cert_issue_for_ip() {
     fi
 
     while [[ -z "$server_ip" ]]; do
-        read -rp "Please enter your server's public IPv4 address: " server_ip
+        read -rp "$(xui_tr "Please enter your server's public IPv4 address:")" server_ip
         server_ip="${server_ip// /}"
         if [[ ! "$server_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             LOGE "Invalid IPv4 address. Please try again."
@@ -1586,11 +2084,11 @@ ssl_cert_issue_for_ip() {
         fi
     done
 
-    LOGI "Issuing certificate for server IP: ${server_ip}"
+    LOGI "$(xui_tr 'Issuing certificate for server IP: %s' "${server_ip}")"
 
     # Ask for optional IPv6
     local ipv6_addr=""
-    read -rp "Do you have an IPv6 address to include? (leave empty to skip): " ipv6_addr
+    read -rp "$(xui_tr 'Do you have an IPv6 address to include? (leave empty to skip):')" ipv6_addr
     ipv6_addr="${ipv6_addr// /}" # Trim whitespace
 
     # check for acme.sh first
@@ -1640,31 +2138,31 @@ ssl_cert_issue_for_ip() {
     local domain_args="-d ${server_ip}"
     if [[ -n "$ipv6_addr" ]] && is_ipv6 "$ipv6_addr"; then
         domain_args="${domain_args} -d ${ipv6_addr}"
-        LOGI "Including IPv6 address: ${ipv6_addr}"
+        LOGI "$(xui_tr 'Including IPv6 address: %s' "${ipv6_addr}")"
     fi
 
     # Choose port for HTTP-01 listener (default 80, allow override)
     local WebPort=""
-    read -rp "Port to use for ACME HTTP-01 listener (default 80): " WebPort
+    read -rp "$(xui_tr 'Port to use for ACME HTTP-01 listener (default 80):')" WebPort
     WebPort="${WebPort:-80}"
     if ! [[ "${WebPort}" =~ ^[0-9]+$ ]] || ((WebPort < 1 || WebPort > 65535)); then
         LOGE "Invalid port provided. Falling back to 80."
         WebPort=80
     fi
-    LOGI "Using port ${WebPort} to issue certificate for IP: ${server_ip}"
+    LOGI "$(xui_tr 'Using port %s to issue certificate for IP: %s' "${WebPort}" "${server_ip}")"
     if [[ "${WebPort}" -ne 80 ]]; then
-        LOGI "Reminder: Let's Encrypt still reaches port 80; forward external port 80 to ${WebPort} for validation."
+        LOGI "$(xui_tr "Reminder: Let's Encrypt still reaches port 80; forward external port 80 to %s for validation." "${WebPort}")"
     fi
 
     while true; do
         if is_port_in_use "${WebPort}"; then
-            LOGI "Port ${WebPort} is currently in use."
+            LOGI "$(xui_tr 'Port %s is currently in use.' "${WebPort}")"
 
             local alt_port=""
-            read -rp "Enter another port for acme.sh standalone listener (leave empty to abort): " alt_port
+            read -rp "$(xui_tr 'Enter another port for acme.sh standalone listener (leave empty to abort):')" alt_port
             alt_port="${alt_port// /}"
             if [[ -z "${alt_port}" ]]; then
-                LOGE "Port ${WebPort} is busy; cannot proceed with issuance."
+                LOGE "$(xui_tr 'Port %s is busy; cannot proceed with issuance.' "${WebPort}")"
                 return 1
             fi
             if ! [[ "${alt_port}" =~ ^[0-9]+$ ]] || ((alt_port < 1 || alt_port > 65535)); then
@@ -1674,7 +2172,7 @@ ssl_cert_issue_for_ip() {
             WebPort="${alt_port}"
             continue
         else
-            LOGI "Port ${WebPort} is free and ready for standalone validation."
+            LOGI "$(xui_tr 'Port %s is free and ready for standalone validation.' "${WebPort}")"
             break
         fi
     done
@@ -1694,15 +2192,15 @@ ssl_cert_issue_for_ip() {
         --force
 
     if [ $? -ne 0 ]; then
-        LOGE "Failed to issue certificate for IP: ${server_ip}"
-        LOGE "Make sure port ${WebPort} is open and the server is accessible from the internet"
+        LOGE "$(xui_tr 'Failed to issue certificate for IP: %s' "${server_ip}")"
+        LOGE "$(xui_tr 'Make sure port %s is open and the server is accessible from the internet' "${WebPort}")"
         # Cleanup acme.sh data for both IPv4 and IPv6 if specified
         rm -rf ~/.acme.sh/${server_ip} ~/.acme.sh/${server_ip}_ecc 2> /dev/null
         [[ -n "$ipv6_addr" ]] && rm -rf ~/.acme.sh/${ipv6_addr} ~/.acme.sh/${ipv6_addr}_ecc 2> /dev/null
         rm -rf ${certPath} 2> /dev/null
         return 1
     else
-        LOGI "Certificate issued successfully for IP: ${server_ip}"
+        LOGI "$(xui_tr 'Certificate issued successfully for IP: %s' "${server_ip}")"
     fi
 
     # Install the certificate
@@ -1734,19 +2232,19 @@ ssl_cert_issue_for_ip() {
     local webCertFile="${certPath}/fullchain.pem"
     local webKeyFile="${certPath}/privkey.pem"
 
-    read -rp "Would you like to set this certificate for the panel? (y/n): " setPanel
+    read -rp "$(xui_tr 'Would you like to set this certificate for the panel? (y/n):')" setPanel
     if [[ "$setPanel" == "y" || "$setPanel" == "Y" ]]; then
         if [[ -f "$webCertFile" && -f "$webKeyFile" ]]; then
             ${xui_folder}/d3x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
-            LOGI "Panel paths set for IP: $server_ip"
-            LOGI "  - Certificate File: $webCertFile"
-            LOGI "  - Private Key File: $webKeyFile"
+            LOGI "$(xui_tr 'Panel paths set for IP: %s' "$server_ip")"
+            LOGI "$(xui_tr '- Certificate File: %s' "$webCertFile")"
+            LOGI "$(xui_tr '- Private Key File: %s' "$webKeyFile")"
             LOGI "  - Validity: ~6 days (auto-renews via acme.sh cron)"
-            echo -e "${green}Access URL: https://${server_ip}:${existing_port}${existing_webBasePath}${plain}"
+            echo -e "${green}$(xui_tr 'Access URL: https://%s:%s%s' "${server_ip}" "${existing_port}" "${existing_webBasePath}")${plain}"
             LOGI "Panel will restart to apply SSL certificate..."
             restart
         else
-            LOGE "Error: Certificate or private key file not found for IP: $server_ip."
+            LOGE "$(xui_tr 'Error: Certificate or private key file not found for IP: %s.' "$server_ip")"
             return 1
         fi
     else
@@ -1807,7 +2305,7 @@ ssl_cert_issue() {
     # get the domain here, and we need to verify it
     local domain=""
     while true; do
-        read -rp "Please enter your domain name: " domain
+        read -rp "$(xui_tr 'Please enter your domain name:')" domain
         domain="${domain// /}" # Trim whitespace
 
         if [[ -z "$domain" ]]; then
@@ -1816,13 +2314,13 @@ ssl_cert_issue() {
         fi
 
         if ! is_domain "$domain"; then
-            LOGE "Invalid domain format: ${domain}. Please enter a valid domain name."
+            LOGE "$(xui_tr 'Invalid domain format: %s. Please enter a valid domain name.' "${domain}")"
             continue
         fi
 
         break
     done
-    LOGD "Your domain is: ${domain}, checking it..."
+    LOGD "$(xui_tr 'Your domain is: %s, checking it...' "${domain}")"
     SSL_ISSUED_DOMAIN="${domain}"
 
     # detect existing certificate and reuse it only if its files are actually
@@ -1841,7 +2339,7 @@ ssl_cert_issue() {
         if [[ -n "${acmeCertDir}" ]]; then
             cert_exists=1
             local certInfo=$(~/.acme.sh/acme.sh --list 2> /dev/null | grep -F "${domain}")
-            LOGI "Existing certificate found for ${domain}, will reuse it."
+            LOGI "$(xui_tr 'Existing certificate found for %s, will reuse it.' "${domain}")"
             [[ -n "${certInfo}" ]] && LOGI "${certInfo}"
         else
             LOGW "Found incomplete acme.sh state for ${domain} (no valid certificate files); cleaning it up and re-issuing."
@@ -1863,14 +2361,14 @@ ssl_cert_issue() {
 
     # get the port number for the standalone server
     local WebPort=80
-    read -rp "Please choose which port to use (default is 80): " WebPort
+    read -rp "$(xui_tr 'Please choose which port to use (default is 80):')" WebPort
     if [[ -z ${WebPort} ]]; then
         WebPort=80
     elif [[ ! ${WebPort} =~ ^[1-9][0-9]*$ || ${WebPort} -gt 65535 ]]; then
-        LOGE "Your input ${WebPort} is invalid, will use default port 80."
+        LOGE "$(xui_tr 'Your input %s is invalid, will use default port 80.' "${WebPort}")"
         WebPort=80
     fi
-    LOGI "Will use port: ${WebPort} to issue certificates. Please make sure this port is open."
+    LOGI "$(xui_tr 'Will use port: %s to issue certificates. Please make sure this port is open.' "${WebPort}")"
 
     if [[ ${cert_exists} -eq 0 ]]; then
         # issue the certificate
@@ -1889,14 +2387,14 @@ ssl_cert_issue() {
 
     reloadCmd="d3x-ui restart"
 
-    LOGI "Default --reloadcmd for ACME is: ${yellow}d3x-ui restart"
+    LOGI "${yellow}$(xui_tr 'Default --reloadcmd for ACME is: d3x-ui restart')${yellow}"
     LOGI "This command will run on every certificate issue and renew."
-    read -rp "Would you like to modify --reloadcmd for ACME? (y/n): " setReloadcmd
+    read -rp "$(xui_tr 'Would you like to modify --reloadcmd for ACME? (y/n):')" setReloadcmd
     if [[ "$setReloadcmd" == "y" || "$setReloadcmd" == "Y" ]]; then
-        echo -e "\n${green}\t1.${plain} Preset: systemctl reload nginx ; d3x-ui restart"
-        echo -e "${green}\t2.${plain} Input your own command"
-        echo -e "${green}\t0.${plain} Keep default reloadcmd"
-        read -rp "Choose an option: " choice
+        echo -e "${green}$(xui_tr '\n\t1. Preset: systemctl reload nginx ; d3x-ui restart')${plain}"
+        echo -e "${green}$(xui_tr '\t2. Input your own command')${plain}"
+        echo -e "${green}$(xui_tr '\t0. Keep default reloadcmd')${plain}"
+        read -rp "$(xui_tr 'Choose an option:')" choice
         case "$choice" in
             1)
                 LOGI "Reloadcmd is: systemctl reload nginx ; d3x-ui restart"
@@ -1904,8 +2402,8 @@ ssl_cert_issue() {
                 ;;
             2)
                 LOGD "It's recommended to put d3x-ui restart at the end, so it won't raise an error if other services fails"
-                read -rp "Please enter your reloadcmd (example: systemctl reload nginx ; d3x-ui restart): " reloadCmd
-                LOGI "Your reloadcmd is: ${reloadCmd}"
+                read -rp "$(xui_tr 'Please enter your reloadcmd (example: systemctl reload nginx ; d3x-ui restart):')" reloadCmd
+                LOGI "$(xui_tr 'Your reloadcmd is: %s' "${reloadCmd}")"
                 ;;
             *)
                 LOGI "Keep default reloadcmd"
@@ -1952,20 +2450,20 @@ ssl_cert_issue() {
     fi
 
     # Prompt user to set panel paths after successful certificate installation
-    read -rp "Would you like to set this certificate for the panel? (y/n): " setPanel
+    read -rp "$(xui_tr 'Would you like to set this certificate for the panel? (y/n):')" setPanel
     if [[ "$setPanel" == "y" || "$setPanel" == "Y" ]]; then
         local webCertFile="/root/cert/${domain}/fullchain.pem"
         local webKeyFile="/root/cert/${domain}/privkey.pem"
 
         if [[ -f "$webCertFile" && -f "$webKeyFile" ]]; then
             ${xui_folder}/d3x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
-            LOGI "Panel paths set for domain: $domain"
-            LOGI "  - Certificate File: $webCertFile"
-            LOGI "  - Private Key File: $webKeyFile"
-            echo -e "${green}Access URL: https://${domain}:${existing_port}${existing_webBasePath}${plain}"
+            LOGI "$(xui_tr 'Panel paths set for domain: %s' "$domain")"
+            LOGI "$(xui_tr '- Certificate File: %s' "$webCertFile")"
+            LOGI "$(xui_tr '- Private Key File: %s' "$webKeyFile")"
+            echo -e "${green}$(xui_tr 'Access URL: https://%s:%s%s' "${domain}" "${existing_port}" "${existing_webBasePath}")${plain}"
             restart
         else
-            LOGE "Error: Certificate or private key file not found for domain: $domain."
+            LOGE "$(xui_tr 'Error: Certificate or private key file not found for domain: %s.' "$domain")"
         fi
     else
         LOGI "Skipping panel path setting."
@@ -1998,29 +2496,29 @@ ssl_cert_issue_CF() {
         CF_Domain=""
 
         LOGD "Please set a domain name:"
-        read -rp "Input your domain here: " CF_Domain
-        LOGD "Your domain name is set to: ${CF_Domain}"
+        read -rp "$(xui_tr 'Input your domain here:')" CF_Domain
+        LOGD "$(xui_tr 'Your domain name is set to: %s' "${CF_Domain}")"
 
         # Cloudflare API credentials: an API Token (recommended, scoped to a
         # single zone) or the account-wide Global API Key. acme.sh reads
         # CF_Token for tokens, or CF_Key + CF_Email for the Global Key.
         CF_KeyType=""
-        read -rp "Are you using a Cloudflare API Token or Global API Key? (t/g) [Default t]: " CF_KeyType
+        read -rp "$(xui_tr 'Are you using a Cloudflare API Token or Global API Key? (t/g) [Default t]:')" CF_KeyType
         CF_KeyType=${CF_KeyType:-t}
 
         if [[ "$CF_KeyType" == "g" || "$CF_KeyType" == "G" ]]; then
             CF_GlobalKey=""
             CF_AccountEmail=""
             LOGD "Please set the Global API Key:"
-            read -rp "Input your key here: " CF_GlobalKey
+            read -rp "$(xui_tr 'Input your key here:')" CF_GlobalKey
             LOGD "Please set up the registered email:"
-            read -rp "Input your email here: " CF_AccountEmail
+            read -rp "$(xui_tr 'Input your email here:')" CF_AccountEmail
             export CF_Key="${CF_GlobalKey}"
             export CF_Email="${CF_AccountEmail}"
         else
             CF_ApiToken=""
             LOGD "Please set the API Token:"
-            read -rp "Input your token here: " CF_ApiToken
+            read -rp "$(xui_tr 'Input your token here:')" CF_ApiToken
             export CF_Token="${CF_ApiToken}"
         fi
 
@@ -2048,20 +2546,20 @@ ssl_cert_issue_CF() {
 
         mkdir -p ${certPath}
         if [ $? -ne 0 ]; then
-            LOGE "Failed to create directory: ${certPath}"
+            LOGE "$(xui_tr 'Failed to create directory: %s' "${certPath}")"
             exit 1
         fi
 
         reloadCmd="d3x-ui restart"
 
-        LOGI "Default --reloadcmd for ACME is: ${yellow}d3x-ui restart"
+        LOGI "${yellow}$(xui_tr 'Default --reloadcmd for ACME is: d3x-ui restart')${yellow}"
         LOGI "This command will run on every certificate issue and renew."
-        read -rp "Would you like to modify --reloadcmd for ACME? (y/n): " setReloadcmd
+        read -rp "$(xui_tr 'Would you like to modify --reloadcmd for ACME? (y/n):')" setReloadcmd
         if [[ "$setReloadcmd" == "y" || "$setReloadcmd" == "Y" ]]; then
-            echo -e "\n${green}\t1.${plain} Preset: systemctl reload nginx ; d3x-ui restart"
-            echo -e "${green}\t2.${plain} Input your own command"
-            echo -e "${green}\t0.${plain} Keep default reloadcmd"
-            read -rp "Choose an option: " choice
+            echo -e "${green}$(xui_tr '\n\t1. Preset: systemctl reload nginx ; d3x-ui restart')${plain}"
+            echo -e "${green}$(xui_tr '\t2. Input your own command')${plain}"
+            echo -e "${green}$(xui_tr '\t0. Keep default reloadcmd')${plain}"
+            read -rp "$(xui_tr 'Choose an option:')" choice
             case "$choice" in
                 1)
                     LOGI "Reloadcmd is: systemctl reload nginx ; d3x-ui restart"
@@ -2069,8 +2567,8 @@ ssl_cert_issue_CF() {
                     ;;
                 2)
                     LOGD "It's recommended to put d3x-ui restart at the end, so it won't raise an error if other services fails"
-                    read -rp "Please enter your reloadcmd (example: systemctl reload nginx ; d3x-ui restart): " reloadCmd
-                    LOGI "Your reloadcmd is: ${reloadCmd}"
+                    read -rp "$(xui_tr 'Please enter your reloadcmd (example: systemctl reload nginx ; d3x-ui restart):')" reloadCmd
+                    LOGI "$(xui_tr 'Your reloadcmd is: %s' "${reloadCmd}")"
                     ;;
                 *)
                     LOGI "Keep default reloadcmd"
@@ -2101,20 +2599,20 @@ ssl_cert_issue_CF() {
         fi
 
         # Prompt user to set panel paths after successful certificate installation
-        read -rp "Would you like to set this certificate for the panel? (y/n): " setPanel
+        read -rp "$(xui_tr 'Would you like to set this certificate for the panel? (y/n):')" setPanel
         if [[ "$setPanel" == "y" || "$setPanel" == "Y" ]]; then
             local webCertFile="${certPath}/fullchain.pem"
             local webKeyFile="${certPath}/privkey.pem"
 
             if [[ -f "$webCertFile" && -f "$webKeyFile" ]]; then
                 ${xui_folder}/d3x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
-                LOGI "Panel paths set for domain: $CF_Domain"
-                LOGI "  - Certificate File: $webCertFile"
-                LOGI "  - Private Key File: $webKeyFile"
-                echo -e "${green}Access URL: https://${CF_Domain}:${existing_port}${existing_webBasePath}${plain}"
+                LOGI "$(xui_tr 'Panel paths set for domain: %s' "$CF_Domain")"
+                LOGI "$(xui_tr '- Certificate File: %s' "$webCertFile")"
+                LOGI "$(xui_tr '- Private Key File: %s' "$webKeyFile")"
+                echo -e "${green}$(xui_tr 'Access URL: https://%s:%s%s' "${CF_Domain}" "${existing_port}" "${existing_webBasePath}")${plain}"
                 restart
             else
-                LOGE "Error: Certificate or private key file not found for domain: $CF_Domain."
+                LOGE "$(xui_tr 'Error: Certificate or private key file not found for domain: %s.' "$CF_Domain")"
             fi
         else
             LOGI "Skipping panel path setting."
@@ -2171,18 +2669,18 @@ ip_validation() {
 }
 
 iplimit_main() {
-    echo -e "\n${green}\t1.${plain} Install Fail2ban and configure IP Limit"
-    echo -e "${green}\t2.${plain} Change Ban Duration"
-    echo -e "${green}\t3.${plain} Unban Everyone"
-    echo -e "${green}\t4.${plain} Ban Logs"
-    echo -e "${green}\t5.${plain} Ban an IP Address"
-    echo -e "${green}\t6.${plain} Unban an IP Address"
-    echo -e "${green}\t7.${plain} Real-Time Logs"
-    echo -e "${green}\t8.${plain} Service Status"
-    echo -e "${green}\t9.${plain} Service Restart"
-    echo -e "${green}\t10.${plain} Uninstall Fail2ban and IP Limit"
-    echo -e "${green}\t0.${plain} Back to Main Menu"
-    read -rp "Choose an option: " choice
+    echo -e "${green}$(xui_tr '\n\t1. Install Fail2ban and configure IP Limit')${plain}"
+    echo -e "${green}$(xui_tr '\t2. Change Ban Duration')${plain}"
+    echo -e "${green}$(xui_tr '\t3. Unban Everyone')${plain}"
+    echo -e "${green}$(xui_tr '\t4. Ban Logs')${plain}"
+    echo -e "${green}$(xui_tr '\t5. Ban an IP Address')${plain}"
+    echo -e "${green}$(xui_tr '\t6. Unban an IP Address')${plain}"
+    echo -e "${green}$(xui_tr '\t7. Real-Time Logs')${plain}"
+    echo -e "${green}$(xui_tr '\t8. Service Status')${plain}"
+    echo -e "${green}$(xui_tr '\t9. Service Restart')${plain}"
+    echo -e "${green}$(xui_tr '\t10. Uninstall Fail2ban and IP Limit')${plain}"
+    echo -e "${green}$(xui_tr '\t0. Back to Main Menu')${plain}"
+    read -rp "$(xui_tr 'Choose an option:')" choice
     case "$choice" in
         0)
             show_menu
@@ -2196,7 +2694,7 @@ iplimit_main() {
             fi
             ;;
         2)
-            read -rp "Please enter new Ban Duration in Minutes [default 30]: " NUM
+            read -rp "$(xui_tr 'Please enter new Ban Duration in Minutes [default 30]:')" NUM
             if [[ $NUM =~ ^[0-9]+$ ]]; then
                 create_iplimit_jails ${NUM}
                 if [[ $release == "alpine" ]]; then
@@ -2205,7 +2703,7 @@ iplimit_main() {
                     systemctl restart fail2ban
                 fi
             else
-                echo -e "${red}${NUM} is not a number! Please, try again.${plain}"
+                echo -e "${red}$(xui_tr '%s is not a number! Please, try again.' "${NUM}")${plain}"
             fi
             iplimit_main
             ;;
@@ -2214,10 +2712,10 @@ iplimit_main() {
             if [[ $? == 0 ]]; then
                 fail2ban-client reload --restart --unban 3x-ipl
                 truncate -s 0 "${iplimit_banned_log_path}"
-                echo -e "${green}All users Unbanned successfully.${plain}"
+                echo -e "${green}$(xui_tr 'All users Unbanned successfully.')${plain}"
                 iplimit_main
             else
-                echo -e "${yellow}Cancelled.${plain}"
+                echo -e "${yellow}$(xui_tr 'Cancelled.')${plain}"
             fi
             iplimit_main
             ;;
@@ -2226,24 +2724,24 @@ iplimit_main() {
             iplimit_main
             ;;
         5)
-            read -rp "Enter the IP address you want to ban: " ban_ip
+            read -rp "$(xui_tr 'Enter the IP address you want to ban:')" ban_ip
             ip_validation
             if [[ $ban_ip =~ $ipv4_regex || $ban_ip =~ $ipv6_regex ]]; then
                 fail2ban-client set 3x-ipl banip "$ban_ip"
-                echo -e "${green}IP Address ${ban_ip} has been banned successfully.${plain}"
+                echo -e "${green}$(xui_tr 'IP Address %s has been banned successfully.' "${ban_ip}")${plain}"
             else
-                echo -e "${red}Invalid IP address format! Please try again.${plain}"
+                echo -e "${red}$(xui_tr 'Invalid IP address format! Please try again.')${plain}"
             fi
             iplimit_main
             ;;
         6)
-            read -rp "Enter the IP address you want to unban: " unban_ip
+            read -rp "$(xui_tr 'Enter the IP address you want to unban:')" unban_ip
             ip_validation
             if [[ $unban_ip =~ $ipv4_regex || $unban_ip =~ $ipv6_regex ]]; then
                 fail2ban-client set 3x-ipl unbanip "$unban_ip"
-                echo -e "${green}IP Address ${unban_ip} has been unbanned successfully.${plain}"
+                echo -e "${green}$(xui_tr 'IP Address %s has been unbanned successfully.' "${unban_ip}")${plain}"
             else
-                echo -e "${red}Invalid IP address format! Please try again.${plain}"
+                echo -e "${red}$(xui_tr 'Invalid IP address format! Please try again.')${plain}"
             fi
             iplimit_main
             ;;
@@ -2268,7 +2766,7 @@ iplimit_main() {
             iplimit_main
             ;;
         *)
-            echo -e "${red}Invalid option. Please select a valid number.${plain}\n"
+            echo -e "${red}$(xui_tr 'Invalid option. Please select a valid number.\n')${plain}"
             iplimit_main
             ;;
     esac
@@ -2279,12 +2777,12 @@ setup_fail2ban_iplimit() {
     # var is unset or exactly "true"; any other explicit value means the operator
     # opted out, so do nothing rather than install a fail2ban the panel ignores.
     if [[ -n "${XUI_ENABLE_FAIL2BAN+x}" && "${XUI_ENABLE_FAIL2BAN}" != "true" ]]; then
-        echo -e "${yellow}XUI_ENABLE_FAIL2BAN=${XUI_ENABLE_FAIL2BAN}, skipping Fail2ban setup.${plain}\n"
+        echo -e "${yellow}$(xui_tr 'XUI_ENABLE_FAIL2BAN=%s, skipping Fail2ban setup.\n' "${XUI_ENABLE_FAIL2BAN}")${plain}"
         return 0
     fi
 
     if ! command -v fail2ban-client &> /dev/null; then
-        echo -e "${green}Fail2ban is not installed. Installing now...!${plain}\n"
+        echo -e "${green}$(xui_tr 'Fail2ban is not installed. Installing now...!\n')${plain}"
 
         # Install fail2ban together with nftables. Recent fail2ban packages
         # default to `banaction = nftables-multiport` in /etc/fail2ban/jail.conf,
@@ -2317,7 +2815,7 @@ setup_fail2ban_iplimit() {
                 if [[ "${release}" != "fedora" ]] && ! dnf repolist enabled 2> /dev/null | grep -qiw epel; then
                     dnf install -y epel-release \
                         || dnf install -y "https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E %rhel).noarch.rpm" \
-                        || echo -e "${yellow}Could not enable the EPEL repository; fail2ban is only available from EPEL on this distro.${plain}"
+                        || echo -e "${yellow}$(xui_tr 'Could not enable the EPEL repository; fail2ban is only available from EPEL on this distro.')${plain}"
                 fi
                 dnf makecache -y && dnf -y install fail2ban nftables
                 ;;
@@ -2332,8 +2830,7 @@ setup_fail2ban_iplimit() {
                     yum -y install fail2ban nftables
                     if [[ "${had_firewalld}" == "0" ]] && rpm -q firewalld &> /dev/null; then
                         systemctl disable firewalld 2> /dev/null
-                        echo -e "${yellow}firewalld was pulled in by fail2ban and has been disabled so it does not block your ports after a reboot.${plain}
-"
+                        echo -e "${yellow}$(xui_tr 'firewalld was pulled in by fail2ban and has been disabled so it does not block your ports after a reboot.')${plain}\n"
                     fi
                 else
                     dnf makecache -y && dnf -y install fail2ban nftables
@@ -2346,22 +2843,22 @@ setup_fail2ban_iplimit() {
                 apk add fail2ban nftables
                 ;;
             *)
-                echo -e "${red}Unsupported operating system. Please check the script and install the necessary packages manually.${plain}\n"
+                echo -e "${red}$(xui_tr 'Unsupported operating system. Please check the script and install the necessary packages manually.\n')${plain}"
                 return 1
                 ;;
         esac
 
         if ! command -v fail2ban-client &> /dev/null; then
-            echo -e "${red}Fail2ban installation failed.${plain}\n"
+            echo -e "${red}$(xui_tr 'Fail2ban installation failed.\n')${plain}"
             return 1
         fi
 
-        echo -e "${green}Fail2ban installed successfully!${plain}\n"
+        echo -e "${green}$(xui_tr 'Fail2ban installed successfully!\n')${plain}"
     else
-        echo -e "${yellow}Fail2ban is already installed.${plain}\n"
+        echo -e "${yellow}$(xui_tr 'Fail2ban is already installed.\n')${plain}"
     fi
 
-    echo -e "${green}Configuring IP Limit...${plain}\n"
+    echo -e "${green}$(xui_tr 'Configuring IP Limit...\n')${plain}"
 
     # make sure there's no conflict for jail files
     iplimit_remove_conflicts
@@ -2397,7 +2894,7 @@ setup_fail2ban_iplimit() {
         systemctl enable fail2ban
     fi
 
-    echo -e "${green}IP Limit installed and configured successfully!${plain}\n"
+    echo -e "${green}$(xui_tr 'IP Limit installed and configured successfully!\n')${plain}"
     return 0
 }
 
@@ -2410,10 +2907,10 @@ install_iplimit() {
 }
 
 remove_iplimit() {
-    echo -e "${green}\t1.${plain} Only remove IP Limit configurations"
-    echo -e "${green}\t2.${plain} Uninstall Fail2ban and IP Limit"
-    echo -e "${green}\t0.${plain} Back to Main Menu"
-    read -rp "Choose an option: " num
+    echo -e "${green}$(xui_tr '\t1. Only remove IP Limit configurations')${plain}"
+    echo -e "${green}$(xui_tr '\t2. Uninstall Fail2ban and IP Limit')${plain}"
+    echo -e "${green}$(xui_tr '\t0. Back to Main Menu')${plain}"
+    read -rp "$(xui_tr 'Choose an option:')" num
     case "$num" in
         1)
             rm -f /etc/fail2ban/filter.d/3x-ipl.conf
@@ -2424,7 +2921,7 @@ remove_iplimit() {
             else
                 systemctl restart fail2ban
             fi
-            echo -e "${green}IP Limit removed successfully!${plain}\n"
+            echo -e "${green}$(xui_tr 'IP Limit removed successfully!\n')${plain}"
             before_show_menu
             ;;
         2)
@@ -2460,18 +2957,18 @@ remove_iplimit() {
                     apk del fail2ban
                     ;;
                 *)
-                    echo -e "${red}Unsupported operating system. Please uninstall Fail2ban manually.${plain}\n"
+                    echo -e "${red}$(xui_tr 'Unsupported operating system. Please uninstall Fail2ban manually.\n')${plain}"
                     exit 1
                     ;;
             esac
-            echo -e "${green}Fail2ban and IP Limit removed successfully!${plain}\n"
+            echo -e "${green}$(xui_tr 'Fail2ban and IP Limit removed successfully!\n')${plain}"
             before_show_menu
             ;;
         0)
             show_menu
             ;;
         *)
-            echo -e "${red}Invalid option. Please select a valid number.${plain}\n"
+            echo -e "${red}$(xui_tr 'Invalid option. Please select a valid number.\n')${plain}"
             remove_iplimit
             ;;
     esac
@@ -2480,39 +2977,39 @@ remove_iplimit() {
 show_banlog() {
     local system_log="/var/log/fail2ban.log"
 
-    echo -e "${green}Checking ban logs...${plain}\n"
+    echo -e "${green}$(xui_tr 'Checking ban logs...\n')${plain}"
 
     if [[ $release == "alpine" ]]; then
         if [[ $(rc-service fail2ban status | grep -F 'status: started' -c) == 0 ]]; then
-            echo -e "${red}Fail2ban service is not running!${plain}\n"
+            echo -e "${red}$(xui_tr 'Fail2ban service is not running!\n')${plain}"
             return 1
         fi
     else
         if ! systemctl is-active --quiet fail2ban; then
-            echo -e "${red}Fail2ban service is not running!${plain}\n"
+            echo -e "${red}$(xui_tr 'Fail2ban service is not running!\n')${plain}"
             return 1
         fi
     fi
 
     if [[ -f "$system_log" ]]; then
-        echo -e "${green}Recent system ban activities from fail2ban.log:${plain}"
-        grep "3x-ipl" "$system_log" | grep -E "Ban|Unban" | tail -n 10 || echo -e "${yellow}No recent system ban activities found${plain}"
+        echo -e "${green}$(xui_tr 'Recent system ban activities from fail2ban.log:')${plain}"
+        grep "3x-ipl" "$system_log" | grep -E "Ban|Unban" | tail -n 10 || echo -e "${yellow}$(xui_tr 'No recent system ban activities found')${plain}"
         echo ""
     fi
 
     if [[ -f "${iplimit_banned_log_path}" ]]; then
-        echo -e "${green}3X-IPL ban log entries:${plain}"
+        echo -e "${green}$(xui_tr '3X-IPL ban log entries:')${plain}"
         if [[ -s "${iplimit_banned_log_path}" ]]; then
-            grep -v "INIT" "${iplimit_banned_log_path}" | tail -n 10 || echo -e "${yellow}No ban entries found${plain}"
+            grep -v "INIT" "${iplimit_banned_log_path}" | tail -n 10 || echo -e "${yellow}$(xui_tr 'No ban entries found')${plain}"
         else
-            echo -e "${yellow}Ban log file is empty${plain}"
+            echo -e "${yellow}$(xui_tr 'Ban log file is empty')${plain}"
         fi
     else
-        echo -e "${red}Ban log file not found at: ${iplimit_banned_log_path}${plain}"
+        echo -e "${red}$(xui_tr 'Ban log file not found at: %s' "${iplimit_banned_log_path}")${plain}"
     fi
 
-    echo -e "\n${green}Current jail status:${plain}"
-    fail2ban-client status 3x-ipl || echo -e "${yellow}Unable to get jail status${plain}"
+    echo -e "${green}$(xui_tr '\nCurrent jail status:')${plain}"
+    fail2ban-client status 3x-ipl || echo -e "${yellow}$(xui_tr 'Unable to get jail status')${plain}"
 }
 
 create_iplimit_jails() {
@@ -2592,7 +3089,7 @@ chain = INPUT
 exemptports = ${exempt_ports}
 EOF
 
-    echo -e "${green}Ip Limit jail files created with a bantime of ${bantime} minutes.${plain}"
+    echo -e "${green}$(xui_tr 'Ip Limit jail files created with a bantime of %s minutes.' "${bantime}")${plain}"
 }
 
 iplimit_remove_conflicts() {
@@ -2605,7 +3102,7 @@ iplimit_remove_conflicts() {
         # Check for [3x-ipl] config in jail file then remove it
         if test -f "${file}" && grep -qw '3x-ipl' ${file}; then
             sed -i "/\[3x-ipl\]/,/^$/d" ${file}
-            echo -e "${yellow}Removing conflicts of [3x-ipl] in jail (${file})!${plain}\n"
+            echo -e "${yellow}$(xui_tr 'Removing conflicts of [3x-ipl] in jail (%s)!\n' "${file}")${plain}"
         fi
     done
 }
@@ -2631,12 +3128,12 @@ SSH_port_forwarding() {
     done
 
     if [[ -z "$server_ip" ]]; then
-        echo -e "${yellow}Could not auto-detect server IP from any provider.${plain}"
+        echo -e "${yellow}$(xui_tr 'Could not auto-detect server IP from any provider.')${plain}"
         while [[ -z "$server_ip" ]]; do
-            read -rp "Please enter your server's public IPv4 address: " server_ip
+            read -rp "$(xui_tr "Please enter your server's public IPv4 address:")" server_ip
             server_ip="${server_ip// /}"
             if [[ ! "$server_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-                echo -e "${red}Invalid IPv4 address. Please try again.${plain}"
+                echo -e "${red}$(xui_tr 'Invalid IPv4 address. Please try again.')${plain}"
                 server_ip=""
             fi
         done
@@ -2652,66 +3149,66 @@ SSH_port_forwarding() {
     local listen_choice=""
 
     if [[ -n "$existing_cert" && -n "$existing_key" ]]; then
-        echo -e "${green}Panel is secure with SSL.${plain}"
+        echo -e "${green}$(xui_tr 'Panel is secure with SSL.')${plain}"
         before_show_menu
     fi
     if [[ -z "$existing_cert" && -z "$existing_key" && (-z "$existing_listenIP" || "$existing_listenIP" == "0.0.0.0") ]]; then
-        echo -e "\n${red}Warning: No Cert and Key found! The panel is not secure.${plain}"
+        echo -e "${red}$(xui_tr '\nWarning: No Cert and Key found! The panel is not secure.')${plain}"
         echo "Please obtain a certificate or set up SSH port forwarding."
     fi
 
     if [[ -n "$existing_listenIP" && "$existing_listenIP" != "0.0.0.0" && (-z "$existing_cert" && -z "$existing_key") ]]; then
-        echo -e "\n${green}Current SSH Port Forwarding Configuration:${plain}"
-        echo -e "Standard SSH command:"
+        echo -e "${green}$(xui_tr '\nCurrent SSH Port Forwarding Configuration:')${plain}"
+        echo -e "$(xui_tr 'Standard SSH command:')"
         echo -e "${yellow}ssh -L 2222:${existing_listenIP}:${existing_port} root@${server_ip}${plain}"
-        echo -e "\nIf using SSH key:"
+        echo -e "$(xui_tr '\nIf using SSH key:')"
         echo -e "${yellow}ssh -i <sshkeypath> -L 2222:${existing_listenIP}:${existing_port} root@${server_ip}${plain}"
-        echo -e "\nAfter connecting, access the panel at:"
+        echo -e "$(xui_tr '\nAfter connecting, access the panel at:')"
         echo -e "${yellow}http://localhost:2222${existing_webBasePath}${plain}"
     fi
 
-    echo -e "\nChoose an option:"
-    echo -e "${green}1.${plain} Set listen IP"
-    echo -e "${green}2.${plain} Clear listen IP"
-    echo -e "${green}0.${plain} Back to Main Menu"
-    read -rp "Choose an option: " num
+    echo -e "$(xui_tr '\nChoose an option:')"
+    echo -e "${green}$(xui_tr '1. Set listen IP')${plain}"
+    echo -e "${green}$(xui_tr '2. Clear listen IP')${plain}"
+    echo -e "${green}$(xui_tr '0. Back to Main Menu')${plain}"
+    read -rp "$(xui_tr 'Choose an option:')" num
 
     case "$num" in
         1)
             if [[ -z "$existing_listenIP" || "$existing_listenIP" == "0.0.0.0" ]]; then
-                echo -e "\nNo listenIP configured. Choose an option:"
-                echo -e "1. Use default IP (127.0.0.1)"
-                echo -e "2. Set a custom IP"
-                read -rp "Select an option (1 or 2): " listen_choice
+                echo -e "$(xui_tr '\nNo listenIP configured. Choose an option:')"
+                echo -e "$(xui_tr '1. Use default IP (127.0.0.1)')"
+                echo -e "$(xui_tr '2. Set a custom IP')"
+                read -rp "$(xui_tr 'Select an option (1 or 2):')" listen_choice
 
                 config_listenIP="127.0.0.1"
-                [[ "$listen_choice" == "2" ]] && read -rp "Enter custom IP to listen on: " config_listenIP
+                [[ "$listen_choice" == "2" ]] && read -rp "$(xui_tr 'Enter custom IP to listen on:')" config_listenIP
 
                 ${xui_folder}/d3x-ui setting -listenIP "${config_listenIP}" > /dev/null 2>&1
-                echo -e "${green}listen IP has been set to ${config_listenIP}.${plain}"
-                echo -e "\n${green}SSH Port Forwarding Configuration:${plain}"
-                echo -e "Standard SSH command:"
+                echo -e "${green}$(xui_tr 'listen IP has been set to %s.' "${config_listenIP}")${plain}"
+                echo -e "${green}$(xui_tr '\nSSH Port Forwarding Configuration:')${plain}"
+                echo -e "$(xui_tr 'Standard SSH command:')"
                 echo -e "${yellow}ssh -L 2222:${config_listenIP}:${existing_port} root@${server_ip}${plain}"
-                echo -e "\nIf using SSH key:"
+                echo -e "$(xui_tr '\nIf using SSH key:')"
                 echo -e "${yellow}ssh -i <sshkeypath> -L 2222:${config_listenIP}:${existing_port} root@${server_ip}${plain}"
-                echo -e "\nAfter connecting, access the panel at:"
+                echo -e "$(xui_tr '\nAfter connecting, access the panel at:')"
                 echo -e "${yellow}http://localhost:2222${existing_webBasePath}${plain}"
                 restart
             else
                 config_listenIP="${existing_listenIP}"
-                echo -e "${green}Current listen IP is already set to ${config_listenIP}.${plain}"
+                echo -e "${green}$(xui_tr 'Current listen IP is already set to %s.' "${config_listenIP}")${plain}"
             fi
             ;;
         2)
             ${xui_folder}/d3x-ui setting -listenIP 0.0.0.0 > /dev/null 2>&1
-            echo -e "${green}Listen IP has been cleared.${plain}"
+            echo -e "${green}$(xui_tr 'Listen IP has been cleared.')${plain}"
             restart
             ;;
         0)
             show_menu
             ;;
         *)
-            echo -e "${red}Invalid option. Please select a valid number.${plain}\n"
+            echo -e "${red}$(xui_tr 'Invalid option. Please select a valid number.\n')${plain}"
             SSH_port_forwarding
             ;;
     esac
@@ -2760,10 +3257,10 @@ postgresql_status() {
         local listening
         listening=$(ss -ltnp 2> /dev/null | grep ':5432')
         if [[ -n "$listening" ]]; then
-            echo -e "${green}PostgreSQL is listening on port 5432:${plain}"
+            echo -e "${green}$(xui_tr 'PostgreSQL is listening on port 5432:')${plain}"
             echo "$listening"
         else
-            echo -e "${red}Nothing is listening on port 5432 - the database is not running.${plain}"
+            echo -e "${red}$(xui_tr 'Nothing is listening on port 5432 - the database is not running.')${plain}"
         fi
     fi
 }
@@ -2845,9 +3342,9 @@ pg_require_installed() {
 # package names used by pg_install_local() so the right packages are removed per distro.
 purge_postgresql() {
     echo ""
-    echo -e "${yellow}This panel was using PostgreSQL.${plain}"
-    echo -e "${red}WARNING:${plain} purging removes the PostgreSQL server and ${red}ALL${plain} of its databases on"
-    echo -e "this machine, including any used by other applications. This cannot be undone."
+    echo -e "${yellow}$(xui_tr 'This panel was using PostgreSQL.')${plain}"
+    echo -e "${red}$(xui_tr 'WARNING: purging removes the PostgreSQL server and ALL of its databases on')${plain}"
+    echo -e "$(xui_tr 'this machine, including any used by other applications. This cannot be undone.')"
     confirm "Also purge PostgreSQL and delete all of its data?" "n"
     if [[ $? != 0 ]]; then
         LOGI "Left PostgreSQL installed; its data was not removed."
@@ -2889,7 +3386,7 @@ purge_postgresql() {
             apk del postgresql postgresql-contrib postgresql-client
             ;;
         *)
-            LOGE "Unsupported distro for automatic PostgreSQL purge: ${release}. Remove it manually."
+            LOGE "$(xui_tr 'Unsupported distro for automatic PostgreSQL purge: %s. Remove it manually.' "${release}")"
             return 1
             ;;
     esac
@@ -2953,7 +3450,7 @@ pg_apt_install_pgdg_server() {
         rm -f "${list}"
     done
     apt-get update >&2 || true
-    echo -e "${yellow}PostgreSQL ${PG_TARGET_MAJOR} is not available for this system; installing the distribution's PostgreSQL instead.${plain}" >&2
+    echo -e "${yellow}$(xui_tr "PostgreSQL %s is not available for this system; installing the distribution's PostgreSQL instead." "${PG_TARGET_MAJOR}")${plain}" >&2
     return 1
 }
 
@@ -2979,7 +3476,7 @@ pg_el_install_pgdg_server() {
         dnf -qy module reset postgresql > /dev/null 2>&1 || true
         dnf remove -y -q pgdg-redhat-repo >&2 || true
     fi
-    echo -e "${yellow}PostgreSQL ${PG_TARGET_MAJOR} is not available for this system; installing the distribution's PostgreSQL instead.${plain}" >&2
+    echo -e "${yellow}$(xui_tr "PostgreSQL %s is not available for this system; installing the distribution's PostgreSQL instead." "${PG_TARGET_MAJOR}")${plain}" >&2
     return 1
 }
 
@@ -3038,7 +3535,7 @@ pg_install_local() {
             rc-service postgresql start >&2 || return 1
             ;;
         *)
-            echo -e "${red}Unsupported distro for automatic PostgreSQL install: ${release}${plain}" >&2
+            echo -e "${red}$(xui_tr 'Unsupported distro for automatic PostgreSQL install: %s' "${release}")${plain}" >&2
             return 1
             ;;
     esac
@@ -3074,7 +3571,7 @@ pg_install_local() {
     sudo -u postgres psql -c "ALTER USER \"${pg_user}\" WITH PASSWORD '${pg_pass}';" >&2 || return 1
 
     pg_ensure_hba_password_auth "${pg_db}" \
-        || echo -e "${yellow}Warning: could not update pg_hba.conf; PostgreSQL may reject the panel's TCP login (ident auth).${plain}" >&2
+        || echo -e "${yellow}$(xui_tr "Warning: could not update pg_hba.conf; PostgreSQL may reject the panel's TCP login (ident auth).")${plain}" >&2
 
     local pg_pass_enc
     pg_pass_enc=$(printf '%s' "${pg_pass}" | sed -e 's/%/%25/g' -e 's/:/%3A/g' -e 's/@/%40/g' -e 's|/|%2F|g' -e 's/?/%3F/g' -e 's/#/%23/g')
@@ -3088,7 +3585,7 @@ pg_ensure_client() {
     if command -v pg_dump > /dev/null 2>&1 && command -v pg_restore > /dev/null 2>&1; then
         return 0
     fi
-    echo -e "${yellow}Installing PostgreSQL client tools (pg_dump/pg_restore)...${plain}" >&2
+    echo -e "${yellow}$(xui_tr 'Installing PostgreSQL client tools (pg_dump/pg_restore)...')${plain}" >&2
     case "${release}" in
         ubuntu | debian | armbian)
             apt-get update >&2 && apt-get install -y -q postgresql-client >&2 || return 1
@@ -3133,16 +3630,16 @@ pg_client_major() {
 pg_upgrade_client() {
     local want="$1" have
     if [[ -n "$want" && ! "$want" =~ ^[0-9]+$ ]]; then
-        LOGE "Invalid PostgreSQL major version '${want}' (expected a number like 17)."
+        LOGE "$(xui_tr "Invalid PostgreSQL major version '%s' (expected a number like 17)." "${want}")"
         return 1
     fi
     have=$(pg_client_major)
     if [[ -n "$have" ]]; then
         if [[ -z "$want" || "$have" -ge "$want" ]]; then
-            LOGI "PostgreSQL client tools are already installed (version ${have})."
+            LOGI "$(xui_tr 'PostgreSQL client tools are already installed (version %s).' "${have}")"
             return 0
         fi
-        LOGI "Installed PostgreSQL client tools are version ${have}; version ${want} or newer is required."
+        LOGI "$(xui_tr 'Installed PostgreSQL client tools are version %s; version %s or newer is required.' "${have}" "${want}")"
     fi
     if [[ "${running_in_docker}" == "true" ]]; then
         LOGI "Note: packages installed inside the container are lost when the container is recreated."
@@ -3153,7 +3650,7 @@ pg_upgrade_client() {
             if [[ -z "$want" ]]; then
                 apt-get install -y -q postgresql-client >&2 || return 1
             elif ! apt-get install -y -q "postgresql-client-${want}" >&2; then
-                LOGI "postgresql-client-${want} is not in the distribution repositories; adding the official PostgreSQL apt repository..."
+                LOGI "$(xui_tr 'postgresql-client-%s is not in the distribution repositories; adding the official PostgreSQL apt repository...' "${want}")"
                 apt-get install -y -q postgresql-common ca-certificates gnupg >&2 || return 1
                 /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y >&2 || return 1
                 apt-get install -y -q "postgresql-client-${want}" >&2 || return 1
@@ -3168,10 +3665,10 @@ pg_upgrade_client() {
                 local elver
                 elver=$(rpm -E %rhel 2> /dev/null)
                 if [[ ! "$elver" =~ ^[0-9]+$ ]]; then
-                    LOGE "Could not determine the Enterprise Linux release; install the PostgreSQL ${want} client tools manually."
+                    LOGE "$(xui_tr 'Could not determine the Enterprise Linux release; install the PostgreSQL %s client tools manually.' "${want}")"
                     return 1
                 fi
-                LOGI "postgresql${want} is not in the enabled repositories; adding the official PostgreSQL yum repository..."
+                LOGI "$(xui_tr 'postgresql%s is not in the enabled repositories; adding the official PostgreSQL yum repository...' "${want}")"
                 "$pkg_mgr" install -y "https://download.postgresql.org/pub/repos/yum/reporpms/EL-${elver}-$(uname -m)/pgdg-redhat-repo-latest.noarch.rpm" >&2 || return 1
                 if [[ "$pkg_mgr" == "dnf" ]]; then
                     dnf -qy module disable postgresql >&2 || true
@@ -3193,7 +3690,7 @@ pg_upgrade_client() {
             fi
             ;;
         *)
-            LOGE "Unsupported OS '${release}'; install the PostgreSQL client tools manually."
+            LOGE "$(xui_tr "Unsupported OS '%s'; install the PostgreSQL client tools manually." "${release}")"
             return 1
             ;;
     esac
@@ -3210,10 +3707,10 @@ pg_upgrade_client() {
         return 1
     fi
     if [[ -n "$want" && "$have" -lt "$want" ]]; then
-        LOGE "PostgreSQL client tools are version ${have} after installation but ${want} or newer is required; install them manually."
+        LOGE "$(xui_tr 'PostgreSQL client tools are version %s after installation but %s or newer is required; install them manually.' "${have}" "${want}")"
         return 1
     fi
-    LOGI "PostgreSQL client tools are ready (version ${have})."
+    LOGI "$(xui_tr 'PostgreSQL client tools are ready (version %s).' "${have}")"
     return 0
 }
 
@@ -3247,8 +3744,8 @@ pg_install_server_action() {
     pg_ensure_client || LOGE "Could not install pg_dump/pg_restore (panel DB backup may be unavailable)."
     echo ""
     LOGI "PostgreSQL is installed and ready."
-    echo -e "${green}Connection DSN:${plain} ${dsn}"
-    echo -e "${yellow}Use option 2 to migrate your SQLite data and switch the panel to PostgreSQL.${plain}"
+    echo -e "${green}$(xui_tr 'Connection DSN: %s' "${dsn}")${plain}"
+    echo -e "${yellow}$(xui_tr 'Use option 2 to migrate your SQLite data and switch the panel to PostgreSQL.')${plain}"
 }
 
 # Copies the current SQLite data into PostgreSQL, then switches the panel over.
@@ -3258,27 +3755,27 @@ migrate_to_postgres() {
         return 1
     fi
     echo ""
-    echo -e "${yellow}This copies your current SQLite data into a PostgreSQL database,${plain}"
-    echo -e "${yellow}then switches the panel to PostgreSQL and restarts it.${plain}"
-    echo -e "${red}Any existing panel tables in the destination will be cleared and overwritten.${plain}"
+    echo -e "${yellow}$(xui_tr 'This copies your current SQLite data into a PostgreSQL database,')${plain}"
+    echo -e "${yellow}$(xui_tr 'then switches the panel to PostgreSQL and restarts it.')${plain}"
+    echo -e "${red}$(xui_tr 'Any existing panel tables in the destination will be cleared and overwritten.')${plain}"
     confirm "Continue?" "n" || return 0
 
     local dsn="" pg_mode
     if [[ -n "$PG_LAST_DSN" ]]; then
-        echo -e "A PostgreSQL database was created in this session:"
+        echo -e "$(xui_tr 'A PostgreSQL database was created in this session:')"
         echo -e "  ${green}${PG_LAST_DSN}${plain}"
         confirm "Migrate into this database?" "y" && dsn="$PG_LAST_DSN"
     fi
 
     if [[ -z "$dsn" ]]; then
         echo ""
-        echo -e "${green}\t1.${plain} Install PostgreSQL locally and create a dedicated user/db (recommended)"
-        echo -e "${green}\t2.${plain} Use an existing PostgreSQL server (enter DSN)"
-        read -rp "Choose [1]: " pg_mode
+        echo -e "${green}$(xui_tr '\t1. Install PostgreSQL locally and create a dedicated user/db (recommended)')${plain}"
+        echo -e "${green}$(xui_tr '\t2. Use an existing PostgreSQL server (enter DSN)')${plain}"
+        read -rp "$(xui_tr 'Choose [1]:')" pg_mode
         pg_mode="${pg_mode:-1}"
         if [[ "$pg_mode" == "2" ]]; then
             while [[ -z "$dsn" ]]; do
-                read -rp "Enter PostgreSQL DSN (postgres://user:pass@host:port/dbname?sslmode=disable): " dsn
+                read -rp "$(xui_tr 'Enter PostgreSQL DSN (postgres://user:pass@host:port/dbname?sslmode=disable):')" dsn
                 dsn="${dsn// /}"
             done
         else
@@ -3306,7 +3803,7 @@ migrate_to_postgres() {
     fi
 
     pg_write_env "$dsn"
-    LOGI "Wrote database settings to $(xui_env_file_path) (XUI_DB_TYPE=postgres)."
+    LOGI "$(xui_tr 'Wrote database settings to %s (XUI_DB_TYPE=postgres).' "$(xui_env_file_path)")"
     LOGI "Restarting panel on PostgreSQL..."
     restart 0
     sleep 1
@@ -3318,18 +3815,18 @@ migrate_to_postgres() {
 }
 
 postgresql_menu() {
-    echo -e "${green}\t1.${plain} ${green}Install${plain} PostgreSQL (server + client + xui db)"
-    echo -e "${green}\t2.${plain} Migrate SQLite ${green}->${plain} PostgreSQL"
-    echo -e "${green}\t3.${plain} Status (clusters & port 5432)"
-    echo -e "${green}\t4.${plain} ${green}Start${plain} PostgreSQL"
-    echo -e "${green}\t5.${plain} ${red}Stop${plain} PostgreSQL"
-    echo -e "${green}\t6.${plain} Restart PostgreSQL"
-    echo -e "${green}\t7.${plain} ${green}Enable${plain} Autostart on boot"
-    echo -e "${green}\t8.${plain} View PostgreSQL Log"
-    echo -e "${green}\t9.${plain} Convert SQLite ${green}.db <-> .dump${plain}"
-    echo -e "${green}\t10.${plain} Install/Upgrade client tools (pg_dump/pg_restore)"
-    echo -e "${green}\t0.${plain} Back to Main Menu"
-    read -rp "Choose an option: " choice
+    echo -e "${green}$(xui_tr '\t1. Install PostgreSQL (server + client + xui db)')${plain}"
+    echo -e "${green}$(xui_tr '\t2. Migrate SQLite -> PostgreSQL')${plain}"
+    echo -e "${green}$(xui_tr '\t3. Status (clusters & port 5432)')${plain}"
+    echo -e "${green}$(xui_tr '\t4. Start PostgreSQL')${plain}"
+    echo -e "${green}$(xui_tr '\t5. Stop PostgreSQL')${plain}"
+    echo -e "${green}$(xui_tr '\t6. Restart PostgreSQL')${plain}"
+    echo -e "${green}$(xui_tr '\t7. Enable Autostart on boot')${plain}"
+    echo -e "${green}$(xui_tr '\t8. View PostgreSQL Log')${plain}"
+    echo -e "${green}$(xui_tr '\t9. Convert SQLite .db <-> .dump')${plain}"
+    echo -e "${green}$(xui_tr '\t10. Install/Upgrade client tools (pg_dump/pg_restore)')${plain}"
+    echo -e "${green}$(xui_tr '\t0. Back to Main Menu')${plain}"
+    read -rp "$(xui_tr 'Choose an option:')" choice
     case "$choice" in
         0)
             show_menu
@@ -3371,12 +3868,12 @@ postgresql_menu() {
             postgresql_menu
             ;;
         10)
-            read -rp "Required PostgreSQL major version (empty = any): " pg_client_ver
+            read -rp "$(xui_tr 'Required PostgreSQL major version (empty = any):')" pg_client_ver
             pg_upgrade_client "$pg_client_ver"
             postgresql_menu
             ;;
         *)
-            echo -e "${red}Invalid option. Please select a valid number.${plain}\n"
+            echo -e "${red}$(xui_tr 'Invalid option. Please select a valid number.\n')${plain}"
             postgresql_menu
             ;;
     esac
@@ -3394,7 +3891,7 @@ migrate_db() {
     [[ -z "$input" ]] && input="$default_db"
 
     if [[ ! -x "$bin" ]]; then
-        LOGE "d3x-ui binary not found at ${bin}. Is the panel installed?"
+        LOGE "$(xui_tr 'd3x-ui binary not found at %s. Is the panel installed?' "${bin}")"
         return 1
     fi
 
@@ -3405,8 +3902,8 @@ migrate_db() {
     fi
 
     if [[ ! -f "$input" ]]; then
-        LOGE "Input file not found: ${input}"
-        echo -e "Usage: ${green}d3x-ui migrateDB [file.db|file.dump] [output]${plain}"
+        LOGE "$(xui_tr 'Input file not found: %s' "${input}")"
+        echo -e "${green}$(xui_tr 'Usage: d3x-ui migrateDB [file.db|file.dump] [output]')${plain}"
         return 1
     fi
 
@@ -3433,9 +3930,9 @@ migrate_db() {
             confirm "Output ${output} already exists and will be overwritten. Continue?" "n" || return 0
         fi
         LOGI "Dumping SQLite database to SQL text:"
-        echo -e "  ${green}${input}${plain} -> ${green}${output}${plain}"
+        echo -e "${green}$(xui_tr '%s -> %s' "${input}" "${output}")${plain}"
         if "$bin" migrate-db --src "$input" --dump "$output"; then
-            LOGI "Done. Wrote ${output}."
+            LOGI "$(xui_tr 'Done. Wrote %s.' "${output}")"
         else
             LOGE "Dump failed."
             return 1
@@ -3443,7 +3940,7 @@ migrate_db() {
     else
         [[ -z "$output" ]] && output="${input%.*}.db"
         if [[ "$output" == "$default_db" ]] && check_status > /dev/null 2>&1; then
-            LOGE "Refusing to restore into the live database (${default_db}) while d3x-ui is running."
+            LOGE "$(xui_tr 'Refusing to restore into the live database (%s) while d3x-ui is running.' "${default_db}")"
             LOGE "Stop the panel first (d3x-ui stop) or choose a different output path."
             return 1
         fi
@@ -3452,9 +3949,9 @@ migrate_db() {
             rm -f "$output"
         fi
         LOGI "Rebuilding SQLite database from SQL text:"
-        echo -e "  ${green}${input}${plain} -> ${green}${output}${plain}"
+        echo -e "${green}$(xui_tr '%s -> %s' "${input}" "${output}")${plain}"
         if "$bin" migrate-db --restore "$input" --out "$output"; then
-            LOGI "Done. Created ${output}."
+            LOGI "$(xui_tr 'Done. Created %s.' "${output}")"
         else
             LOGE "Restore failed."
             rm -f "$output"
@@ -3468,82 +3965,81 @@ migrate_db() {
 migrate_db_prompt() {
     local default_db="/etc/d3x-ui/d3x-ui.db"
     local input output
-    echo -e "Convert between a SQLite ${green}.db${plain} and a portable ${green}.dump${plain} (direction auto-detected)."
-    read -rp "Input file [${default_db}]: " input
+    echo -e "${green}$(xui_tr 'Convert between a SQLite .db and a portable .dump (direction auto-detected).')${plain}"
+    read -rp "$(xui_tr 'Input file [%s]:' "${default_db}")" input
     input="${input:-$default_db}"
-    read -rp "Output file (leave empty to auto-name next to input): " output
+    read -rp "$(xui_tr 'Output file (leave empty to auto-name next to input):')" output
     migrate_db "$input" "$output"
 }
 
 show_usage() {
-    echo -e "┌────────────────────────────────────────────────────────────────┐
-│  ${blue}d3x-ui control menu usages (subcommands):${plain}                       │
-│                                                                │
-│  ${blue}d3x-ui${plain}                       - Admin Management Script          │
-│  ${blue}d3x-ui start${plain}                 - Start                            │
-│  ${blue}d3x-ui stop${plain}                  - Stop                             │
-│  ${blue}d3x-ui restart${plain}               - Restart                          │
-|  ${blue}d3x-ui restart-xray${plain}          - Restart Xray                     │
-│  ${blue}d3x-ui status${plain}                - Current Status                   │
-│  ${blue}d3x-ui settings${plain}              - Current Settings                 │
-│  ${blue}d3x-ui enable${plain}                - Enable Autostart on OS Startup   │
-│  ${blue}d3x-ui disable${plain}               - Disable Autostart on OS Startup  │
-│  ${blue}d3x-ui log${plain}                   - Check logs                       │
-│  ${blue}d3x-ui banlog${plain}                - Check Fail2ban ban logs          │
-│  ${blue}d3x-ui update${plain}                - Update                           │
-│  ${blue}d3x-ui update-dev${plain}            - Update to Dev channel (latest)   │
-│  ${blue}d3x-ui update-all-geofiles${plain}   - Update all geo files             │
-│  ${blue}d3x-ui migrateDB [file]${plain}      - Convert .db <-> .dump (SQLite)   │
-│  ${blue}d3x-ui pgclient [ver]${plain}        - Upgrade pg_dump/pg_restore tools │
-│  ${blue}d3x-ui legacy${plain}                - Legacy version                   │
-│  ${blue}d3x-ui install${plain}               - Install                          │
-│  ${blue}d3x-ui uninstall${plain}             - Uninstall                        │
-└────────────────────────────────────────────────────────────────┘"
+    echo "┌──────────────────────────────────────────────────────────────────┐"
+    usage_title "d3x-ui control menu usages (subcommands):"
+    echo "│                                                                  │"
+    usage_line "d3x-ui" "Admin Management Script"
+    usage_line "d3x-ui start" "Start"
+    usage_line "d3x-ui stop" "Stop"
+    usage_line "d3x-ui restart" "Restart"
+    usage_line "d3x-ui restart-xray" "Restart Xray"
+    usage_line "d3x-ui status" "Current Status"
+    usage_line "d3x-ui settings" "Current Settings"
+    usage_line "d3x-ui enable" "Enable Autostart on OS Startup"
+    usage_line "d3x-ui disable" "Disable Autostart on OS Startup"
+    usage_line "d3x-ui log" "Check logs"
+    usage_line "d3x-ui banlog" "Check Fail2ban ban logs"
+    usage_line "d3x-ui update" "Update"
+    usage_line "d3x-ui update-dev" "Update to Dev channel (latest)"
+    usage_line "d3x-ui update-all-geofiles" "Update all geo files"
+    usage_line "d3x-ui migrateDB [file]" "Convert .db <-> .dump (SQLite)"
+    usage_line "d3x-ui pgclient [ver]" "Upgrade pg_dump/pg_restore tools"
+    usage_line "d3x-ui legacy" "Legacy version"
+    usage_line "d3x-ui install" "Install"
+    usage_line "d3x-ui uninstall" "Uninstall"
+    echo "└──────────────────────────────────────────────────────────────────┘"
 }
 
 show_menu() {
-    echo -e "
-╔────────────────────────────────────────────────╗
-│  ${green}D3X-UI Panel Management Script${plain}                │
-│  ${green}0.${plain} Exit Script                               │
-│────────────────────────────────────────────────│
-│  ${green}1.${plain} Install                                   │
-│  ${green}2.${plain} Update                                    │
-│  ${green}3.${plain} Update to Dev Channel (latest commit)     │
-│  ${green}4.${plain} Update Menu                               │
-│  ${green}5.${plain} Legacy Version                            │
-│  ${green}6.${plain} Uninstall                                 │
-│────────────────────────────────────────────────│
-│  ${green}7.${plain} Reset Username & Password                 │
-│  ${green}8.${plain} Reset Web Base Path                       │
-│  ${green}9.${plain} Reset Settings                            │
-│  ${green}10.${plain} Change Port                              │
-│  ${green}11.${plain} View Current Settings                    │
-│────────────────────────────────────────────────│
-│  ${green}12.${plain} Start                                    │
-│  ${green}13.${plain} Stop                                     │
-│  ${green}14.${plain} Restart                                  │
-|  ${green}15.${plain} Restart Xray                             │
-│  ${green}16.${plain} Check Status                             │
-│  ${green}17.${plain} Logs Management                          │
-│────────────────────────────────────────────────│
-│  ${green}18.${plain} Enable Autostart                         │
-│  ${green}19.${plain} Disable Autostart                        │
-│────────────────────────────────────────────────│
-│  ${green}20.${plain} SSL Certificate Management               │
-│  ${green}21.${plain} Cloudflare SSL Certificate               │
-│  ${green}22.${plain} IP Limit Management                      │
-│  ${green}23.${plain} Firewall Management                      │
-│  ${green}24.${plain} SSH Port Forwarding Management           │
-│  ${green}25.${plain} PostgreSQL Management                    │
-│────────────────────────────────────────────────│
-│  ${green}26.${plain} Enable BBR                               │
-│  ${green}27.${plain} Update Geo Files                         │
-│  ${green}28.${plain} Speedtest by Ookla                       │
-╚────────────────────────────────────────────────╝
-"
+    echo
+    echo "╔────────────────────────────────────────────────╗"
+    menu_title "D3X-UI Panel Management Script"
+    menu_line "0" "Exit Script"
+    echo "│────────────────────────────────────────────────│"
+    menu_line "1" "Install"
+    menu_line "2" "Update"
+    menu_line "3" "Update to Dev Channel (latest commit)"
+    menu_line "4" "Update Menu"
+    menu_line "5" "Legacy Version"
+    menu_line "6" "Uninstall"
+    echo "│────────────────────────────────────────────────│"
+    menu_line "7" "Reset Username & Password"
+    menu_line "8" "Reset Web Base Path"
+    menu_line "9" "Reset Settings"
+    menu_line "10" "Change Port"
+    menu_line "11" "View Current Settings"
+    echo "│────────────────────────────────────────────────│"
+    menu_line "12" "Start"
+    menu_line "13" "Stop"
+    menu_line "14" "Restart"
+    menu_line "15" "Restart Xray"
+    menu_line "16" "Check Status"
+    menu_line "17" "Logs Management"
+    echo "│────────────────────────────────────────────────│"
+    menu_line "18" "Enable Autostart"
+    menu_line "19" "Disable Autostart"
+    echo "│────────────────────────────────────────────────│"
+    menu_line "20" "SSL Certificate Management"
+    menu_line "21" "Cloudflare SSL Certificate"
+    menu_line "22" "IP Limit Management"
+    menu_line "23" "Firewall Management"
+    menu_line "24" "SSH Port Forwarding Management"
+    menu_line "25" "PostgreSQL Management"
+    echo "│────────────────────────────────────────────────│"
+    menu_line "26" "Enable BBR"
+    menu_line "27" "Update Geo Files"
+    menu_line "28" "Speedtest by Ookla"
+    echo "╚────────────────────────────────────────────────╝"
     show_status
-    echo && read -rp "Please enter your selection [0-28]: " num
+    echo && read -rp "$(xui_tr 'Please enter your selection [0-28]:') " num
 
     case "${num}" in
         0)
