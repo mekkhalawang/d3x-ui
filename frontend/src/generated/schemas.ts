@@ -1832,6 +1832,13 @@ export const SCHEMAS: Record<string, unknown> = {
         "description": "Security method (e.g., \"auto\", \"aes-128-gcm\")",
         "type": "string"
       },
+      "speedLimitDown": {
+        "type": "integer"
+      },
+      "speedLimitUp": {
+        "description": "Panel-only shaping (kbps, 0 = unlimited). These ride the client JSON but\nreach the core through XRAY_RATELIMIT_FILE, not the Xray config.",
+        "type": "integer"
+      },
       "subId": {
         "description": "Subscription identifier",
         "type": "string"
@@ -2057,6 +2064,12 @@ export const SCHEMAS: Record<string, unknown> = {
       "security": {
         "type": "string"
       },
+      "speedLimitDown": {
+        "type": "integer"
+      },
+      "speedLimitUp": {
+        "type": "integer"
+      },
       "subId": {
         "type": "string"
       },
@@ -2109,6 +2122,8 @@ export const SCHEMAS: Record<string, unknown> = {
       "reverse",
       "secret",
       "security",
+      "speedLimitDown",
+      "speedLimitUp",
       "subId",
       "tgId",
       "totalGB",

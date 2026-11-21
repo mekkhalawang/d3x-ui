@@ -1858,6 +1858,13 @@
             "description": "Security method (e.g., \"auto\", \"aes-128-gcm\")",
             "type": "string"
           },
+          "speedLimitDown": {
+            "type": "integer"
+          },
+          "speedLimitUp": {
+            "description": "Panel-only shaping (kbps, 0 = unlimited). These ride the client JSON but\nreach the core through XRAY_RATELIMIT_FILE, not the Xray config.",
+            "type": "integer"
+          },
           "subId": {
             "description": "Subscription identifier",
             "type": "string"
@@ -2083,6 +2090,12 @@
           "security": {
             "type": "string"
           },
+          "speedLimitDown": {
+            "type": "integer"
+          },
+          "speedLimitUp": {
+            "type": "integer"
+          },
           "subId": {
             "type": "string"
           },
@@ -2135,6 +2148,8 @@
           "reverse",
           "secret",
           "security",
+          "speedLimitDown",
+          "speedLimitUp",
           "subId",
           "tgId",
           "totalGB",
@@ -5032,6 +5047,10 @@
       "description": "System status, log retrieval, certificate generators, Xray binary management, and backup/restore. All under /panel/api/server."
     },
     {
+      "name": "Argo Tunnels",
+      "description": "Cloudflare Tunnel (Argo) management. The panel supervises a quick tunnel (a random trycloudflare.com host) and a named tunnel (a Zero Trust token), and can build a complete Argo node — inbound, client, tunnel binding and share links — in one call. All under /panel/api/argo."
+    },
+    {
       "name": "Clients",
       "description": "Manage clients as first-class entities that can be attached to one or more inbounds. A single client row drives the settings.clients entry in every inbound it belongs to. Endpoints live under /panel/api/clients."
     },
@@ -7379,47 +7398,6 @@
         }
       }
     },
-    "/panel/api/server/installXray/{version}": {
-      "post": {
-        "tags": [
-          "Server"
-        ],
-        "summary": "Download and install the specified Xray version. Pass \"latest\" for the newest release.",
-        "operationId": "post_panel_api_server_installXray_version",
-        "parameters": [
-          {
-            "name": "version",
-            "in": "path",
-            "required": true,
-            "description": "Xray tag (e.g. v25.10.31) or \"latest\".",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "boolean"
-                    },
-                    "msg": {
-                      "type": "string"
-                    },
-                    "obj": {}
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/panel/api/server/updatePanel": {
       "post": {
         "tags": [
@@ -8344,6 +8322,364 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "obj": {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/panel/api/server/getNewSelfSignedCert": {
+      "get": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "Mint a self-signed certificate whose CN and SAN match the given SNI. Used by inbounds that front a domain with a self-signed pair; the client then enables allow-insecure or skip-cert-verify.",
+        "operationId": "get_panel_api_server_getNewSelfSignedCert",
+        "parameters": [
+          {
+            "name": "sni",
+            "in": "query",
+            "required": true,
+            "description": "The hostname the certificate is issued for.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "obj": {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/panel/api/argo/status": {
+      "get": {
+        "tags": [
+          "Argo Tunnels"
+        ],
+        "summary": "Current Argo configuration plus the state of both tunnel runners.",
+        "operationId": "get_panel_api_argo_status",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "obj": {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/panel/api/argo/config": {
+      "post": {
+        "tags": [
+          "Argo Tunnels"
+        ],
+        "summary": "Save the Argo configuration: which tunnels are enabled, the inbound each one is bound to, the named tunnel token and the preferred CDN address.",
+        "operationId": "post_panel_api_argo_config",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "quickEnable": true,
+                "quickInboundId": 1,
+                "quickDomain": "",
+                "namedEnable": false,
+                "namedToken": "",
+                "namedDomain": "",
+                "namedInboundId": 0,
+                "cdnAddress": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "obj": {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/panel/api/argo/createNode": {
+      "post": {
+        "tags": [
+          "Argo Tunnels"
+        ],
+        "summary": "Create a complete Argo node in one step: the inbound, its client, the tunnel binding, the tunnel start and the share links. The new inbound belongs to the logged-in user, so it shows up in the inbound list right away.",
+        "operationId": "post_panel_api_argo_createNode",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": {
+                "mode": "quick",
+                "domain": "",
+                "token": "",
+                "port": 0
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "obj": {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/panel/api/argo/quick/start": {
+      "post": {
+        "tags": [
+          "Argo Tunnels"
+        ],
+        "summary": "Start the quick tunnel.",
+        "operationId": "post_panel_api_argo_quick_start",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "obj": {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/panel/api/argo/quick/stop": {
+      "post": {
+        "tags": [
+          "Argo Tunnels"
+        ],
+        "summary": "Stop the quick tunnel.",
+        "operationId": "post_panel_api_argo_quick_stop",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "obj": {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/panel/api/argo/named/start": {
+      "post": {
+        "tags": [
+          "Argo Tunnels"
+        ],
+        "summary": "Start the named tunnel.",
+        "operationId": "post_panel_api_argo_named_start",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "obj": {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/panel/api/argo/named/stop": {
+      "post": {
+        "tags": [
+          "Argo Tunnels"
+        ],
+        "summary": "Stop the named tunnel.",
+        "operationId": "post_panel_api_argo_named_stop",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "obj": {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/panel/api/argo/syncHosts": {
+      "post": {
+        "tags": [
+          "Argo Tunnels"
+        ],
+        "summary": "Re-sync the Host rows with the running tunnels, so the subscription reflects the current tunnel domains and the preferred CDN address.",
+        "operationId": "post_panel_api_argo_syncHosts",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "obj": {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/panel/api/argo/links/{inboundId}": {
+      "get": {
+        "tags": [
+          "Argo Tunnels"
+        ],
+        "summary": "Share links of the clients of an Argo inbound, including the CDN variants.",
+        "operationId": "get_panel_api_argo_links_inboundId",
+        "parameters": [
+          {
+            "name": "inboundId",
+            "in": "path",
+            "required": true,
+            "description": "Id of the inbound whose clients the links are built for.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful response",

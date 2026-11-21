@@ -655,20 +655,6 @@ export const sections: readonly Section[] = [
       },
       {
         method: 'POST',
-        path: '/panel/api/server/installXray/:version',
-        summary:
-          'Download and install the specified Xray version. Pass "latest" for the newest release.',
-        params: [
-          {
-            name: 'version',
-            in: 'path',
-            type: 'string',
-            desc: 'Xray tag (e.g. v25.10.31) or "latest".',
-          },
-        ],
-      },
-      {
-        method: 'POST',
         path: '/panel/api/server/updatePanel',
         summary:
           'Self-update the panel to the latest version. The server restarts on success. Bearer-token callers need admin or node-admin scope.',
@@ -982,6 +968,87 @@ export const sections: readonly Section[] = [
             required: ['clientEmail', 'ips'],
           },
         },
+      },
+      {
+        method: 'GET',
+        path: '/panel/api/server/getNewSelfSignedCert',
+        summary:
+          'Mint a self-signed certificate whose CN and SAN match the given SNI. Used by inbounds that front a domain with a self-signed pair; the client then enables allow-insecure or skip-cert-verify.',
+        params: [
+          {
+            name: 'sni',
+            in: 'query',
+            type: 'string',
+            desc: 'The hostname the certificate is issued for.',
+          },
+        ],
+      },
+    ],
+  },
+
+  {
+    id: 'argo',
+    title: 'Argo Tunnels',
+    description:
+      'Cloudflare Tunnel (Argo) management. The panel supervises a quick tunnel (a random trycloudflare.com host) and a named tunnel (a Zero Trust token), and can build a complete Argo node — inbound, client, tunnel binding and share links — in one call. All under /panel/api/argo.',
+    endpoints: [
+      {
+        method: 'GET',
+        path: '/panel/api/argo/status',
+        summary: 'Current Argo configuration plus the state of both tunnel runners.',
+      },
+      {
+        method: 'POST',
+        path: '/panel/api/argo/config',
+        summary:
+          'Save the Argo configuration: which tunnels are enabled, the inbound each one is bound to, the named tunnel token and the preferred CDN address.',
+        body: '{\n  "quickEnable": true,\n  "quickInboundId": 1,\n  "quickDomain": "",\n  "namedEnable": false,\n  "namedToken": "",\n  "namedDomain": "",\n  "namedInboundId": 0,\n  "cdnAddress": ""\n}',
+      },
+      {
+        method: 'POST',
+        path: '/panel/api/argo/createNode',
+        summary:
+          'Create a complete Argo node in one step: the inbound, its client, the tunnel binding, the tunnel start and the share links. The new inbound belongs to the logged-in user, so it shows up in the inbound list right away.',
+        body: '{\n  "mode": "quick",\n  "domain": "",\n  "token": "",\n  "port": 0\n}',
+      },
+      {
+        method: 'POST',
+        path: '/panel/api/argo/quick/start',
+        summary: 'Start the quick tunnel.',
+      },
+      {
+        method: 'POST',
+        path: '/panel/api/argo/quick/stop',
+        summary: 'Stop the quick tunnel.',
+      },
+      {
+        method: 'POST',
+        path: '/panel/api/argo/named/start',
+        summary: 'Start the named tunnel.',
+      },
+      {
+        method: 'POST',
+        path: '/panel/api/argo/named/stop',
+        summary: 'Stop the named tunnel.',
+      },
+      {
+        method: 'POST',
+        path: '/panel/api/argo/syncHosts',
+        summary:
+          'Re-sync the Host rows with the running tunnels, so the subscription reflects the current tunnel domains and the preferred CDN address.',
+      },
+      {
+        method: 'GET',
+        path: '/panel/api/argo/links/:inboundId',
+        summary: 'Share links of the clients of an Argo inbound, including the CDN variants.',
+        params: [
+          {
+            name: 'inboundId',
+            in: 'path',
+            type: 'integer',
+            desc: 'Id of the inbound whose clients the links are built for.',
+          },
+        ],
       },
     ],
   },

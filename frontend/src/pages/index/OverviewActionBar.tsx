@@ -37,7 +37,6 @@ interface OverviewActionBarProps {
   onOpenSystemHistory: () => void;
   onOpenXrayMetrics: () => void;
   onOpenPanelUpdate: () => void;
-  onOpenVersionSwitch: () => void;
 }
 
 interface BarAction {
@@ -74,12 +73,10 @@ export default function OverviewActionBar({
   onOpenSystemHistory,
   onOpenXrayMetrics,
   onOpenPanelUpdate,
-  onOpenVersionSwitch,
 }: OverviewActionBarProps) {
   const { t } = useTranslation();
   const [modal, modalContextHolder] = Modal.useModal();
   const stateText = t(XRAY_STATE_KEYS[status.xray.state] ?? 'pages.index.xrayStatusUnknown');
-  const hasVersion = !!status.xray.version && status.xray.version !== 'Unknown';
   const size = isMobile ? ('small' as const) : ('middle' as const);
   const isStopped = status.xray.state === 'stop';
 
@@ -171,13 +168,6 @@ export default function OverviewActionBar({
     <span className="ov-state" data-state={status.xray.state}>
       <span className="ov-state-dot" style={{ color: status.xray.color }} />
       <span>{`${t('pages.index.xrayStatus')} · ${stateText}`}</span>
-      {hasVersion && (
-        <Tooltip title={t('pages.index.xraySwitch')}>
-          <button type="button" className="ov-state-version" onClick={onOpenVersionSwitch}>
-            {`v${status.xray.version}`}
-          </button>
-        </Tooltip>
-      )}
     </span>
   );
 

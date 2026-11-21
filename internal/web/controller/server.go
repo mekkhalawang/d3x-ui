@@ -70,7 +70,6 @@ func (a *ServerController) initRouter(g *gin.RouterGroup) {
 
 	g.POST("/stopXrayService", a.stopXrayService)
 	g.POST("/restartXrayService", a.restartXrayService)
-	g.POST("/installXray/:version", a.installXray)
 	g.POST("/updatePanel", a.updatePanel)
 	g.POST("/setUpdateChannel", a.setUpdateChannel)
 	g.POST("/updateGeofile", a.updateGeofile)
@@ -193,7 +192,6 @@ func (a *ServerController) getXrayVersion(c *gin.Context) {
 	}
 	jsonObj(c, versions, nil)
 }
-
 // getPanelUpdateInfo retrieves the current and latest panel version.
 func (a *ServerController) getPanelUpdateInfo(c *gin.Context) {
 	info, err := a.panelService.GetUpdateInfo()
@@ -205,11 +203,23 @@ func (a *ServerController) getPanelUpdateInfo(c *gin.Context) {
 	jsonObj(c, info, nil)
 }
 
-// installXray installs or updates Xray to the specified version.
+// installXray refuses to swap the Xray core.
+//
+// D3X-UI ships a patched core: the per-user rate limit lives in
+// patches/xray-ratelimit.patch and is compiled into bin/xray. The upstream
+// release binaries this endpoint used to download carry no such patch, so
+// installing one silently dropped the shaping code — the limit table kept
+// being written but nothing read it, and every limit quietly stopped
+// applying.
+//
+// The route is no longer registered; the handler stays as a guard so a
+// cached frontend or a direct API call gets a clear answer instead of a
+// silently broken core.
 func (a *ServerController) installXray(c *gin.Context) {
-	version := c.Param("version")
-	err := a.serverService.UpdateXray(version)
-	jsonMsg(c, I18nWeb(c, "pages.index.xraySwitchVersionPopover"), err)
+	c.JSON(http.StatusForbidden, entity.Msg{
+		Success: false,
+		Msg:     "Switching the Xray core is disabled: D3X-UI ships a patched core that carries the rate limit implementation, and an upstream build would remove it.",
+	})
 }
 
 // updatePanel starts a panel self-update. With no "dev" form value it follows

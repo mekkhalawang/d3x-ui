@@ -31,7 +31,6 @@ describe('OverviewActionBar update tag', () => {
         onOpenSystemHistory={noop}
         onOpenXrayMetrics={noop}
         onOpenPanelUpdate={onOpenPanelUpdate}
-        onOpenVersionSwitch={noop}
       />,
     );
 

@@ -211,7 +211,6 @@ export default function IndexPage() {
                     onOpenSystemHistory={() => setSysHistoryOpen(true)}
                     onOpenXrayMetrics={() => setXrayMetricsOpen(true)}
                     onOpenPanelUpdate={() => setPanelUpdateOpen(true)}
-                    onOpenVersionSwitch={() => setVersionOpen(true)}
                   />
 
                   {health && (
@@ -342,12 +341,7 @@ export default function IndexPage() {
           <AmneziaWGLogModal open={amneziawgLogsOpen} onClose={() => setAmneziawgLogsOpen(false)} />
         </LazyMount>
         <LazyMount when={versionOpen}>
-          <VersionModal
-            open={versionOpen}
-            status={status}
-            onClose={() => setVersionOpen(false)}
-            onBusy={setBusy}
-          />
+          <VersionModal open={versionOpen} onClose={() => setVersionOpen(false)} onBusy={setBusy} />
         </LazyMount>
 
         <LazyMount when={configTextOpen}>

@@ -35,7 +35,6 @@ function renderBar(
       onOpenSystemHistory={noop}
       onOpenXrayMetrics={noop}
       onOpenPanelUpdate={noop}
-      onOpenVersionSwitch={noop}
     />,
   );
 }
