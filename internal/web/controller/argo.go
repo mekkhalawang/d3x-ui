@@ -3,7 +3,9 @@ package controller
 import (
 	"strconv"
 
+	"github.com/mekkhalawang/d3x-ui/v3/internal/util/common"
 	"github.com/mekkhalawang/d3x-ui/v3/internal/web/service"
+	"github.com/mekkhalawang/d3x-ui/v3/internal/web/session"
 
 	"github.com/gin-gonic/gin"
 )
@@ -36,7 +38,12 @@ func (a *ArgoController) createNode(c *gin.Context) {
 		jsonMsg(c, I18nWeb(c, "pages.argotunnel.toasts.createNode"), err)
 		return
 	}
-	result, err := a.argoService.CreateNode(req, resolveHost(c))
+	user := session.GetLoginUser(c)
+	if user == nil {
+		jsonMsgObj(c, I18nWeb(c, "pages.argotunnel.toasts.createNode"), nil, common.NewError("login required"))
+		return
+	}
+	result, err := a.argoService.CreateNode(req, resolveHost(c), user.Id)
 	if err != nil {
 		jsonMsgObj(c, I18nWeb(c, "pages.argotunnel.toasts.createNode"), result, err)
 		return

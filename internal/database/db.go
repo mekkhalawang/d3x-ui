@@ -215,6 +215,9 @@ func initModels() error {
 	if err := migrateClientEmailLowerIndex(); err != nil {
 		return err
 	}
+	if err := migrateOrphanInboundUserIds(); err != nil {
+		return err
+	}
 	if IsPostgres() {
 		if err := resyncPostgresSequences(db, models); err != nil {
 			log.Printf("Error resyncing postgres sequences: %v", err)
@@ -418,6 +421,22 @@ func migrateClientEmailLowerIndex() error {
 		return nil
 	}
 	return db.Exec("CREATE INDEX IF NOT EXISTS idx_clients_email_lower ON clients (LOWER(email))").Error
+}
+
+// migrateOrphanInboundUserIds re-homes inbounds left on user_id=0 (the one-click
+// Argo wizard used to create them without stamping the owner) onto the panel's
+// first user. GetInbounds is scoped WHERE user_id = <login user>, so those rows
+// were invisible in the inbounds list while their clients still showed up on
+// the client pages, which are not user-scoped. Idempotent: only touches 0.
+func migrateOrphanInboundUserIds() error {
+	var firstUserId int
+	if err := db.Model(&model.User{}).Select("COALESCE(MIN(id), 0)").Scan(&firstUserId).Error; err != nil {
+		return err
+	}
+	if firstUserId <= 0 {
+		return nil
+	}
+	return db.Exec("UPDATE inbounds SET user_id = ? WHERE user_id = 0", firstUserId).Error
 }
 
 func migrateHostVerifyPeerCertByNameColumn() error {

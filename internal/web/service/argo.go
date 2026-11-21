@@ -478,7 +478,15 @@ func pickFreePort(preferred int) (int, error) {
 // (TLS off as Argo requires), one client with its own subId, the tunnel config
 // bound to that inbound, the tunnel started, share-link hosts synced, and the
 // user links returned. Xray is restarted so the node is live immediately.
-func (s *ArgoService) CreateNode(req ArgoCreateNodeRequest, host string) (*ArgoCreateNodeResult, error) {
+//
+// userId must be the logged-in panel user: the inbounds list is scoped by
+// user_id, so an inbound created without it lands on user_id=0 and stays
+// invisible in the UI even though its clients do show up (the client pages
+// are not user-scoped). Mirrors what the addInbound controller does.
+func (s *ArgoService) CreateNode(req ArgoCreateNodeRequest, host string, userId int) (*ArgoCreateNodeResult, error) {
+	if userId <= 0 {
+		return nil, fmt.Errorf("createNode needs a logged-in user")
+	}
 	mode := strings.TrimSpace(req.Mode)
 	if mode != cloudflared.KindQuick && mode != cloudflared.KindNamed {
 		return nil, fmt.Errorf("unknown tunnel mode %q", req.Mode)
@@ -519,6 +527,7 @@ func (s *ArgoService) CreateNode(req ArgoCreateNodeRequest, host string) (*ArgoC
 	inbound := &model.Inbound{
 		Remark:         remark,
 		Enable:         true,
+		UserId:         userId,
 		Port:           port,
 		Protocol:       model.VLESS,
 		Settings:       string(settings),
