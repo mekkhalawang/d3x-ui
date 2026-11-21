@@ -655,6 +655,22 @@ export const sections: readonly Section[] = [
       },
       {
         method: 'POST',
+        path: '/panel/api/server/installXray/:version',
+        summary:
+          'Always refuses with 403. Switching the Xray core is disabled: D3X-UI ships a patched core that carries the rate limit implementation, and an upstream build would remove it.',
+        params: [
+          {
+            name: 'version',
+            in: 'path',
+            type: 'string',
+            desc: 'Ignored. The endpoint never installs anything.',
+          },
+        ],
+        errorResponse:
+          '{\n  "success": false,\n  "msg": "Switching the Xray core is disabled: D3X-UI ships a patched core that carries the rate limit implementation, and an upstream build would remove it."\n}',
+      },
+      {
+        method: 'POST',
         path: '/panel/api/server/updatePanel',
         summary:
           'Self-update the panel to the latest version. The server restarts on success. Bearer-token callers need admin or node-admin scope.',

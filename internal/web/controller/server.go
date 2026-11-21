@@ -70,6 +70,7 @@ func (a *ServerController) initRouter(g *gin.RouterGroup) {
 
 	g.POST("/stopXrayService", a.stopXrayService)
 	g.POST("/restartXrayService", a.restartXrayService)
+	g.POST("/installXray/:version", a.installXray)
 	g.POST("/updatePanel", a.updatePanel)
 	g.POST("/setUpdateChannel", a.setUpdateChannel)
 	g.POST("/updateGeofile", a.updateGeofile)
@@ -212,9 +213,10 @@ func (a *ServerController) getPanelUpdateInfo(c *gin.Context) {
 // being written but nothing read it, and every limit quietly stopped
 // applying.
 //
-// The route is no longer registered; the handler stays as a guard so a
-// cached frontend or a direct API call gets a clear answer instead of a
-// silently broken core.
+// The route stays registered only to refuse: a cached frontend or a direct
+// API call gets a clear 403 instead of a silently broken core. An unregistered
+// route would be enough to block the download, but gin answers those with a
+// bare 404 that does not say why the switch is gone.
 func (a *ServerController) installXray(c *gin.Context) {
 	c.JSON(http.StatusForbidden, entity.Msg{
 		Success: false,

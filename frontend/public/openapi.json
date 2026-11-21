@@ -7398,6 +7398,69 @@
         }
       }
     },
+    "/panel/api/server/installXray/{version}": {
+      "post": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "Always refuses with 403. Switching the Xray core is disabled: D3X-UI ships a patched core that carries the rate limit implementation, and an upstream build would remove it.",
+        "operationId": "post_panel_api_server_installXray_version",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "description": "Ignored. The endpoint never installs anything.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "obj": {}
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "msg": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "msg": "Switching the Xray core is disabled: D3X-UI ships a patched core that carries the rate limit implementation, and an upstream build would remove it."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/panel/api/server/updatePanel": {
       "post": {
         "tags": [
