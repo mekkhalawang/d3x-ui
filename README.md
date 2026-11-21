@@ -54,6 +54,8 @@ During installation a random username, password, and access path are generated. 
 
 The installer prompts are in Chinese by default. Set `XUI_LANG=en` to get the English wording instead. During the install you are asked whether to set a custom panel username and password — answer `y` to choose your own (the password is asked twice for confirmation), or leave it on `N` to keep the generated ones.
 
+The SSL step offers five methods. Option **3** mints a **self-signed certificate for the server's public IP** — it needs no port 80, no ACME account and no renewal, so it works on a locked-down VPS. The detected IP is the default; press Enter to accept it or type a different address. The certificate is valid for 10 years, and browsers will warn that it is not signed by a public CA (click *Advanced* to proceed). Options 1 and 2 use Let's Encrypt and require port 80 open.
+
 Every release asset is published with a `.sha256` sum next to it. Both `install.sh` and the updater verify the archive against that sum and abort on a mismatch.
 
 ### Unattended install

@@ -7,16 +7,37 @@
 # Usage: bash scripts/install-sh-test.sh
 set -u
 
+# The colour variables install.sh uses in its messages. They are defined here
+# too: the extracted functions reference them, and `set -u` turns a missing
+# one into an unbound-variable error that aborts the whole test run.
+red='\033[0;31m'
+green='\033[0;32m'
+blue='\033[0;34m'
+yellow='\033[0;33m'
+plain='\033[0m'
+
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SRC="${REPO_ROOT}/install.sh"
-TMP="$(mktemp -d)"
-trap 'rm -rf "$TMP"' EXIT
-# Git Bash hands out a Windows-style path (C:/.../tmp.XXXX); the inner
-# bash -c calls below need a POSIX path, so keep a /tmp-relative copy.
+# Git Bash hands out a Windows-style path (C:/.../tmp.XXXX) from mktemp, and
+# the inner bash -c calls below need a POSIX path anyway. One POSIX directory
+# serves both, so mktemp is not used at all.
 TMP_POSIX="/tmp/d3x-install-sh-test.$$"
-rm -rf "$TMP_POSIX"
 mkdir -p "$TMP_POSIX"
-trap 'rm -rf "$TMP" "$TMP_POSIX"' EXIT
+# The cleanup runs with MSYS2_ARG_CONV_EXCL set: without it the runtime turns
+# the POSIX path into a drive-letter path, and the sandbox refuses to remove
+# anything that looks like an embedded drive prefix.
+#
+# The EXIT trap is inherited by every subshell, so it fires when a subshell
+# exits too. BASHPID identifies the shell that is actually running the trap
+# handler: only the outermost one (the one that created the directory) may
+# delete it, otherwise a subshell would wipe the scratch directory while the
+# test is still using it.
+cleanup() {
+    [[ "$BASHPID" == "$MAIN_PID" ]] || return 0
+    MSYS2_ARG_CONV_EXCL='*' MSYS_NO_PATHCONV=1 rm -rf -- "$TMP_POSIX" 2> /dev/null
+}
+MAIN_PID="$BASHPID"
+trap cleanup EXIT
 
 pass=0
 fail=0
@@ -29,6 +50,22 @@ check() {
     else
         printf 'FAIL  %s\n' "$name"
         fail=$((fail + 1))
+    fi
+}
+
+# check_fails <name> <command...>
+# Asserts that a command exits non-zero. The command is run directly instead
+# of behind a `!` prefix: `!` makes bash fork a subshell, and the inherited
+# EXIT trap would then delete the scratch directory while the test runs.
+check_fails() {
+    local name="$1"
+    shift
+    if "$@" > /dev/null 2>&1; then
+        printf 'FAIL  %s\n' "$name"
+        fail=$((fail + 1))
+    else
+        printf 'PASS  %s\n' "$name"
+        pass=$((pass + 1))
     fi
 }
 
@@ -49,6 +86,10 @@ extract() {
 awk '/^case "\${XUI_LANG:-zh\}"/,/^xui_folder=/' "$SRC" | head -n -1 > "${TMP_POSIX}/loc.sh"
 extract gen_random_string > "${TMP_POSIX}/gen.sh"
 extract select_credentials > "${TMP_POSIX}/cred.sh"
+extract setup_self_signed_certificate > "${TMP_POSIX}/selfsigned.sh"
+# The helper validates its address with is_ipv4(), so that has to be loaded
+# alongside it.
+extract is_ipv4 > "${TMP_POSIX}/is_ipv4.sh"
 
 # shellcheck disable=SC1090
 source "${TMP_POSIX}/gen.sh"
@@ -56,6 +97,10 @@ source "${TMP_POSIX}/gen.sh"
 source "${TMP_POSIX}/loc.sh"
 # shellcheck disable=SC1090
 source "${TMP_POSIX}/cred.sh"
+# shellcheck disable=SC1090
+source "${TMP_POSIX}/is_ipv4.sh"
+# shellcheck disable=SC1090
+source "${TMP_POSIX}/selfsigned.sh"
 
 # Run select_credentials in a subshell so its globals cannot leak between
 # cases. The here-string feeds stdin; bash only renders the -p prompt when
@@ -231,6 +276,37 @@ check 'every table key resolves to Chinese' \
     '[[ "$(probe zh allkeys)" == "unresolved=0" ]]'
 check 'every prompt used by the installer is translated' \
     '[[ "$(probe zh allused)" == "untranslated=0" ]]'
+
+echo
+echo '--- self-signed certificate ---'
+
+check 'the self-signed certificate helper exists' \
+    'declare -f setup_self_signed_certificate > /dev/null'
+check_fails 'the helper rejects an empty address' \
+    setup_self_signed_certificate ""
+check_fails 'the helper rejects a malformed address' \
+    setup_self_signed_certificate "not-an-ip"
+check_fails 'the helper rejects a domain name' \
+    setup_self_signed_certificate "example.com"
+
+# The SAN must carry the IP address: a certificate whose CN is an IP but
+# whose subjectAltName omits it fails the hostname check in every modern
+# TLS client.
+check 'the certificate carries the IP in its SAN' \
+    'grep -q "subjectAltName = IP:" "${TMP_POSIX}/selfsigned.sh"'
+check 'the certificate is valid for ten years' \
+    'grep -q -- "-days 3650" "${TMP_POSIX}/selfsigned.sh"'
+
+# The SSL menu must offer the self-signed option as 3 and keep the other
+# four methods reachable.
+check 'the SSL menu offers the self-signed option' \
+    'grep -q "Self-signed Certificate for IP" "$SRC"'
+check 'the SSL menu keeps all five methods' \
+    '[[ "$(grep -cE "^        [1-5]\)" "$SRC")" -ge 5 ]]'
+check 'the self-signed mode maps to option 3' \
+    'grep -q "selfsigned | self_signed | self-sign) ssl_choice=\"3\"" "$SRC"'
+check 'the IP prompt defaults to the detected address' \
+    'grep -q "press Enter to use %s" "$SRC"'
 
 printf '\n=== %d passed, %d failed ===\n' "$pass" "$fail"
 [[ "$fail" -eq 0 ]]

@@ -48,6 +48,14 @@ xui_zh() {
         "Please enter your custom reloadcmd: ") printf '%s' "请输入自定义 reloadcmd: " ;;
         "Would you like to set this certificate for the panel? (y/n): ") printf '%s' "是否将该证书设置为面板证书？(y/n): " ;;
         "Choose an option (default 2 for IP): ") printf '%s' "请选择一个选项（IP 证书默认选 2）: " ;;
+        "Let's Encrypt for Domain (90-day validity, auto-renews)") printf '%s' "Let's Encrypt 域名证书（90 天有效，自动续期）" ;;
+        "Let's Encrypt for IP Address (6-day validity, auto-renews)") printf '%s' "Let's Encrypt IP 证书（6 天有效，自动续期）" ;;
+        "Self-signed Certificate for IP (no port 80 needed, no renewal)") printf '%s' "自签 IP 证书（无需 80 端口，无需续期）" ;;
+        "Custom SSL Certificate (Path to existing files)") printf '%s' "使用已有 SSL 证书（指定文件路径）" ;;
+        "Skip SSL (advanced — behind reverse proxy / SSH tunnel only)") printf '%s' "跳过 SSL（高级选项——仅用于反向代理 / SSH 隧道）" ;;
+        "Options 1 & 2 require port 80 open. Option 3 needs no port and no renewal. Option 4 requires manual paths.") printf '%s' "选项 1、2 需要开放 80 端口；选项 3 无需端口、无需续期；选项 4 需要手动指定路径。" ;;
+        "Option 5 serves the panel over plain HTTP — only safe behind nginx/Caddy or an SSH tunnel.") printf '%s' "选项 5 会以纯 HTTP 提供面板服务——仅在 nginx/Caddy 反向代理或 SSH 隧道之后使用。" ;;
+        "Enter the IP address for the self-signed certificate (press Enter to use %s): ") printf '%s' "请输入自签证书使用的 IP 地址（回车使用 %s）: " ;;
         "Is %s the correct incoming public IPv4 address for this server? [Default y]: ") printf '%s' "%s 是本服务器正确的入站公网 IPv4 地址吗？[默认 y]: " ;;
         "Please enter your server's public IPv4 address: ") printf '%s' "请输入你的服务器公网 IPv4 地址: " ;;
         "Do you have an IPv6 address to include? (leave empty to skip): ") printf '%s' "是否需要包含 IPv6 地址？（留空则跳过）: " ;;
@@ -777,6 +785,100 @@ setup_ssl_certificate() {
     fi
 }
 
+# Generate a self-signed certificate for an IP address and configure the panel
+# to use it. Unlike the Let's Encrypt paths this needs no port 80, no ACME
+# account and no renewal, so it works on a locked-down VPS. The browser will
+# show a warning because the certificate is not signed by a public CA; the
+# client can accept it explicitly.
+setup_self_signed_certificate() {
+    local ipv4="$1"
+
+    echo -e "${green}Setting up self-signed certificate for ${ipv4}...${plain}"
+
+    if [[ -z "$ipv4" ]]; then
+        echo -e "${red}IPv4 address is required${plain}"
+        return 1
+    fi
+
+    if ! is_ipv4 "$ipv4"; then
+        echo -e "${red}Invalid IPv4 address: $ipv4${plain}"
+        return 1
+    fi
+
+    if ! command -v openssl > /dev/null 2>&1; then
+        echo -e "${red}openssl is required to generate a self-signed certificate${plain}"
+        return 1
+    fi
+
+    # Keep the certificate beside the other panel certificates. The name is
+    # suffixed with the IP so a second install for a different address does
+    # not overwrite the first one.
+    local certDir="/root/cert/selfsigned-${ipv4}"
+    mkdir -p "$certDir"
+
+    local certFile="${certDir}/fullchain.pem"
+    local keyFile="${certDir}/privkey.pem"
+
+    # The SAN must carry the IP address: browsers and TLS clients ignore a
+    # certificate whose CN is an IP unless the IP also appears in
+    # subjectAltName, so a cert without it fails the hostname check.
+    local confFile="${certDir}/openssl.cnf"
+    cat > "$confFile" <<EOF
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+distinguished_name = req_distinguished_name
+x509_extensions = v3_req
+
+[req_distinguished_name]
+CN = ${ipv4}
+
+[v3_req]
+subjectAltName = IP:${ipv4}
+basicConstraints = CA:FALSE
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+EOF
+
+    echo -e "${green}Generating the key pair...${plain}"
+    if ! openssl req -x509 -newkey rsa:2048 -nodes -days 3650 \
+        -keyout "$keyFile" -out "$certFile" -config "$confFile" 2> /dev/null; then
+        echo -e "${red}Failed to generate the self-signed certificate${plain}"
+        rm -rf "$certDir" 2> /dev/null
+        return 1
+    fi
+    rm -f "$confFile"
+
+    if [[ ! -s "$certFile" || ! -s "$keyFile" ]]; then
+        echo -e "${red}Certificate files were not created${plain}"
+        rm -rf "$certDir" 2> /dev/null
+        return 1
+    fi
+
+    # Secure permissions: private key readable only by owner
+    chmod 600 "$keyFile" 2> /dev/null
+    chmod 644 "$certFile" 2> /dev/null
+
+    # Configure panel to use the certificate
+    echo -e "${green}Setting certificate paths for the panel...${plain}"
+    ${xui_folder}/d3x-ui cert -webCert "$certFile" -webCertKey "$keyFile"
+
+    if [ $? -ne 0 ]; then
+        echo -e "${yellow}Warning: Could not set certificate paths automatically${plain}"
+        echo -e "${yellow}Certificate files are at:${plain}"
+        echo -e "  Cert: ${certFile}"
+        echo -e "  Key:  ${keyFile}"
+    else
+        echo -e "${green}Certificate paths configured successfully${plain}"
+    fi
+
+    echo -e "${green}Self-signed certificate installed and configured successfully!${plain}"
+    echo -e "${green}Valid for 10 years — no renewal needed.${plain}"
+    echo -e "${yellow}Your browser will warn that the certificate is not trusted; click 'Advanced' to continue.${plain}"
+    return 0
+}
+
 # Issue Let's Encrypt IP certificate with shortlived profile (~6 days validity)
 # Requires acme.sh and port 80 open for HTTP-01 challenge
 setup_ip_certificate() {
@@ -1162,28 +1264,31 @@ prompt_and_setup_ssl() {
     SSL_SCHEME="https"
 
     echo -e "${yellow}Choose SSL certificate setup method:${plain}"
-    echo -e "${green}1.${plain} Let's Encrypt for Domain (90-day validity, auto-renews)"
-    echo -e "${green}2.${plain} Let's Encrypt for IP Address (6-day validity, auto-renews)"
-    echo -e "${green}3.${plain} Custom SSL Certificate (Path to existing files)"
-    echo -e "${green}4.${plain} Skip SSL (advanced — behind reverse proxy / SSH tunnel only)"
-    echo -e "${blue}Note:${plain} Options 1 & 2 require port 80 open. Option 3 requires manual paths."
-    echo -e "${blue}Note:${plain} Option 4 serves the panel over plain HTTP — only safe behind nginx/Caddy or an SSH tunnel."
+    echo -e "${green}1.${plain} $(xui_tr "Let's Encrypt for Domain (90-day validity, auto-renews)")"
+    echo -e "${green}2.${plain} $(xui_tr "Let's Encrypt for IP Address (6-day validity, auto-renews)")"
+    echo -e "${green}3.${plain} $(xui_tr "Self-signed Certificate for IP (no port 80 needed, no renewal)")"
+    echo -e "${green}4.${plain} $(xui_tr "Custom SSL Certificate (Path to existing files)")"
+    echo -e "${green}5.${plain} $(xui_tr "Skip SSL (advanced — behind reverse proxy / SSH tunnel only)")"
+    echo -e "${blue}Note:${plain} $(xui_tr "Options 1 & 2 require port 80 open. Option 3 needs no port and no renewal. Option 4 requires manual paths.")"
+    echo -e "${blue}Note:${plain} $(xui_tr "Option 5 serves the panel over plain HTTP — only safe behind nginx/Caddy or an SSH tunnel.")"
     if [[ "$NONINTERACTIVE" == "1" ]]; then
         case "${XUI_SSL_MODE:-none}" in
             domain) ssl_choice="1" ;;
             ip) ssl_choice="2" ;;
-            none | "") ssl_choice="4" ;;
+            selfsigned | self_signed | self-sign) ssl_choice="3" ;;
+            custom) ssl_choice="4" ;;
+            none | "") ssl_choice="5" ;;
             *)
                 echo -e "${yellow}Unknown XUI_SSL_MODE='${XUI_SSL_MODE}', defaulting to none (HTTP).${plain}"
-                ssl_choice="4"
+                ssl_choice="5"
                 ;;
         esac
     else
         read -rp "$(xui_tr 'Choose an option (default 2 for IP): ')" ssl_choice
         ssl_choice="${ssl_choice// /}" # Trim whitespace
 
-        # Default to 2 (IP cert) if input is empty or invalid (not 1, 3 or 4)
-        if [[ "$ssl_choice" != "1" && "$ssl_choice" != "3" && "$ssl_choice" != "4" ]]; then
+        # Default to 2 (IP cert) if input is empty or invalid (not 1, 3, 4 or 5)
+        if [[ "$ssl_choice" != "1" && "$ssl_choice" != "3" && "$ssl_choice" != "4" && "$ssl_choice" != "5" ]]; then
             ssl_choice="2"
         fi
     fi
@@ -1254,6 +1359,46 @@ prompt_and_setup_ssl() {
             fi
             ;;
         3)
+            # User chose the self-signed certificate option
+            echo -e "${green}Using a self-signed certificate for the panel IP...${plain}"
+
+            # The auto-detected public IP is the default; the operator can
+            # override it when the panel is reached through a different
+            # address (NAT, a CDN, an IPv6-only host, ...).
+            local self_signed_ip=""
+            if [[ "$NONINTERACTIVE" == "1" ]]; then
+                self_signed_ip="${XUI_SSL_IP:-${server_ip}}"
+            else
+                while true; do
+                    read -rp "$(xui_tr 'Enter the IP address for the self-signed certificate (press Enter to use %s): ' "$server_ip")" self_signed_ip
+                    self_signed_ip="${self_signed_ip// /}" # Trim whitespace
+                    if [[ -z "$self_signed_ip" ]]; then
+                        self_signed_ip="${server_ip}"
+                        break
+                    fi
+                    if ! is_ipv4 "$self_signed_ip"; then
+                        echo -e "${red}$(xui_tr 'Invalid IPv4 address. Please try again.')${plain}"
+                        self_signed_ip=""
+                    else
+                        break
+                    fi
+                done
+            fi
+
+            if setup_self_signed_certificate "$self_signed_ip"; then
+                SSL_HOST="${self_signed_ip}"
+                echo -e "${green}✓ Self-signed certificate configured successfully${plain}"
+            else
+                echo -e "${red}✗ Self-signed certificate setup failed.${plain}"
+                SSL_HOST="${server_ip}"
+            fi
+
+            # The panel reads the certificate at startup, so it has to be
+            # restarted to pick the new one up. On a fresh install the service
+            # is not running yet and the restart is a no-op.
+            systemctl restart d3x-ui > /dev/null 2>&1 || rc-service d3x-ui restart > /dev/null 2>&1
+            ;;
+        4)
             # User chose Custom Paths (User Provided) option
             echo -e "${green}Using custom existing certificate...${plain}"
             local custom_cert=""
@@ -1313,7 +1458,7 @@ prompt_and_setup_ssl() {
 
             systemctl restart d3x-ui > /dev/null 2>&1 || rc-service d3x-ui restart > /dev/null 2>&1
             ;;
-        4)
+        5)
             echo ""
             echo -e "${red}⚠ Panel will be installed WITHOUT SSL/TLS.${plain}"
             echo -e "${yellow}Login credentials and cookies will travel as plain HTTP.${plain}"
