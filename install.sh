@@ -120,7 +120,7 @@ select_panel_port() {
             case "${confirm,,}" in
                 y | yes) break ;;
                 n | no | '') confirm=n; break ;;
-                *) echo 'Please answer yes or no (Enter defaults to No).' >&2 ;;
+                *) echo "Please answer yes or no (Enter defaults to No)." >&2 ;;
             esac
         done
     fi
@@ -144,12 +144,12 @@ select_panel_port() {
     while true; do
         if [[ "$NONINTERACTIVE" == 1 ]]; then
             port="$XUI_PANEL_PORT"
-        elif ! read -rp 'Please set up the panel port: ' port; then
+        elif ! read -rp "Please set up the panel port: " port; then
             echo 'Cannot read the custom panel port; aborting.' >&2
             return 1
         fi
         if ! port=$(normalize_panel_port "$port"); then
-            echo 'Invalid port. Enter a number between 1 and 65535.' >&2
+            echo "Invalid port. Enter a number between 1 and 65535." >&2
         elif is_port_in_use "$port"; then
             echo "Port $port is already in use. Choose another panel port." >&2
         else
@@ -159,6 +159,88 @@ select_panel_port() {
         fi
         [[ "$NONINTERACTIVE" != 1 ]] || return 1
     done
+}
+
+# select_credentials resolves the panel login username/password.
+# Nothing is printed; the caller reads SELECTED_USERNAME / SELECTED_PASSWORD.
+# Priority: XUI_USERNAME / XUI_PASSWORD win outright and never trigger a prompt
+# (they are how non-interactive installs pin credentials). Otherwise an
+# interactive install asks once whether to type custom credentials; declining
+# (or any non-interactive run) falls back to random values, which is exactly
+# what the previous behaviour always did.
+select_credentials() {
+    local confirm=n username password password_confirm
+    SELECTED_USERNAME=""
+    SELECTED_PASSWORD=""
+
+    if [[ -n "${XUI_USERNAME:-}" || -n "${XUI_PASSWORD:-}" ]]; then
+        SELECTED_USERNAME="${XUI_USERNAME:-$(gen_random_string 10)}"
+        SELECTED_PASSWORD="${XUI_PASSWORD:-$(gen_random_string 10)}"
+        return 0
+    fi
+
+    if [[ "$NONINTERACTIVE" != 1 ]]; then
+        while true; do
+            if ! IFS= read -rp "Would you like to set a custom panel username and password? (If not, random ones will be applied) [y/N]: " confirm; then
+                echo 'Cannot read the credential confirmation; aborting.' >&2
+                return 1
+            fi
+            confirm="${confirm#"${confirm%%[![:space:]]*}"}"
+            confirm="${confirm%"${confirm##*[![:space:]]}"}"
+            case "${confirm,,}" in
+                y | yes) break ;;
+                n | no | '') confirm=n; break ;;
+                *) echo "Please answer yes or no (Enter defaults to No)." >&2 ;;
+            esac
+        done
+    fi
+
+    if [[ "$confirm" == y ]]; then
+        while true; do
+            if ! IFS= read -rp "Please enter the panel username: " username; then
+                echo 'Cannot read the username; aborting.' >&2
+                return 1
+            fi
+            username="${username#"${username%%[![:space:]]*}"}"
+            username="${username%"${username##*[![:space:]]}"}"
+            if [[ -z "$username" ]]; then
+                echo "Username cannot be empty. Please try again." >&2
+            elif (( ${#username} > 256 )); then
+                echo "Username cannot be longer than 256 characters. Please try again." >&2
+            else
+                break
+            fi
+        done
+
+        while true; do
+            if ! IFS= read -rsp "Please enter the panel password: " password; then
+                echo 'Cannot read the password; aborting.' >&2
+                return 1
+            fi
+            echo >&2
+            if [[ -z "$password" ]]; then
+                echo "Password cannot be empty. Please try again." >&2
+                continue
+            fi
+            if ! IFS= read -rsp "Please re-enter the panel password to confirm: " password_confirm; then
+                echo 'Cannot read the password confirmation; aborting.' >&2
+                return 1
+            fi
+            echo >&2
+            if [[ "$password" != "$password_confirm" ]]; then
+                echo "The passwords do not match. Please try again." >&2
+                continue
+            fi
+            break
+        done
+    else
+        username="$(gen_random_string 10)"
+        password="$(gen_random_string 10)"
+    fi
+
+    SELECTED_USERNAME="$username"
+    SELECTED_PASSWORD="$password"
+    return 0
 }
 
 install_base() {
@@ -1205,8 +1287,8 @@ config_after_install() {
     if [[ -z "$existing_webBasePath" ]]; then
         if [[ "$existing_hasDefaultCredential" == "true" ]]; then
             local config_webBasePath="${XUI_WEB_BASE_PATH:-$(gen_random_string 18)}"
-            local config_username="${XUI_USERNAME:-$(gen_random_string 10)}"
-            local config_password="${XUI_PASSWORD:-$(gen_random_string 10)}"
+            local config_username=""
+            local config_password=""
             local config_port=""
 
             local db_label="SQLite (/etc/d3x-ui/d3x-ui.db)"
@@ -1339,6 +1421,10 @@ EOF
 
             config_port=$(select_panel_port) || exit 1
 
+            select_credentials || exit 1
+            config_username="$SELECTED_USERNAME"
+            config_password="$SELECTED_PASSWORD"
+
             local settings_output settings_status=0
             settings_output=$("${xui_folder}/d3x-ui" setting -username "${config_username}" -password "${config_password}" -port "${config_port}" -webBasePath "${config_webBasePath}" 2>&1) || settings_status=$?
             printf '%s\n' "$settings_output"
@@ -1445,8 +1531,9 @@ EOF
         fi
     else
         if [[ "$existing_hasDefaultCredential" == "true" ]]; then
-            local config_username="${XUI_USERNAME:-$(gen_random_string 10)}"
-            local config_password="${XUI_PASSWORD:-$(gen_random_string 10)}"
+            select_credentials || exit 1
+            local config_username="$SELECTED_USERNAME"
+            local config_password="$SELECTED_PASSWORD"
 
             echo -e "${yellow}Default credentials detected. Security update required...${plain}"
             ${xui_folder}/d3x-ui setting -username "${config_username}" -password "${config_password}"
