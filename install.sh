@@ -89,6 +89,217 @@ xui_zh() {
         "⚠ IMPORTANT: Save these credentials securely!") printf '%s' "⚠ 重要：请妥善保存以上凭据！" ;;
         "⚠ SSL Certificate: Enabled and configured") printf '%s' "⚠ SSL 证书：已启用并配置完成" ;;
         "⚠ SSL Certificate: Skipped — panel is HTTP-only. Use a reverse proxy or SSH tunnel.") printf '%s' "⚠ SSL 证书：已跳过——面板仅支持 HTTP，请使用反向代理或 SSH 隧道。" ;;
+        "Would you like to customize the panel settings (port, username, password, access path)? (If not, random values will be applied) [Y/n]: ") printf '%s' "是否自定义面板设置（端口、用户名、密码、访问路径）？（不自定义则随机生成）[Y/n]: " ;;
+        "Would you like to set a custom panel access path? (If not, a random one will be applied) [y/N]: ") printf '%s' "是否自定义面板访问路径？（不自定义则随机生成）[y/N]: " ;;
+        "Please enter the panel access path (letters and digits only): ") printf '%s' "请输入面板访问路径（仅限字母、数字、连字符和下划线）: " ;;
+        "The access path cannot be empty. Please try again.") printf '%s' "访问路径不能为空，请重新输入。" ;;
+        "The access path may only contain letters, digits, hyphens and underscores. Please try again.") printf '%s' "访问路径只能包含字母、数字、连字符和下划线，请重新输入。" ;;
+        "The access path must be at least 6 characters long. Please try again.") printf '%s' "访问路径至少需要 6 个字符，请重新输入。" ;;
+        "The access path cannot be longer than 64 characters. Please try again.") printf '%s' "访问路径不能超过 64 个字符，请重新输入。" ;;
+        "Please answer yes or no (Enter defaults to Yes).") printf '%s' "请回答 yes 或 no（直接回车默认为 Yes）。" ;;
+        "  %ssudo -u postgres psql -d %s%s      (as the postgres superuser)") printf '%s' "  %ssudo -u postgres psql -d %s%s      （以 postgres 超级用户身份）" ;;
+        "  %s%s://%s:%s/%s%s → Backup & Restore") printf '%s' "  %s%s://%s:%s/%s%s → 备份与恢复" ;;
+        "  1) Install PostgreSQL locally and create a dedicated user/db (recommended)") printf '%s' "  1) 本地安装 PostgreSQL 并创建专用用户/数据库（推荐）" ;;
+        "  1) Retry local install") printf '%s' "  1) 重试本地安装" ;;
+        "  1) SQLite     (default — recommended for < 500 clients)") printf '%s' "  1) SQLite     （默认——适合 500 个客户端以内）" ;;
+        "  2) Enter an external DSN instead") printf '%s' "  2) 改为输入外部 DSN" ;;
+        "  2) PostgreSQL (recommended for high client counts / many nodes)") printf '%s' "  2) PostgreSQL （适合客户端数量多 / 多节点场景）" ;;
+        "  2) Use an existing PostgreSQL server (enter DSN)") printf '%s' "  2) 使用已有的 PostgreSQL 服务器（输入 DSN）" ;;
+        "  3) Abort install") printf '%s' "  3) 中止安装" ;;
+        "  4) Fall back to SQLite") printf '%s' "  4) 回退到 SQLite" ;;
+        "  Back Up downloads a pg_dump .dump file; Restore reloads it via pg_restore.") printf '%s' "  「备份」会下载 pg_dump 生成的 .dump 文件；「恢复」通过 pg_restore 重新载入。" ;;
+        "  Cert: ") printf '%s' "  证书: " ;;
+        "  Cert: %s/fullchain.pem") printf '%s' "  证书: %s/fullchain.pem" ;;
+        "  If using an SSH key:") printf '%s' "  如果使用 SSH 密钥:" ;;
+        "  Key:  ") printf '%s' "  私钥: " ;;
+        "  Key:  %s/privkey.pem") printf '%s' "  私钥: %s/privkey.pem" ;;
+        "  Standard SSH command:") printf '%s' "  标准 SSH 命令:" ;;
+        "  Then open in your browser:") printf '%s' "  然后在浏览器中打开:" ;;
+        "  • A reverse proxy (nginx, Caddy, Traefik) terminates TLS for you, or") printf '%s' "  • 由反向代理（nginx、Caddy、Traefik）为你终止 TLS，或" ;;
+        "  • You access the panel exclusively via SSH tunnel") printf '%s' "  • 你只通过 SSH 隧道访问面板" ;;
+        "%s is not available for %s (HTTP %s)") printf '%s' "%s 对 %s 不可用（HTTP %s）" ;;
+        "Access URL:  %s://%s:%s/") printf '%s' "访问地址:  %s://%s:%s/" ;;
+        "Access URL: https://%s:%s/") printf '%s' "访问地址: https://%s:%s/" ;;
+        "Alternative: point a reverse proxy (nginx/Caddy) at 127.0.0.1:%s and let it terminate TLS.") printf '%s' "另一种方式：让反向代理（nginx/Caddy）指向 127.0.0.1:%s 并由它终止 TLS。" ;;
+        "Auto renew setup had issues, certificate details:") printf '%s' "自动续期配置存在问题，证书详情:" ;;
+        "Auto renew succeeded, certificate details:") printf '%s' "自动续期配置成功，证书详情:" ;;
+        "Beginning to install d3x-ui ") printf '%s' "开始安装 d3x-ui " ;;
+        "Certificate File: ") printf '%s' "证书文件: " ;;
+        "Certificate files are at:") printf '%s' "证书文件位于:" ;;
+        "Certificate files installed successfully") printf '%s' "证书文件安装成功" ;;
+        "Certificate files not found") printf '%s' "未找到证书文件" ;;
+        "Certificate files not found after installation") printf '%s' "安装后未找到证书文件" ;;
+        "Certificate files were not created") printf '%s' "证书文件未能创建" ;;
+        "Certificate issued successfully, installing...") printf '%s' "证书签发成功，正在安装..." ;;
+        "Certificate paths configured successfully") printf '%s' "证书路径配置成功" ;;
+        "Certificate paths set for the panel") printf '%s' "已为面板设置证书路径" ;;
+        "Certificate valid for ~6 days, auto-renews via acme.sh cron job.") printf '%s' "证书有效期约 6 天，通过 acme.sh 定时任务自动续期。" ;;
+        "Checksum mismatch for $(basename \"%s\"): expected %s, got ") printf '%s' "\$(basename \"%s\") 校验不匹配：期望 %s，实际为 " ;;
+        "Checksum verified: ") printf '%s' "校验通过: " ;;
+        "Choose SSL certificate setup method:") printf '%s' "请选择 SSL 证书配置方式:" ;;
+        "Could not auto-detect server IP from any provider.") printf '%s' "无法从任何服务自动检测到服务器 IP。" ;;
+        "Could not back up bin/ -- custom files there will not be preserved across this update") printf '%s' "无法备份 bin/ ——其中的自定义文件在本次更新后不会保留" ;;
+        "Default --reloadcmd for ACME is: %ssystemctl restart d3x-ui || rc-service d3x-ui restart") printf '%s' "ACME 默认的 --reloadcmd 为: %ssystemctl restart d3x-ui || rc-service d3x-ui restart" ;;
+        "Default listener is port 80. If you choose another port, ensure external port 80 forwards to it.") printf '%s' "默认监听端口为 80。如果选择其他端口，请确保外部 80 端口转发到该端口。" ;;
+        "Domain name cannot be empty. Please try again.") printf '%s' "域名不能为空，请重新输入。" ;;
+        "Download d3x-ui %s failed, please check if the version exists ") printf '%s' "下载 d3x-ui %s 失败，请检查该版本是否存在 " ;;
+        "Downloaded d3x-ui release archive is empty") printf '%s' "下载的 d3x-ui 发布包为空" ;;
+        "Downloaded d3x-ui.rc is empty") printf '%s' "下载的 d3x-ui.rc 为空" ;;
+        "Downloaded d3x-ui.sh is empty") printf '%s' "下载的 d3x-ui.sh 为空" ;;
+        "Downloading d3x-ui failed, please be sure that your server can access GitHub ") printf '%s' "下载 d3x-ui 失败，请确认服务器可以访问 GitHub " ;;
+        "Error: Certificate or private key file not found for domain: %s.") printf '%s' "错误：未找到域名 %s 对应的证书或私钥文件。" ;;
+        "Error: File does not exist! Try again.") printf '%s' "错误：文件不存在！请重试。" ;;
+        "Error: File exists but is not readable (check permissions)!") printf '%s' "错误：文件存在但不可读（请检查权限）！" ;;
+        "Error: File is empty!") printf '%s' "错误：文件为空！" ;;
+        "Existing certificate found for %s, will reuse it.") printf '%s' "已找到 %s 的现有证书，将直接复用。" ;;
+        "Extracted d3x-ui archive is missing the d3x-ui binary -- the previous installation has already been removed, so the panel will not start until this is fixed; try running the installer again") printf '%s' "解压后的 d3x-ui 压缩包中缺少 d3x-ui 可执行文件——旧版本已被移除，需修复后面板才能启动，请重新运行安装脚本" ;;
+        "Fail2ban setup complete.") printf '%s' "Fail2ban 配置完成。" ;;
+        "Failed to create temporary credentials file.") printf '%s' "创建临时凭据文件失败。" ;;
+        "Failed to download d3x-ui.rc") printf '%s' "下载 d3x-ui.rc 失败" ;;
+        "Failed to download the checksum for $(basename \"%s\") (HTTP %s)") printf '%s' "下载 \$(basename \"%s\") 的校验文件失败（HTTP %s）" ;;
+        "Failed to extract the d3x-ui release archive -- the previous installation has already been removed, so the panel will not start until this is fixed; try running the installer again") printf '%s' "解压 d3x-ui 发布包失败——旧版本已被移除，需修复后面板才能启动，请重新运行安装脚本" ;;
+        "Failed to fetch d3x-ui version, it may be due to GitHub API restrictions, please try it later") printf '%s' "获取 d3x-ui 版本失败，可能是 GitHub API 限制，请稍后重试" ;;
+        "Failed to generate the self-signed certificate") printf '%s' "生成自签证书失败" ;;
+        "Failed to install acme.sh") printf '%s' "安装 acme.sh 失败" ;;
+        "Failed to install acme.sh, skipping SSL setup") printf '%s' "安装 acme.sh 失败，已跳过 SSL 配置" ;;
+        "Failed to install certificate") printf '%s' "安装证书失败" ;;
+        "Failed to install d3x-ui.rc") printf '%s' "安装 d3x-ui.rc 失败" ;;
+        "Failed to install d3x-ui.service file") printf '%s' "安装 d3x-ui.service 文件失败" ;;
+        "Failed to install d3x-ui.service from GitHub (%s) -- the release tarball did not ship one either") printf '%s' "无法从 GitHub 安装 d3x-ui.service（%s）——发布包中也没有该文件" ;;
+        "Failed to install d3x-ui.sh") printf '%s' "安装 d3x-ui.sh 失败" ;;
+        "Failed to issue IP certificate") printf '%s' "签发 IP 证书失败" ;;
+        "Failed to issue certificate for ") printf '%s' "为以下域名签发证书失败: " ;;
+        "Found d3x-ui.service in extracted files, installing...") printf '%s' "在解压文件中找到 d3x-ui.service，正在安装..." ;;
+        "Found d3x-ui.service.arch in extracted files, installing...") printf '%s' "在解压文件中找到 d3x-ui.service.arch，正在安装..." ;;
+        "Found d3x-ui.service.debian in extracted files, installing...") printf '%s' "在解压文件中找到 d3x-ui.service.debian，正在安装..." ;;
+        "Found d3x-ui.service.rhel in extracted files, installing...") printf '%s' "在解压文件中找到 d3x-ui.service.rhel，正在安装..." ;;
+        "Found incomplete acme.sh state for %s (no valid certificate files); cleaning it up and re-issuing.") printf '%s' "发现 %s 的 acme.sh 状态不完整（没有有效的证书文件），将清理后重新签发。" ;;
+        "Generating the key pair...") printf '%s' "正在生成密钥对..." ;;
+        "Got d3x-ui latest version: %s, beginning the installation...") printf '%s' "获取到 d3x-ui 最新版本：%s，开始安装..." ;;
+        "IP certificate installed and configured successfully!") printf '%s' "IP 证书安装并配置成功！" ;;
+        "IPv4 address is required") printf '%s' "必须提供 IPv4 地址" ;;
+        "Including IPv6 address: ") printf '%s' "包含 IPv6 地址: " ;;
+        "Install a release that ships it, or 'dev' for the rolling build. Your existing installation has not been touched.") printf '%s' "请安装包含该文件的发布版本，或使用 'dev' 安装滚动构建版。当前安装未被改动。" ;;
+        "Install aborted.") printf '%s' "安装已中止。" ;;
+        "Installing PostgreSQL locally (non-interactive)...") printf '%s' "正在本地安装 PostgreSQL（非交互模式）..." ;;
+        "Installing PostgreSQL — this may take a moment...") printf '%s' "正在安装 PostgreSQL——这可能需要一点时间..." ;;
+        "Installing acme.sh for SSL certificate management...") printf '%s' "正在安装 acme.sh 用于 SSL 证书管理..." ;;
+        "Installing certificate failed, exiting.") printf '%s' "安装证书失败，退出。" ;;
+        "Installing certificate succeeded, enabling auto renew...") printf '%s' "安装证书成功，正在启用自动续期..." ;;
+        "Installing the rolling dev build (tag: dev-latest). This is a per-commit pre-release, not a stable version.") printf '%s' "正在安装滚动 dev 构建（tag: dev-latest）。这是每次提交都会更新的预发布版本，不是稳定版。" ;;
+        "Invalid IPv4 address: ") printf '%s' "无效的 IPv4 地址: " ;;
+        "Invalid domain format: %s. Please enter a valid domain name.") printf '%s' "域名格式无效: %s，请输入合法的域名。" ;;
+        "Invalid option. Skipping SSL setup.") printf '%s' "无效选项，已跳过 SSL 配置。" ;;
+        "Invalid port provided.") printf '%s' "提供的端口无效。" ;;
+        "Invalid port provided. Falling back to 80.") printf '%s' "提供的端口无效，回退到 80。" ;;
+        "Issuing IP certificate for %s...") printf '%s' "正在为 %s 签发 IP 证书..." ;;
+        "Issuing SSL certificate for %s...") printf '%s' "正在为 %s 签发 SSL 证书..." ;;
+        "Issuing certificate failed, please check logs.") printf '%s' "签发证书失败，请查看日志。" ;;
+        "Issuing certificate succeeded, installing certificates...") printf '%s' "签发证书成功，正在安装证书..." ;;
+        "It's recommended to put d3x-ui restart at the end") printf '%s' "建议把 d3x-ui restart 放在最后" ;;
+        "Keeping default reloadcmd") printf '%s' "保持默认 reloadcmd" ;;
+        "Let's Encrypt now supports both domains and IP addresses!") printf '%s' "Let's Encrypt 现已同时支持域名和 IP 地址！" ;;
+        "Login credentials and cookies will travel as plain HTTP.") printf '%s' "登录凭据与 Cookie 将以明文 HTTP 传输。" ;;
+        "No checksum published for this release, skipping verification") printf '%s' "该发布版本未提供校验文件，跳过校验" ;;
+        "Note: IP certificates are valid for ~6 days and will auto-renew.") printf '%s' "注意：IP 证书有效期约 6 天，到期会自动续期。" ;;
+        "Note: Port 80 must be open and accessible from the internet") printf '%s' "注意：80 端口必须开放且可从公网访问" ;;
+        "Note: You are responsible for renewing these files externally.") printf '%s' "注意：这些文件的续期需要你自行处理。" ;;
+        "Note: systemd %s ignores part of the hardening in d3x-ui.service; the panel still starts.") printf '%s' "注意：systemd %s 会忽略 d3x-ui.service 中的部分加固项，但面板仍可正常启动。" ;;
+        "Only safe when:") printf '%s' "仅在以下情况安全:" ;;
+        "Panel will listen on all interfaces over plain HTTP. Make sure something else is terminating TLS in front of it.") printf '%s' "面板将以明文 HTTP 监听所有网卡，请确保前置有其他组件终止 TLS。" ;;
+        "Panel will restart to apply SSL certificate...") printf '%s' "面板将重启以应用 SSL 证书..." ;;
+        "Please ensure port %s is reachable (or forwarded from external port 80)") printf '%s' "请确保端口 %s 可访问（或已从外部 80 端口转发）" ;;
+        "Please ensure port 80 is open and try again later with: d3x-ui") printf '%s' "请确保 80 端口已开放，稍后可用 d3x-ui 重试" ;;
+        "Please use a newer version (at least v2.3.5). Exiting installation.") printf '%s' "请使用更新的版本（至少 v2.3.5），安装已退出。" ;;
+        "Port %s is busy; cannot proceed in non-interactive mode.") printf '%s' "端口 %s 被占用；非交互模式下无法继续。" ;;
+        "Port %s is busy; cannot proceed.") printf '%s' "端口 %s 被占用；无法继续。" ;;
+        "Port %s is free and ready for standalone validation.") printf '%s' "端口 %s 空闲，可用于独立验证。" ;;
+        "Port %s is in use.") printf '%s' "端口 %s 已被占用。" ;;
+        "PostgreSQL backup & restore is built into the panel:") printf '%s' "面板内置 PostgreSQL 备份与恢复:" ;;
+        "PostgreSQL installation failed in non-interactive mode; aborting.") printf '%s' "非交互模式下 PostgreSQL 安装失败，中止安装。" ;;
+        "PostgreSQL installation failed.") printf '%s' "PostgreSQL 安装失败。" ;;
+        "Private Key File: ") printf '%s' "私钥文件: " ;;
+        "Reloadcmd is: ") printf '%s' "Reloadcmd 为: " ;;
+        "Reloadcmd is: systemctl reload nginx ; systemctl restart d3x-ui") printf '%s' "Reloadcmd 为: systemctl reload nginx ; systemctl restart d3x-ui" ;;
+        "Reminder: Let's Encrypt still connects on port 80; forward external port 80 to %s.") printf '%s' "提醒：Let's Encrypt 仍通过 80 端口连接，请将外部 80 端口转发到 %s。" ;;
+        "Restored custom file(s) in bin/ not shipped by this release: ") printf '%s' "已恢复本发布未包含的 bin/ 自定义文件: " ;;
+        "Running...") printf '%s' "正在运行..." ;;
+        "SSH Port Forwarding — open the panel from your local machine via:") printf '%s' "SSH 端口转发——在本地机器上通过以下方式打开面板:" ;;
+        "SSL certificate already configured. No action needed.") printf '%s' "SSL 证书已配置，无需操作。" ;;
+        "SSL certificate installed and configured successfully!") printf '%s' "SSL 证书安装并配置成功！" ;;
+        "SSL certificate setup failed for domain mode.") printf '%s' "域名模式的 SSL 证书配置失败。" ;;
+        "SSL is strongly recommended. Skip only if a reverse proxy") printf '%s' "强烈建议启用 SSL。仅当反向代理" ;;
+        "SSL setup may have completed, but domain extraction failed") printf '%s' "SSL 配置可能已完成，但域名提取失败" ;;
+        "Self-signed certificate installed and configured successfully!") printf '%s' "自签证书安装并配置成功！" ;;
+        "Service files not found in tar.gz, downloading from GitHub...") printf '%s' "tar.gz 中未找到服务文件，正在从 GitHub 下载..." ;;
+        "Set XUI_DB_DSN to use an existing server, or XUI_DB_TYPE=sqlite.") printf '%s' "如需使用已有服务器请设置 XUI_DB_DSN，或设置 XUI_DB_TYPE=sqlite。" ;;
+        "Setting certificate paths for the panel...") printf '%s' "正在为面板设置证书路径..." ;;
+        "Setting up Fail2ban for the IP Limit feature...") printf '%s' "正在为 IP 限制功能配置 Fail2ban..." ;;
+        "Setting up Let's Encrypt IP certificate (shortlived profile)...") printf '%s' "正在配置 Let's Encrypt IP 证书（短期证书配置）..." ;;
+        "Setting up SSL certificate...") printf '%s' "正在配置 SSL 证书..." ;;
+        "Setting up self-signed certificate for %s...") printf '%s' "正在为 %s 生成自签证书..." ;;
+        "Setting up systemd unit...") printf '%s' "正在配置 systemd 服务单元..." ;;
+        "Skipping panel path setting.") printf '%s' "已跳过面板路径设置。" ;;
+        "Stopping panel temporarily...") printf '%s' "正在临时停止面板..." ;;
+        "This command will run on every certificate issue and renew.") printf '%s' "该命令会在每次签发和续期证书时执行。" ;;
+        "Username, Password, and WebBasePath are properly set.") printf '%s' "用户名、密码与访问路径均已正确设置。" ;;
+        "Using Let's Encrypt for IP certificate (shortlived profile)...") printf '%s' "正在使用 Let's Encrypt 签发 IP 证书（短期证书配置）..." ;;
+        "Using Let's Encrypt for domain certificate...") printf '%s' "正在使用 Let's Encrypt 签发域名证书..." ;;
+        "Using a self-signed certificate for the panel IP...") printf '%s' "正在为面板 IP 使用自签证书..." ;;
+        "Using custom existing certificate...") printf '%s' "正在使用已有的自定义证书..." ;;
+        "Using existing certificate, installing certificates...") printf '%s' "使用现有证书，正在安装证书..." ;;
+        "Using port %s for standalone validation.") printf '%s' "使用端口 %s 进行独立验证。" ;;
+        "Valid for 10 years — no renewal needed.") printf '%s' "有效期 10 年——无需续期。" ;;
+        "Warning: Could not set certificate paths automatically") printf '%s' "警告：无法自动设置证书路径" ;;
+        "Warning: could not refresh %s/d3x-ui.service.d/10-xui-sandbox.conf.") printf '%s' "警告：无法刷新 %s/d3x-ui.service.d/10-xui-sandbox.conf。" ;;
+        "WebBasePath is missing or set to root. Generating a new one...") printf '%s' "访问路径缺失或被设为根路径，正在生成新的..." ;;
+        "Will use port: %s to issue certificates. Please make sure this port is open.") printf '%s' "将使用端口: %s 签发证书，请确保该端口已开放。" ;;
+        "XUI_ENABLE_FAIL2BAN=%s, skipping Fail2ban auto-setup.") printf '%s' "XUI_ENABLE_FAIL2BAN=%s，已跳过 Fail2ban 自动配置。" ;;
+        "XUI_SSL_MODE=domain requires a valid XUI_DOMAIN (got: '%s').") printf '%s' "XUI_SSL_MODE=domain 需要一个有效的 XUI_DOMAIN（当前为: '%s'）。" ;;
+        "Your browser will warn that the certificate is not trusted; click 'Advanced' to continue.") printf '%s' "浏览器会提示证书不受信任，点击「高级」→「继续访问」即可。" ;;
+        "Your domain is ready for issuing certificates now...") printf '%s' "你的域名已就绪，正在签发证书..." ;;
+        "Your domain is: %s, checking it...") printf '%s' "你的域名是: %s，正在检查..." ;;
+        "Your input %s is invalid, will use default port 80.") printf '%s' "你输入的 %s 无效，将使用默认端口 80。" ;;
+        "acme.sh installed successfully") printf '%s' "acme.sh 安装成功" ;;
+        "acme.sh will automatically renew and reload d3x-ui before expiry.") printf '%s' "acme.sh 会在到期前自动续期并重载 d3x-ui。" ;;
+        "%sd3x-ui %s%s installation finished, it is running now...") printf '%s' "%sd3x-ui %s%s 安装完成，服务已启动..." ;;
+        "d3x-ui CLI not found; skipping Fail2ban auto-setup.") printf '%s' "未找到 d3x-ui CLI，已跳过 Fail2ban 自动配置。" ;;
+        "openssl is required to generate a self-signed certificate") printf '%s' "生成自签证书需要 openssl" ;;
+        "or SSH tunnel handles TLS for you.") printf '%s' "或 SSH 隧道已为你处理 TLS 时才可跳过。" ;;
+        "⚠ Panel will be installed WITHOUT SSL/TLS.") printf '%s' "⚠ 面板将不启用 SSL/TLS 安装。" ;;
+        "⚠ Save the password — it is not stored anywhere else in plain text.") printf '%s' "⚠ 请保存密码——它不会以明文形式保存在其他地方。" ;;
+        "⚠ The panel reads these credentials from %s.") printf '%s' "⚠ 面板从 %s 读取这些凭据。" ;;
+        "✓ Custom certificate paths applied.") printf '%s' "✓ 已应用自定义证书路径。" ;;
+        "✓ Let's Encrypt IP certificate configured successfully") printf '%s' "✓ Let's Encrypt IP 证书配置成功" ;;
+        "✓ Panel bound to 127.0.0.1 only. It is now unreachable from the public internet.") printf '%s' "✓ 面板已仅绑定 127.0.0.1，公网无法访问。" ;;
+        "✓ SSL certificate configured successfully with domain: ") printf '%s' "✓ 已成功配置域名 SSL 证书: " ;;
+        "✓ SSL setup skipped.") printf '%s' "✓ 已跳过 SSL 配置。" ;;
+        "✓ Self-signed certificate configured successfully") printf '%s' "✓ 自签证书配置成功" ;;
+        "✗ IP certificate setup failed. Please check port 80 is open.") printf '%s' "✗ IP 证书配置失败，请检查 80 端口是否已开放。" ;;
+        "✗ Self-signed certificate setup failed.") printf '%s' "✗ 自签证书配置失败。" ;;
+        "Added d3x-ui.db to /etc/.gitignore for etckeeper") printf '%s' "已为 etckeeper 把 d3x-ui.db 加入 /etc/.gitignore" ;;
+        "Connect from this server:") printf '%s' "在本服务器上连接:" ;;
+        "Created /etc/.gitignore and added d3x-ui.db for etckeeper") printf '%s' "已创建 /etc/.gitignore 并为 etckeeper 加入 d3x-ui.db" ;;
+        "Fail2ban setup did not finish; IP Limit stays disabled until you run 'd3x-ui' and open the IP Limit menu. Continuing.") printf '%s' "Fail2ban 配置未完成；在运行 'd3x-ui' 并打开 IP 限制菜单之前，IP 限制保持禁用。继续安装。" ;;
+        "Failed to download d3x-ui.sh") printf '%s' "下载 d3x-ui.sh 失败" ;;
+        "If XUI_DB_FOLDER or XUI_LOG_FOLDER points outside /etc/d3x-ui and /var/log/d3x-ui, the panel may not be able to write to it under ProtectSystem=full.") printf '%s' "如果 XUI_DB_FOLDER 或 XUI_LOG_FOLDER 指向 /etc/d3x-ui 与 /var/log/d3x-ui 之外的位置，在 ProtectSystem=full 下面板可能无法写入。" ;;
+        "Install result written to %s (mode 600).") printf '%s' "安装结果已写入 %s（权限 600）。" ;;
+        "This d3x-ui.sh predates 'd3x-ui setup-fail2ban'; skipping Fail2ban auto-setup.") printf '%s' "此 d3x-ui.sh 早于 'd3x-ui setup-fail2ban'，已跳过 Fail2ban 自动配置。" ;;
+        "Unknown XUI_SSL_MODE='%s', defaulting to none (HTTP).") printf '%s' "未知的 XUI_SSL_MODE='%s'，已回退为 none（HTTP）。" ;;
+        "Checksum mismatch for %s: expected %s, got %s") printf '%s' "%s 校验不匹配：期望 %s，实际为 %s" ;;
+        "Failed to download the checksum for %s (HTTP %s)") printf '%s' "下载 %s 的校验文件失败（HTTP %s）" ;;
+        "\n%s\t1.%s Preset: systemctl reload nginx ; systemctl restart d3x-ui") printf '%s' "\n%s\t1.%s 预设：systemctl reload nginx ; systemctl restart d3x-ui" ;;
+        "%s\t2.%s Input your own command") printf '%s' "%s\t2.%s 输入你自己的命令" ;;
+        "%s\t0.%s Keep default reloadcmd") printf '%s' "%s\t0.%s 保持默认 reloadcmd" ;;
+        "DB Name:    ") printf '%s' "数据库名:  " ;;
+        "Username:   ") printf '%s' "用户名:    " ;;
+        "Password:   ") printf '%s' "密码:      " ;;
+        "Host:       ") printf '%s' "主机:      " ;;
+        "Port:       ") printf '%s' "端口:      " ;;
+        "DSN:        ") printf '%s' "DSN:       " ;;
+        "Env file:   ") printf '%s' "环境文件:  " ;;
+        "Username: ") printf '%s' "用户名: " ;;
+        "Password: ") printf '%s' "密码:   " ;;
         *) printf '%s' "$1" ;;
     esac
 }
@@ -100,11 +311,47 @@ xui_tr() {
     if [[ "$XUI_LANG_RESOLVED" == "zh" ]]; then
         out="$(xui_zh "$key")"
     fi
-    if [[ $# -gt 0 && "$out" == *%* ]]; then
-        printf "$out" "$@"
-    else
-        printf '%s' "$out"
-    fi
+    # Substitute the args one by one: each %s in the template takes the next
+    # arg, and any args left over are appended at the end (the value after a
+    # label such as "Password: "). The template is never used as a printf
+    # format string, so a literal % in a translation or in a value is safe,
+    # and surplus args cannot make printf re-run the format.
+    local res="" rest="$out" suffix="" a ph='%s'
+    for a in "$@"; do
+        if [[ "$rest" == *"$ph"* ]]; then
+            res+="${rest%%"$ph"*}$a"
+            rest="${rest#*"$ph"}"
+        else
+            suffix+="$a"
+        fi
+    done
+    printf '%s' "$res$rest$suffix"
+}
+
+# version_at_least <version> <minimum>
+# Returns 0 when <version> is greater than or equal to <minimum>. The
+# comparison is done field by field on the numeric parts, so a suffix such as
+# "-d3.3" is ignored the way a release manager would expect. `sort -V` is not
+# used: it orders "1.0.0" below "2.3.5", which is wrong for a fork whose own
+# release train starts at 1.0.0.
+version_at_least() {
+    local version="${1#v}" minimum="${2#v}"
+    local -a vf mf
+    IFS='.-' read -r -a vf <<< "$version"
+    IFS='.-' read -r -a mf <<< "$minimum"
+
+    local i=0
+    while (( i < ${#mf[@]} || i < ${#vf[@]} )); do
+        local v="${vf[i]:-0}" m="${mf[i]:-0}"
+        # Only the leading numeric fields are compared; a non-numeric field
+        # ends the comparison.
+        [[ "$v" =~ ^[0-9]+$ ]] || v=0
+        [[ "$m" =~ ^[0-9]+$ ]] || m=0
+        ((10#$v > 10#$m)) && return 0
+        ((10#$v < 10#$m)) && return 1
+        i=$((i + 1))
+    done
+    return 0
 }
 
 # Terminal display width of a string in columns. Wide (CJK / fullwidth)
@@ -245,10 +492,17 @@ normalize_panel_port() {
 }
 
 # Print only the selected decimal port to stdout; prompts/notices use stderr.
+# When $1 is "yes" the y/N question is skipped and the port is always asked
+# for, which is how the combined panel-settings question drives it.
 select_panel_port() {
+    local force="${1:-no}"
     local confirm=n port attempt
-    if [[ "$NONINTERACTIVE" == 1 ]]; then
+    if [[ "$force" == "random" ]]; then
+        confirm=n
+    elif [[ "$NONINTERACTIVE" == 1 ]]; then
         [[ -z "${XUI_PANEL_PORT+x}" ]] || confirm=y
+    elif [[ "$force" == "yes" ]]; then
+        confirm=y
     else
         while true; do
             if ! IFS= read -rp "$(xui_tr 'Would you like to customize the Panel Port settings? (If not, a random port will be applied) [y/N]: ')" confirm; then
@@ -308,7 +562,15 @@ select_panel_port() {
 # interactive install asks once whether to type custom credentials; declining
 # (or any non-interactive run) falls back to random values, which is exactly
 # what the previous behaviour always did.
+#
+# When $1 is "yes" the y/N question is skipped and the values are always
+# asked for. That is how the combined panel-settings question drives it: the
+# operator already said "customize", so asking "do you want to customize?"
+# again for each field would only add noise.
+#
+# $1 = "random" skips the question and goes straight to the random values.
 select_credentials() {
+    local force="${1:-no}"
     local confirm=n username password password_confirm
     SELECTED_USERNAME=""
     SELECTED_PASSWORD=""
@@ -319,7 +581,13 @@ select_credentials() {
         return 0
     fi
 
-    if [[ "$NONINTERACTIVE" != 1 ]]; then
+    if [[ "$force" == "random" ]]; then
+        SELECTED_USERNAME="$(gen_random_string 10)"
+        SELECTED_PASSWORD="$(gen_random_string 10)"
+        return 0
+    fi
+
+    if [[ "$force" != "yes" && "$NONINTERACTIVE" != 1 ]]; then
         while true; do
             if ! IFS= read -rp "$(xui_tr 'Would you like to set a custom panel username and password? (If not, random ones will be applied) [y/N]: ')" confirm; then
                 echo 'Cannot read the credential confirmation; aborting.' >&2
@@ -335,10 +603,9 @@ select_credentials() {
         done
     fi
 
-    if [[ "$confirm" == y ]]; then
+    if [[ "$confirm" == y || "$force" == "yes" ]]; then
         while true; do
-            if ! IFS= read -rp "$(xui_tr 'Please enter the panel username: ')" username; then
-                echo 'Cannot read the username; aborting.' >&2
+            if ! IFS= read -rp "$(xui_tr 'Please enter the panel username: ')" username; then                echo 'Cannot read the username; aborting.' >&2
                 return 1
             fi
             username="${username#"${username%%[![:space:]]*}"}"
@@ -380,6 +647,138 @@ select_credentials() {
 
     SELECTED_USERNAME="$username"
     SELECTED_PASSWORD="$password"
+    return 0
+}
+
+# select_web_base_path resolves the panel's URI path (the "token" segment that
+# hides the panel behind an unguessable URL).
+# Nothing is printed; the caller reads SELECTED_WEB_BASE_PATH.
+# XUI_WEB_BASE_PATH pins the value for unattended installs. Otherwise the
+# operator is asked whether to choose it; declining keeps the random 18
+# character path. When $1 is "yes" the y/N question is skipped and the path
+# is always asked for.
+#
+# The path is validated strictly: it is pasted into a URL and joined with the
+# panel's own routes, so only URL-safe characters are allowed and the result
+# must not collide with the reserved roots.
+select_web_base_path() {
+    local force="${1:-no}"
+    local confirm=n path
+    SELECTED_WEB_BASE_PATH=""
+
+    if [[ -n "${XUI_WEB_BASE_PATH:-}" ]]; then
+        SELECTED_WEB_BASE_PATH="${XUI_WEB_BASE_PATH}"
+        return 0
+    fi
+
+    if [[ "$force" == "random" ]]; then
+        SELECTED_WEB_BASE_PATH="$(gen_random_string 18)"
+        return 0
+    fi
+
+    if [[ "$NONINTERACTIVE" != 1 && "$force" != "yes" ]]; then
+        while true; do
+            if ! IFS= read -rp "$(xui_tr 'Would you like to set a custom panel access path? (If not, a random one will be applied) [y/N]: ')" confirm; then
+                echo 'Cannot read the access path confirmation; aborting.' >&2
+                return 1
+            fi
+            confirm="${confirm#"${confirm%%[![:space:]]*}"}"
+            confirm="${confirm%"${confirm##*[![:space:]]}"}"
+            case "${confirm,,}" in
+                y | yes) break ;;
+                n | no | '') confirm=n; break ;;
+                *) echo "$(xui_tr 'Please answer yes or no (Enter defaults to No).')" >&2 ;;
+            esac
+        done
+    fi
+
+    if [[ "$confirm" == y || "$force" == "yes" ]]; then
+        while true; do
+            if ! IFS= read -rp "$(xui_tr 'Please enter the panel access path (letters and digits only): ')" path; then
+                echo 'Cannot read the access path; aborting.' >&2
+                return 1
+            fi
+            path="${path#"${path%%[![:space:]]*}"}"
+            path="${path%"${path##*[![:space:]]}"}"
+            # A leading or trailing slash would produce a doubled separator
+            # once the panel normalizes the path.
+            path="${path#/}"
+            path="${path%/}"
+            if [[ -z "$path" ]]; then
+                echo "$(xui_tr 'The access path cannot be empty. Please try again.')" >&2
+            elif [[ ! "$path" =~ ^[A-Za-z0-9_-]+$ ]]; then
+                echo "$(xui_tr 'The access path may only contain letters, digits, hyphens and underscores. Please try again.')" >&2
+            elif (( ${#path} < 6 )); then
+                echo "$(xui_tr 'The access path must be at least 6 characters long. Please try again.')" >&2
+            elif (( ${#path} > 64 )); then
+                echo "$(xui_tr 'The access path cannot be longer than 64 characters. Please try again.')" >&2
+            else
+                break
+            fi
+        done
+        SELECTED_WEB_BASE_PATH="$path"
+    else
+        SELECTED_WEB_BASE_PATH="$(gen_random_string 18)"
+    fi
+
+    return 0
+}
+
+# select_panel_settings resolves the three panel settings a first-time
+# operator may want to control: the panel port, the login credentials and the
+# URI path the panel is served under.
+#
+# A single question covers all three: "customize the panel settings?". The
+# default is yes, because an operator who just started the installer usually
+# wants the panel on a predictable port with credentials they chose. Answering
+# no leaves all three random, which is what the installer has always done.
+# Answering yes asks for each value in turn.
+#
+# Nothing is printed; the caller reads SELECTED_PORT / SELECTED_USERNAME /
+# SELECTED_PASSWORD / SELECTED_WEB_BASE_PATH.
+select_panel_settings() {
+    local confirm=y
+
+    SELECTED_PORT=""
+    SELECTED_USERNAME=""
+    SELECTED_PASSWORD=""
+    SELECTED_WEB_BASE_PATH=""
+
+    # An unattended install never prompts; the environment variables and the
+    # random fallbacks decide every value.
+    if [[ "$NONINTERACTIVE" == 1 ]]; then
+        SELECTED_PORT="$(select_panel_port)"
+        select_credentials || return 1
+        SELECTED_USERNAME="$SELECTED_USERNAME"
+        SELECTED_PASSWORD="$SELECTED_PASSWORD"
+        select_web_base_path || return 1
+        return 0
+    fi
+
+    while true; do
+        if ! IFS= read -rp "$(xui_tr 'Would you like to customize the panel settings (port, username, password, access path)? (If not, random values will be applied) [Y/n]: ')" confirm; then
+            echo 'Cannot read the panel settings confirmation; aborting.' >&2
+            return 1
+        fi
+        confirm="${confirm#"${confirm%%[![:space:]]*}"}"
+        confirm="${confirm%"${confirm##*[![:space:]]}"}"
+        case "${confirm,,}" in
+            y | yes | '') confirm=y; break ;;
+            n | no) confirm=n; break ;;
+            *) echo "$(xui_tr 'Please answer yes or no (Enter defaults to Yes).')" >&2 ;;
+        esac
+    done
+
+    if [[ "$confirm" == n ]]; then
+        SELECTED_PORT="$(select_panel_port "random")"
+        select_credentials "random" || return 1
+        select_web_base_path "random" || return 1
+        return 0
+    fi
+
+    SELECTED_PORT="$(select_panel_port "yes")" || return 1
+    select_credentials "yes" || return 1
+    select_web_base_path "yes" || return 1
     return 0
 }
 
@@ -466,7 +865,7 @@ write_install_result() {
     umask "$prev_umask"
     chmod 600 "$result_file" 2> /dev/null
     chown root:root "$result_file" 2> /dev/null || true
-    echo -e "${green}Install result written to ${result_file} (mode 600).${plain}"
+    echo -e "${green}$(xui_tr 'Install result written to %s (mode 600).' "${result_file}")${plain}"
 }
 
 # RHEL-family initdb writes pg_hba.conf host rules with ident auth, which
@@ -706,14 +1105,14 @@ ensure_pg_client() {
 }
 
 install_acme() {
-    echo -e "${green}Installing acme.sh for SSL certificate management...${plain}"
+    echo -e "${green}$(xui_tr 'Installing acme.sh for SSL certificate management...')${plain}"
     cd ~ || return 1
     curl -s https://get.acme.sh | sh > /dev/null 2>&1
     if [ $? -ne 0 ]; then
-        echo -e "${red}Failed to install acme.sh${plain}"
+        echo -e "${red}$(xui_tr 'Failed to install acme.sh')${plain}"
         return 1
     else
-        echo -e "${green}acme.sh installed successfully${plain}"
+        echo -e "${green}$(xui_tr 'acme.sh installed successfully')${plain}"
     fi
     return 0
 }
@@ -724,13 +1123,13 @@ setup_ssl_certificate() {
     local existing_port="$3"
     local existing_webBasePath="$4"
 
-    echo -e "${green}Setting up SSL certificate...${plain}"
+    echo -e "${green}$(xui_tr 'Setting up SSL certificate...')${plain}"
 
     # Check if acme.sh is installed
     if ! command -v ~/.acme.sh/acme.sh &> /dev/null; then
         install_acme
         if [ $? -ne 0 ]; then
-            echo -e "${yellow}Failed to install acme.sh, skipping SSL setup${plain}"
+            echo -e "${yellow}$(xui_tr 'Failed to install acme.sh, skipping SSL setup')${plain}"
             return 1
         fi
     fi
@@ -740,15 +1139,15 @@ setup_ssl_certificate() {
     mkdir -p "$certPath"
 
     # Issue certificate
-    echo -e "${green}Issuing SSL certificate for ${domain}...${plain}"
-    echo -e "${yellow}Note: Port 80 must be open and accessible from the internet${plain}"
+    echo -e "${green}$(xui_tr 'Issuing SSL certificate for %s...' "${domain}")${plain}"
+    echo -e "${yellow}$(xui_tr 'Note: Port 80 must be open and accessible from the internet')${plain}"
 
     ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt --force > /dev/null 2>&1
     ~/.acme.sh/acme.sh --issue -d ${domain} $(acme_listen_flag) --standalone --httpport 80 --force
 
     if [ $? -ne 0 ]; then
-        echo -e "${yellow}Failed to issue certificate for ${domain}${plain}"
-        echo -e "${yellow}Please ensure port 80 is open and try again later with: d3x-ui${plain}"
+        echo -e "${yellow}$(xui_tr 'Failed to issue certificate for ' "${domain}")${plain}"
+        echo -e "${yellow}$(xui_tr 'Please ensure port 80 is open and try again later with: d3x-ui')${plain}"
         rm -rf ~/.acme.sh/${domain} ~/.acme.sh/${domain}_ecc 2> /dev/null
         rm -rf "$certPath" 2> /dev/null
         return 1
@@ -761,7 +1160,7 @@ setup_ssl_certificate() {
         --reloadcmd "systemctl restart d3x-ui" > /dev/null 2>&1
 
     if [ $? -ne 0 ]; then
-        echo -e "${yellow}Failed to install certificate${plain}"
+        echo -e "${yellow}$(xui_tr 'Failed to install certificate')${plain}"
         return 1
     fi
 
@@ -777,10 +1176,10 @@ setup_ssl_certificate() {
 
     if [[ -f "$webCertFile" && -f "$webKeyFile" ]]; then
         ${xui_folder}/d3x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile" > /dev/null 2>&1
-        echo -e "${green}SSL certificate installed and configured successfully!${plain}"
+        echo -e "${green}$(xui_tr 'SSL certificate installed and configured successfully!')${plain}"
         return 0
     else
-        echo -e "${yellow}Certificate files not found${plain}"
+        echo -e "${yellow}$(xui_tr 'Certificate files not found')${plain}"
         return 1
     fi
 }
@@ -793,20 +1192,20 @@ setup_ssl_certificate() {
 setup_self_signed_certificate() {
     local ipv4="$1"
 
-    echo -e "${green}Setting up self-signed certificate for ${ipv4}...${plain}"
+    echo -e "${green}$(xui_tr 'Setting up self-signed certificate for %s...' "${ipv4}")${plain}"
 
     if [[ -z "$ipv4" ]]; then
-        echo -e "${red}IPv4 address is required${plain}"
+        echo -e "${red}$(xui_tr 'IPv4 address is required')${plain}"
         return 1
     fi
 
     if ! is_ipv4 "$ipv4"; then
-        echo -e "${red}Invalid IPv4 address: $ipv4${plain}"
+        echo -e "${red}$(xui_tr 'Invalid IPv4 address: ' "$ipv4")${plain}"
         return 1
     fi
 
     if ! command -v openssl > /dev/null 2>&1; then
-        echo -e "${red}openssl is required to generate a self-signed certificate${plain}"
+        echo -e "${red}$(xui_tr 'openssl is required to generate a self-signed certificate')${plain}"
         return 1
     fi
 
@@ -841,17 +1240,17 @@ keyUsage = critical, digitalSignature, keyEncipherment
 extendedKeyUsage = serverAuth
 EOF
 
-    echo -e "${green}Generating the key pair...${plain}"
+    echo -e "${green}$(xui_tr 'Generating the key pair...')${plain}"
     if ! openssl req -x509 -newkey rsa:2048 -nodes -days 3650 \
         -keyout "$keyFile" -out "$certFile" -config "$confFile" 2> /dev/null; then
-        echo -e "${red}Failed to generate the self-signed certificate${plain}"
+        echo -e "${red}$(xui_tr 'Failed to generate the self-signed certificate')${plain}"
         rm -rf "$certDir" 2> /dev/null
         return 1
     fi
     rm -f "$confFile"
 
     if [[ ! -s "$certFile" || ! -s "$keyFile" ]]; then
-        echo -e "${red}Certificate files were not created${plain}"
+        echo -e "${red}$(xui_tr 'Certificate files were not created')${plain}"
         rm -rf "$certDir" 2> /dev/null
         return 1
     fi
@@ -861,21 +1260,21 @@ EOF
     chmod 644 "$certFile" 2> /dev/null
 
     # Configure panel to use the certificate
-    echo -e "${green}Setting certificate paths for the panel...${plain}"
+    echo -e "${green}$(xui_tr 'Setting certificate paths for the panel...')${plain}"
     ${xui_folder}/d3x-ui cert -webCert "$certFile" -webCertKey "$keyFile"
 
     if [ $? -ne 0 ]; then
-        echo -e "${yellow}Warning: Could not set certificate paths automatically${plain}"
-        echo -e "${yellow}Certificate files are at:${plain}"
-        echo -e "  Cert: ${certFile}"
-        echo -e "  Key:  ${keyFile}"
+        echo -e "${yellow}$(xui_tr 'Warning: Could not set certificate paths automatically')${plain}"
+        echo -e "${yellow}$(xui_tr 'Certificate files are at:')${plain}"
+        echo -e "$(xui_tr '  Cert: ' "${certFile}")"
+        echo -e "$(xui_tr '  Key:  ' "${keyFile}")"
     else
-        echo -e "${green}Certificate paths configured successfully${plain}"
+        echo -e "${green}$(xui_tr 'Certificate paths configured successfully')${plain}"
     fi
 
-    echo -e "${green}Self-signed certificate installed and configured successfully!${plain}"
-    echo -e "${green}Valid for 10 years — no renewal needed.${plain}"
-    echo -e "${yellow}Your browser will warn that the certificate is not trusted; click 'Advanced' to continue.${plain}"
+    echo -e "${green}$(xui_tr 'Self-signed certificate installed and configured successfully!')${plain}"
+    echo -e "${green}$(xui_tr 'Valid for 10 years — no renewal needed.')${plain}"
+    echo -e "${yellow}$(xui_tr "Your browser will warn that the certificate is not trusted; click 'Advanced' to continue.")${plain}"
     return 0
 }
 
@@ -885,27 +1284,27 @@ setup_ip_certificate() {
     local ipv4="$1"
     local ipv6="$2" # optional
 
-    echo -e "${green}Setting up Let's Encrypt IP certificate (shortlived profile)...${plain}"
-    echo -e "${yellow}Note: IP certificates are valid for ~6 days and will auto-renew.${plain}"
-    echo -e "${yellow}Default listener is port 80. If you choose another port, ensure external port 80 forwards to it.${plain}"
+    echo -e "${green}$(xui_tr "Setting up Let's Encrypt IP certificate (shortlived profile)...")${plain}"
+    echo -e "${yellow}$(xui_tr 'Note: IP certificates are valid for ~6 days and will auto-renew.')${plain}"
+    echo -e "${yellow}$(xui_tr 'Default listener is port 80. If you choose another port, ensure external port 80 forwards to it.')${plain}"
 
     # Check for acme.sh
     if ! command -v ~/.acme.sh/acme.sh &> /dev/null; then
         install_acme
         if [ $? -ne 0 ]; then
-            echo -e "${red}Failed to install acme.sh${plain}"
+            echo -e "${red}$(xui_tr 'Failed to install acme.sh')${plain}"
             return 1
         fi
     fi
 
     # Validate IP address
     if [[ -z "$ipv4" ]]; then
-        echo -e "${red}IPv4 address is required${plain}"
+        echo -e "${red}$(xui_tr 'IPv4 address is required')${plain}"
         return 1
     fi
 
     if ! is_ipv4 "$ipv4"; then
-        echo -e "${red}Invalid IPv4 address: $ipv4${plain}"
+        echo -e "${red}$(xui_tr 'Invalid IPv4 address: ' "$ipv4")${plain}"
         return 1
     fi
 
@@ -917,7 +1316,7 @@ setup_ip_certificate() {
     local domain_args="-d ${ipv4}"
     if [[ -n "$ipv6" ]] && is_ipv6 "$ipv6"; then
         domain_args="${domain_args} -d ${ipv6}"
-        echo -e "${green}Including IPv6 address: ${ipv6}${plain}"
+        echo -e "${green}$(xui_tr 'Including IPv6 address: ' "${ipv6}")${plain}"
     fi
 
     # Set reload command for auto-renewal (add || true so it doesn't fail during first install)
@@ -928,44 +1327,44 @@ setup_ip_certificate() {
     prompt_or_default WebPort "Port to use for ACME HTTP-01 listener (default 80): " "80" XUI_ACME_HTTP_PORT
     WebPort="${WebPort:-80}"
     if ! [[ "${WebPort}" =~ ^[0-9]+$ ]] || ((WebPort < 1 || WebPort > 65535)); then
-        echo -e "${red}Invalid port provided. Falling back to 80.${plain}"
+        echo -e "${red}$(xui_tr 'Invalid port provided. Falling back to 80.')${plain}"
         WebPort=80
     fi
-    echo -e "${green}Using port ${WebPort} for standalone validation.${plain}"
+    echo -e "${green}$(xui_tr 'Using port %s for standalone validation.' "${WebPort}")${plain}"
     if [[ "${WebPort}" -ne 80 ]]; then
-        echo -e "${yellow}Reminder: Let's Encrypt still connects on port 80; forward external port 80 to ${WebPort}.${plain}"
+        echo -e "${yellow}$(xui_tr "Reminder: Let's Encrypt still connects on port 80; forward external port 80 to %s." "${WebPort}")${plain}"
     fi
 
     # Ensure chosen port is available
     while true; do
         if is_port_in_use "${WebPort}"; then
-            echo -e "${yellow}Port ${WebPort} is in use.${plain}"
+            echo -e "${yellow}$(xui_tr 'Port %s is in use.' "${WebPort}")${plain}"
 
             local alt_port=""
             if [[ "$NONINTERACTIVE" == "1" ]]; then
-                echo -e "${red}Port ${WebPort} is busy; cannot proceed in non-interactive mode.${plain}"
+                echo -e "${red}$(xui_tr 'Port %s is busy; cannot proceed in non-interactive mode.' "${WebPort}")${plain}"
                 return 1
             fi
             read -rp "$(xui_tr 'Enter another port for acme.sh standalone listener (leave empty to abort): ')" alt_port
             alt_port="${alt_port// /}"
             if [[ -z "${alt_port}" ]]; then
-                echo -e "${red}Port ${WebPort} is busy; cannot proceed.${plain}"
+                echo -e "${red}$(xui_tr 'Port %s is busy; cannot proceed.' "${WebPort}")${plain}"
                 return 1
             fi
             if ! [[ "${alt_port}" =~ ^[0-9]+$ ]] || ((alt_port < 1 || alt_port > 65535)); then
-                echo -e "${red}Invalid port provided.${plain}"
+                echo -e "${red}$(xui_tr 'Invalid port provided.')${plain}"
                 return 1
             fi
             WebPort="${alt_port}"
             continue
         else
-            echo -e "${green}Port ${WebPort} is free and ready for standalone validation.${plain}"
+            echo -e "${green}$(xui_tr 'Port %s is free and ready for standalone validation.' "${WebPort}")${plain}"
             break
         fi
     done
 
     # Issue certificate with shortlived profile
-    echo -e "${green}Issuing IP certificate for ${ipv4}...${plain}"
+    echo -e "${green}$(xui_tr 'Issuing IP certificate for %s...' "${ipv4}")${plain}"
     ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt --force > /dev/null 2>&1
     [[ -n "${XUI_ACME_EMAIL:-}" ]] && ~/.acme.sh/acme.sh --register-account -m "${XUI_ACME_EMAIL}" > /dev/null 2>&1
 
@@ -979,8 +1378,8 @@ setup_ip_certificate() {
         --force
 
     if [ $? -ne 0 ]; then
-        echo -e "${red}Failed to issue IP certificate${plain}"
-        echo -e "${yellow}Please ensure port ${WebPort} is reachable (or forwarded from external port 80)${plain}"
+        echo -e "${red}$(xui_tr 'Failed to issue IP certificate')${plain}"
+        echo -e "${yellow}$(xui_tr 'Please ensure port %s is reachable (or forwarded from external port 80)' "${WebPort}")${plain}"
         # Cleanup acme.sh data for both IPv4 and IPv6 if specified
         rm -rf ~/.acme.sh/${ipv4} ~/.acme.sh/${ipv4}_ecc 2> /dev/null
         [[ -n "$ipv6" ]] && rm -rf ~/.acme.sh/${ipv6} ~/.acme.sh/${ipv6}_ecc 2> /dev/null
@@ -988,7 +1387,7 @@ setup_ip_certificate() {
         return 1
     fi
 
-    echo -e "${green}Certificate issued successfully, installing...${plain}"
+    echo -e "${green}$(xui_tr 'Certificate issued successfully, installing...')${plain}"
 
     # Install certificate
     # Note: acme.sh may report "Reload error" and exit non-zero if reloadcmd fails,
@@ -1000,7 +1399,7 @@ setup_ip_certificate() {
 
     # Verify certificate files exist (don't rely on exit code - reloadcmd failure causes non-zero)
     if [[ ! -f "${certDir}/fullchain.pem" || ! -f "${certDir}/privkey.pem" ]]; then
-        echo -e "${red}Certificate files not found after installation${plain}"
+        echo -e "${red}$(xui_tr 'Certificate files not found after installation')${plain}"
         # Cleanup acme.sh data for both IPv4 and IPv6 if specified
         rm -rf ~/.acme.sh/${ipv4} ~/.acme.sh/${ipv4}_ecc 2> /dev/null
         [[ -n "$ipv6" ]] && rm -rf ~/.acme.sh/${ipv6} ~/.acme.sh/${ipv6}_ecc 2> /dev/null
@@ -1008,7 +1407,7 @@ setup_ip_certificate() {
         return 1
     fi
 
-    echo -e "${green}Certificate files installed successfully${plain}"
+    echo -e "${green}$(xui_tr 'Certificate files installed successfully')${plain}"
 
     # Enable auto-upgrade for acme.sh (ensures cron job runs)
     ~/.acme.sh/acme.sh --upgrade --auto-upgrade > /dev/null 2>&1
@@ -1018,21 +1417,21 @@ setup_ip_certificate() {
     chmod 644 ${certDir}/fullchain.pem 2> /dev/null
 
     # Configure panel to use the certificate
-    echo -e "${green}Setting certificate paths for the panel...${plain}"
+    echo -e "${green}$(xui_tr 'Setting certificate paths for the panel...')${plain}"
     ${xui_folder}/d3x-ui cert -webCert "${certDir}/fullchain.pem" -webCertKey "${certDir}/privkey.pem"
 
     if [ $? -ne 0 ]; then
-        echo -e "${yellow}Warning: Could not set certificate paths automatically${plain}"
-        echo -e "${yellow}Certificate files are at:${plain}"
-        echo -e "  Cert: ${certDir}/fullchain.pem"
-        echo -e "  Key:  ${certDir}/privkey.pem"
+        echo -e "${yellow}$(xui_tr 'Warning: Could not set certificate paths automatically')${plain}"
+        echo -e "${yellow}$(xui_tr 'Certificate files are at:')${plain}"
+        echo -e "$(xui_tr '  Cert: %s/fullchain.pem' "${certDir}")"
+        echo -e "$(xui_tr '  Key:  %s/privkey.pem' "${certDir}")"
     else
-        echo -e "${green}Certificate paths configured successfully${plain}"
+        echo -e "${green}$(xui_tr 'Certificate paths configured successfully')${plain}"
     fi
 
-    echo -e "${green}IP certificate installed and configured successfully!${plain}"
-    echo -e "${green}Certificate valid for ~6 days, auto-renews via acme.sh cron job.${plain}"
-    echo -e "${yellow}acme.sh will automatically renew and reload d3x-ui before expiry.${plain}"
+    echo -e "${green}$(xui_tr 'IP certificate installed and configured successfully!')${plain}"
+    echo -e "${green}$(xui_tr 'Certificate valid for ~6 days, auto-renews via acme.sh cron job.')${plain}"
+    echo -e "${yellow}$(xui_tr 'acme.sh will automatically renew and reload d3x-ui before expiry.')${plain}"
     return 0
 }
 
@@ -1047,10 +1446,10 @@ ssl_cert_issue() {
         cd ~ || return 1
         curl -s https://get.acme.sh | sh
         if [ $? -ne 0 ]; then
-            echo -e "${red}Failed to install acme.sh${plain}"
+            echo -e "${red}$(xui_tr 'Failed to install acme.sh')${plain}"
             return 1
         else
-            echo -e "${green}acme.sh installed successfully${plain}"
+            echo -e "${green}$(xui_tr 'acme.sh installed successfully')${plain}"
         fi
     fi
 
@@ -1059,7 +1458,7 @@ ssl_cert_issue() {
     if [[ "$NONINTERACTIVE" == "1" ]]; then
         domain="${XUI_DOMAIN// /}"
         if [[ -z "$domain" ]] || ! is_domain "$domain"; then
-            echo -e "${red}XUI_SSL_MODE=domain requires a valid XUI_DOMAIN (got: '${XUI_DOMAIN:-}').${plain}"
+            echo -e "${red}$(xui_tr "XUI_SSL_MODE=domain requires a valid XUI_DOMAIN (got: '%s')." "${XUI_DOMAIN:-}")${plain}"
             return 1
         fi
     else
@@ -1068,19 +1467,19 @@ ssl_cert_issue() {
             domain="${domain// /}" # Trim whitespace
 
             if [[ -z "$domain" ]]; then
-                echo -e "${red}Domain name cannot be empty. Please try again.${plain}"
+                echo -e "${red}$(xui_tr 'Domain name cannot be empty. Please try again.')${plain}"
                 continue
             fi
 
             if ! is_domain "$domain"; then
-                echo -e "${red}Invalid domain format: ${domain}. Please enter a valid domain name.${plain}"
+                echo -e "${red}$(xui_tr 'Invalid domain format: %s. Please enter a valid domain name.' "${domain}")${plain}"
                 continue
             fi
 
             break
         done
     fi
-    echo -e "${green}Your domain is: ${domain}, checking it...${plain}"
+    echo -e "${green}$(xui_tr 'Your domain is: %s, checking it...' "${domain}")${plain}"
     SSL_ISSUED_DOMAIN="${domain}"
 
     # detect existing certificate and reuse it only if its files are actually
@@ -1099,15 +1498,15 @@ ssl_cert_issue() {
         if [[ -n "${acmeCertDir}" ]]; then
             cert_exists=1
             local certInfo=$(~/.acme.sh/acme.sh --list 2> /dev/null | grep -F "${domain}")
-            echo -e "${yellow}Existing certificate found for ${domain}, will reuse it.${plain}"
+            echo -e "${yellow}$(xui_tr 'Existing certificate found for %s, will reuse it.' "${domain}")${plain}"
             [[ -n "${certInfo}" ]] && echo "$certInfo"
         else
-            echo -e "${yellow}Found incomplete acme.sh state for ${domain} (no valid certificate files); cleaning it up and re-issuing.${plain}"
+            echo -e "${yellow}$(xui_tr 'Found incomplete acme.sh state for %s (no valid certificate files); cleaning it up and re-issuing.' "${domain}")${plain}"
             rm -rf ~/.acme.sh/${domain} ~/.acme.sh/${domain}_ecc
         fi
     fi
     if [[ ${cert_exists} -eq 0 ]]; then
-        echo -e "${green}Your domain is ready for issuing certificates now...${plain}"
+        echo -e "${green}$(xui_tr 'Your domain is ready for issuing certificates now...')${plain}"
     fi
 
     # create a directory for the certificate
@@ -1125,13 +1524,13 @@ ssl_cert_issue() {
     if [[ -z ${WebPort} ]]; then
         WebPort=80
     elif [[ ! ${WebPort} =~ ^[1-9][0-9]*$ || ${WebPort} -gt 65535 ]]; then
-        echo -e "${yellow}Your input ${WebPort} is invalid, will use default port 80.${plain}"
+        echo -e "${yellow}$(xui_tr 'Your input %s is invalid, will use default port 80.' "${WebPort}")${plain}"
         WebPort=80
     fi
-    echo -e "${green}Will use port: ${WebPort} to issue certificates. Please make sure this port is open.${plain}"
+    echo -e "${green}$(xui_tr 'Will use port: %s to issue certificates. Please make sure this port is open.' "${WebPort}")${plain}"
 
     # Stop panel temporarily
-    echo -e "${yellow}Stopping panel temporarily...${plain}"
+    echo -e "${yellow}$(xui_tr 'Stopping panel temporarily...')${plain}"
     systemctl stop d3x-ui 2> /dev/null || rc-service d3x-ui stop 2> /dev/null
 
     if [[ ${cert_exists} -eq 0 ]]; then
@@ -1140,43 +1539,43 @@ ssl_cert_issue() {
         [[ -n "${XUI_ACME_EMAIL:-}" ]] && ~/.acme.sh/acme.sh --register-account -m "${XUI_ACME_EMAIL}" > /dev/null 2>&1
         ~/.acme.sh/acme.sh --issue -d ${domain} $(acme_listen_flag) --standalone --httpport ${WebPort} --force
         if [ $? -ne 0 ]; then
-            echo -e "${red}Issuing certificate failed, please check logs.${plain}"
+            echo -e "${red}$(xui_tr 'Issuing certificate failed, please check logs.')${plain}"
             rm -rf ~/.acme.sh/${domain} ~/.acme.sh/${domain}_ecc
             systemctl start d3x-ui 2> /dev/null || rc-service d3x-ui start 2> /dev/null
             return 1
         else
-            echo -e "${green}Issuing certificate succeeded, installing certificates...${plain}"
+            echo -e "${green}$(xui_tr 'Issuing certificate succeeded, installing certificates...')${plain}"
         fi
     else
-        echo -e "${green}Using existing certificate, installing certificates...${plain}"
+        echo -e "${green}$(xui_tr 'Using existing certificate, installing certificates...')${plain}"
     fi
 
     # Setup reload command
     reloadCmd="systemctl restart d3x-ui || rc-service d3x-ui restart"
-    echo -e "${green}Default --reloadcmd for ACME is: ${yellow}systemctl restart d3x-ui || rc-service d3x-ui restart${plain}"
-    echo -e "${green}This command will run on every certificate issue and renew.${plain}"
+    echo -e "${green}$(xui_tr 'Default --reloadcmd for ACME is: %ssystemctl restart d3x-ui || rc-service d3x-ui restart' "${yellow}")${plain}"
+    echo -e "${green}$(xui_tr 'This command will run on every certificate issue and renew.')${plain}"
     if [[ "$NONINTERACTIVE" == "1" ]]; then
         setReloadcmd="n"
     else
         read -rp "$(xui_tr 'Would you like to modify --reloadcmd for ACME? (y/n): ')" setReloadcmd
     fi
     if [[ "$setReloadcmd" == "y" || "$setReloadcmd" == "Y" ]]; then
-        echo -e "\n${green}\t1.${plain} Preset: systemctl reload nginx ; systemctl restart d3x-ui"
-        echo -e "${green}\t2.${plain} Input your own command"
-        echo -e "${green}\t0.${plain} Keep default reloadcmd"
+        echo -e "$(xui_tr '\n%s\t1.%s Preset: systemctl reload nginx ; systemctl restart d3x-ui' "${green}" "${plain}")"
+        echo -e "$(xui_tr '%s\t2.%s Input your own command' "${green}" "${plain}")"
+        echo -e "$(xui_tr '%s\t0.%s Keep default reloadcmd' "${green}" "${plain}")"
         read -rp "$(xui_tr 'Choose an option: ')" choice
         case "$choice" in
             1)
-                echo -e "${green}Reloadcmd is: systemctl reload nginx ; systemctl restart d3x-ui${plain}"
+                echo -e "${green}$(xui_tr 'Reloadcmd is: systemctl reload nginx ; systemctl restart d3x-ui')${plain}"
                 reloadCmd="systemctl reload nginx ; systemctl restart d3x-ui"
                 ;;
             2)
-                echo -e "${yellow}It's recommended to put d3x-ui restart at the end${plain}"
+                echo -e "${yellow}$(xui_tr "It's recommended to put d3x-ui restart at the end")${plain}"
                 read -rp "$(xui_tr 'Please enter your custom reloadcmd: ')" reloadCmd
-                echo -e "${green}Reloadcmd is: ${reloadCmd}${plain}"
+                echo -e "${green}$(xui_tr 'Reloadcmd is: ' "${reloadCmd}")${plain}"
                 ;;
             *)
-                echo -e "${green}Keeping default reloadcmd${plain}"
+                echo -e "${green}$(xui_tr 'Keeping default reloadcmd')${plain}"
                 ;;
         esac
     fi
@@ -1195,9 +1594,9 @@ ssl_cert_issue() {
     fi
 
     if [[ -f "/root/cert/${domain}/privkey.pem" && -f "/root/cert/${domain}/fullchain.pem" && (${installRc} -eq 0 || ${installWroteFiles} -eq 1) ]]; then
-        echo -e "${green}Installing certificate succeeded, enabling auto renew...${plain}"
+        echo -e "${green}$(xui_tr 'Installing certificate succeeded, enabling auto renew...')${plain}"
     else
-        echo -e "${red}Installing certificate failed, exiting.${plain}"
+        echo -e "${red}$(xui_tr 'Installing certificate failed, exiting.')${plain}"
         if [[ ${cert_exists} -eq 0 ]]; then
             rm -rf ~/.acme.sh/${domain} ~/.acme.sh/${domain}_ecc
         fi
@@ -1208,13 +1607,13 @@ ssl_cert_issue() {
     # enable auto-renew
     ~/.acme.sh/acme.sh --upgrade --auto-upgrade
     if [ $? -ne 0 ]; then
-        echo -e "${yellow}Auto renew setup had issues, certificate details:${plain}"
+        echo -e "${yellow}$(xui_tr 'Auto renew setup had issues, certificate details:')${plain}"
         ls -lah /root/cert/${domain}/
         # Secure permissions: private key readable only by owner
         chmod 600 $certPath/privkey.pem 2> /dev/null
         chmod 644 $certPath/fullchain.pem 2> /dev/null
     else
-        echo -e "${green}Auto renew succeeded, certificate details:${plain}"
+        echo -e "${green}$(xui_tr 'Auto renew succeeded, certificate details:')${plain}"
         ls -lah /root/cert/${domain}/
         # Secure permissions: private key readable only by owner
         chmod 600 $certPath/privkey.pem 2> /dev/null
@@ -1236,18 +1635,18 @@ ssl_cert_issue() {
 
         if [[ -f "$webCertFile" && -f "$webKeyFile" ]]; then
             ${xui_folder}/d3x-ui cert -webCert "$webCertFile" -webCertKey "$webKeyFile"
-            echo -e "${green}Certificate paths set for the panel${plain}"
-            echo -e "${green}Certificate File: $webCertFile${plain}"
-            echo -e "${green}Private Key File: $webKeyFile${plain}"
+            echo -e "${green}$(xui_tr 'Certificate paths set for the panel')${plain}"
+            echo -e "${green}$(xui_tr 'Certificate File: ' "$webCertFile")${plain}"
+            echo -e "${green}$(xui_tr 'Private Key File: ' "$webKeyFile")${plain}"
             echo ""
-            echo -e "${green}Access URL: https://${domain}:${existing_port}/${existing_webBasePath}${plain}"
-            echo -e "${yellow}Panel will restart to apply SSL certificate...${plain}"
+            echo -e "${green}$(xui_tr 'Access URL: https://%s:%s/' "${domain}" "${existing_port}" "${existing_webBasePath}")${plain}"
+            echo -e "${yellow}$(xui_tr 'Panel will restart to apply SSL certificate...')${plain}"
             systemctl restart d3x-ui 2> /dev/null || rc-service d3x-ui restart 2> /dev/null
         else
-            echo -e "${red}Error: Certificate or private key file not found for domain: $domain.${plain}"
+            echo -e "${red}$(xui_tr 'Error: Certificate or private key file not found for domain: %s.' "$domain")${plain}"
         fi
     else
-        echo -e "${yellow}Skipping panel path setting.${plain}"
+        echo -e "${yellow}$(xui_tr 'Skipping panel path setting.')${plain}"
     fi
 
     return 0
@@ -1263,7 +1662,7 @@ prompt_and_setup_ssl() {
     local ssl_choice=""
     SSL_SCHEME="https"
 
-    echo -e "${yellow}Choose SSL certificate setup method:${plain}"
+    echo -e "${yellow}$(xui_tr 'Choose SSL certificate setup method:')${plain}"
     echo -e "${green}1.${plain} $(xui_tr "Let's Encrypt for Domain (90-day validity, auto-renews)")"
     echo -e "${green}2.${plain} $(xui_tr "Let's Encrypt for IP Address (6-day validity, auto-renews)")"
     echo -e "${green}3.${plain} $(xui_tr "Self-signed Certificate for IP (no port 80 needed, no renewal)")"
@@ -1279,7 +1678,7 @@ prompt_and_setup_ssl() {
             custom) ssl_choice="4" ;;
             none | "") ssl_choice="5" ;;
             *)
-                echo -e "${yellow}Unknown XUI_SSL_MODE='${XUI_SSL_MODE}', defaulting to none (HTTP).${plain}"
+                echo -e "${yellow}$(xui_tr "Unknown XUI_SSL_MODE='%s', defaulting to none (HTTP)." "${XUI_SSL_MODE}")${plain}"
                 ssl_choice="5"
                 ;;
         esac
@@ -1296,7 +1695,7 @@ prompt_and_setup_ssl() {
     case "$ssl_choice" in
         1)
             # User chose Let's Encrypt domain option
-            echo -e "${green}Using Let's Encrypt for domain certificate...${plain}"
+            echo -e "${green}$(xui_tr "Using Let's Encrypt for domain certificate...")${plain}"
             if ssl_cert_issue; then
                 local cert_domain="${SSL_ISSUED_DOMAIN}"
                 if [[ -z "${cert_domain}" ]]; then
@@ -1305,19 +1704,19 @@ prompt_and_setup_ssl() {
 
                 if [[ -n "${cert_domain}" ]]; then
                     SSL_HOST="${cert_domain}"
-                    echo -e "${green}✓ SSL certificate configured successfully with domain: ${cert_domain}${plain}"
+                    echo -e "${green}$(xui_tr '✓ SSL certificate configured successfully with domain: ' "${cert_domain}")${plain}"
                 else
-                    echo -e "${yellow}SSL setup may have completed, but domain extraction failed${plain}"
+                    echo -e "${yellow}$(xui_tr 'SSL setup may have completed, but domain extraction failed')${plain}"
                     SSL_HOST="${server_ip}"
                 fi
             else
-                echo -e "${red}SSL certificate setup failed for domain mode.${plain}"
+                echo -e "${red}$(xui_tr 'SSL certificate setup failed for domain mode.')${plain}"
                 SSL_HOST="${server_ip}"
             fi
             ;;
         2)
             # User chose Let's Encrypt IP certificate option
-            echo -e "${green}Using Let's Encrypt for IP certificate (shortlived profile)...${plain}"
+            echo -e "${green}$(xui_tr "Using Let's Encrypt for IP certificate (shortlived profile)...")${plain}"
 
             # Confirm the auto-detected IP before issuing for it: with asymmetric
             # routing / multi-WAN the echo services can return a transit address.
@@ -1352,15 +1751,15 @@ prompt_and_setup_ssl() {
             setup_ip_certificate "${server_ip}" "${ipv6_addr}"
             if [ $? -eq 0 ]; then
                 SSL_HOST="${server_ip}"
-                echo -e "${green}✓ Let's Encrypt IP certificate configured successfully${plain}"
+                echo -e "${green}$(xui_tr "✓ Let's Encrypt IP certificate configured successfully")${plain}"
             else
-                echo -e "${red}✗ IP certificate setup failed. Please check port 80 is open.${plain}"
+                echo -e "${red}$(xui_tr '✗ IP certificate setup failed. Please check port 80 is open.')${plain}"
                 SSL_HOST="${server_ip}"
             fi
             ;;
         3)
             # User chose the self-signed certificate option
-            echo -e "${green}Using a self-signed certificate for the panel IP...${plain}"
+            echo -e "${green}$(xui_tr 'Using a self-signed certificate for the panel IP...')${plain}"
 
             # The auto-detected public IP is the default; the operator can
             # override it when the panel is reached through a different
@@ -1387,9 +1786,9 @@ prompt_and_setup_ssl() {
 
             if setup_self_signed_certificate "$self_signed_ip"; then
                 SSL_HOST="${self_signed_ip}"
-                echo -e "${green}✓ Self-signed certificate configured successfully${plain}"
+                echo -e "${green}$(xui_tr '✓ Self-signed certificate configured successfully')${plain}"
             else
-                echo -e "${red}✗ Self-signed certificate setup failed.${plain}"
+                echo -e "${red}$(xui_tr '✗ Self-signed certificate setup failed.')${plain}"
                 SSL_HOST="${server_ip}"
             fi
 
@@ -1400,7 +1799,7 @@ prompt_and_setup_ssl() {
             ;;
         4)
             # User chose Custom Paths (User Provided) option
-            echo -e "${green}Using custom existing certificate...${plain}"
+            echo -e "${green}$(xui_tr 'Using custom existing certificate...')${plain}"
             local custom_cert=""
             local custom_key=""
             local custom_domain=""
@@ -1418,11 +1817,11 @@ prompt_and_setup_ssl() {
                 if [[ -f "$custom_cert" && -r "$custom_cert" && -s "$custom_cert" ]]; then
                     break
                 elif [[ ! -f "$custom_cert" ]]; then
-                    echo -e "${red}Error: File does not exist! Try again.${plain}"
+                    echo -e "${red}$(xui_tr 'Error: File does not exist! Try again.')${plain}"
                 elif [[ ! -r "$custom_cert" ]]; then
-                    echo -e "${red}Error: File exists but is not readable (check permissions)!${plain}"
+                    echo -e "${red}$(xui_tr 'Error: File exists but is not readable (check permissions)!')${plain}"
                 else
-                    echo -e "${red}Error: File is empty!${plain}"
+                    echo -e "${red}$(xui_tr 'Error: File is empty!')${plain}"
                 fi
             done
 
@@ -1435,11 +1834,11 @@ prompt_and_setup_ssl() {
                 if [[ -f "$custom_key" && -r "$custom_key" && -s "$custom_key" ]]; then
                     break
                 elif [[ ! -f "$custom_key" ]]; then
-                    echo -e "${red}Error: File does not exist! Try again.${plain}"
+                    echo -e "${red}$(xui_tr 'Error: File does not exist! Try again.')${plain}"
                 elif [[ ! -r "$custom_key" ]]; then
-                    echo -e "${red}Error: File exists but is not readable (check permissions)!${plain}"
+                    echo -e "${red}$(xui_tr 'Error: File exists but is not readable (check permissions)!')${plain}"
                 else
-                    echo -e "${red}Error: File is empty!${plain}"
+                    echo -e "${red}$(xui_tr 'Error: File is empty!')${plain}"
                 fi
             done
 
@@ -1453,18 +1852,18 @@ prompt_and_setup_ssl() {
                 SSL_HOST="${server_ip}"
             fi
 
-            echo -e "${green}✓ Custom certificate paths applied.${plain}"
-            echo -e "${yellow}Note: You are responsible for renewing these files externally.${plain}"
+            echo -e "${green}$(xui_tr '✓ Custom certificate paths applied.')${plain}"
+            echo -e "${yellow}$(xui_tr 'Note: You are responsible for renewing these files externally.')${plain}"
 
             systemctl restart d3x-ui > /dev/null 2>&1 || rc-service d3x-ui restart > /dev/null 2>&1
             ;;
         5)
             echo ""
-            echo -e "${red}⚠ Panel will be installed WITHOUT SSL/TLS.${plain}"
-            echo -e "${yellow}Login credentials and cookies will travel as plain HTTP.${plain}"
-            echo -e "${yellow}Only safe when:${plain}"
-            echo -e "${yellow}  • A reverse proxy (nginx, Caddy, Traefik) terminates TLS for you, or${plain}"
-            echo -e "${yellow}  • You access the panel exclusively via SSH tunnel${plain}"
+            echo -e "${red}$(xui_tr '⚠ Panel will be installed WITHOUT SSL/TLS.')${plain}"
+            echo -e "${yellow}$(xui_tr 'Login credentials and cookies will travel as plain HTTP.')${plain}"
+            echo -e "${yellow}$(xui_tr 'Only safe when:')${plain}"
+            echo -e "${yellow}$(xui_tr '  • A reverse proxy (nginx, Caddy, Traefik) terminates TLS for you, or')${plain}"
+            echo -e "${yellow}$(xui_tr '  • You access the panel exclusively via SSH tunnel')${plain}"
             echo ""
 
             SSL_SCHEME="http"
@@ -1480,26 +1879,26 @@ prompt_and_setup_ssl() {
             if [[ "$bind_local" == "y" || "$bind_local" == "Y" ]]; then
                 ${xui_folder}/d3x-ui setting -listenIP "127.0.0.1" > /dev/null 2>&1
                 SSL_HOST="127.0.0.1"
-                echo -e "${green}✓ Panel bound to 127.0.0.1 only. It is now unreachable from the public internet.${plain}"
+                echo -e "${green}$(xui_tr '✓ Panel bound to 127.0.0.1 only. It is now unreachable from the public internet.')${plain}"
                 echo ""
-                echo -e "${green}SSH Port Forwarding — open the panel from your local machine via:${plain}"
-                echo -e "  Standard SSH command:"
+                echo -e "${green}$(xui_tr 'SSH Port Forwarding — open the panel from your local machine via:')${plain}"
+                echo -e "$(xui_tr '  Standard SSH command:')"
                 echo -e "  ${yellow}ssh -L 2222:127.0.0.1:${panel_port} root@${server_ip}${plain}"
-                echo -e "  If using an SSH key:"
+                echo -e "$(xui_tr '  If using an SSH key:')"
                 echo -e "  ${yellow}ssh -i <sshkeypath> -L 2222:127.0.0.1:${panel_port} root@${server_ip}${plain}"
-                echo -e "  Then open in your browser:"
+                echo -e "$(xui_tr '  Then open in your browser:')"
                 echo -e "  ${yellow}http://localhost:2222/${web_base_path}${plain}"
                 echo ""
-                echo -e "${yellow}Alternative: point a reverse proxy (nginx/Caddy) at 127.0.0.1:${panel_port} and let it terminate TLS.${plain}"
+                echo -e "${yellow}$(xui_tr 'Alternative: point a reverse proxy (nginx/Caddy) at 127.0.0.1:%s and let it terminate TLS.' "${panel_port}")${plain}"
             else
-                echo -e "${yellow}Panel will listen on all interfaces over plain HTTP. Make sure something else is terminating TLS in front of it.${plain}"
+                echo -e "${yellow}$(xui_tr 'Panel will listen on all interfaces over plain HTTP. Make sure something else is terminating TLS in front of it.')${plain}"
             fi
 
             systemctl restart d3x-ui > /dev/null 2>&1 || rc-service d3x-ui restart > /dev/null 2>&1
-            echo -e "${green}✓ SSL setup skipped.${plain}"
+            echo -e "${green}$(xui_tr '✓ SSL setup skipped.')${plain}"
             ;;
         *)
-            echo -e "${red}Invalid option. Skipping SSL setup.${plain}"
+            echo -e "${red}$(xui_tr 'Invalid option. Skipping SSL setup.')${plain}"
             SSL_HOST="${server_ip}"
             ;;
     esac
@@ -1550,7 +1949,7 @@ config_after_install() {
             # displayed access URL. Fall back to XUI_SERVER_IP or leave blank.
             server_ip="${XUI_SERVER_IP:-}"
         else
-            echo -e "${yellow}Could not auto-detect server IP from any provider.${plain}"
+            echo -e "${yellow}$(xui_tr 'Could not auto-detect server IP from any provider.')${plain}"
             while [[ -z "$server_ip" ]]; do
                 read -rp "$(xui_tr "Please enter your server's public IPv4 address: ")" server_ip
                 server_ip="${server_ip// /}"
@@ -1564,7 +1963,7 @@ config_after_install() {
 
     if [[ -z "$existing_webBasePath" ]]; then
         if [[ "$existing_hasDefaultCredential" == "true" ]]; then
-            local config_webBasePath="${XUI_WEB_BASE_PATH:-$(gen_random_string 18)}"
+            local config_webBasePath=""
             local config_username=""
             local config_password=""
             local config_port=""
@@ -1574,8 +1973,8 @@ config_after_install() {
             echo -e "${green}═══════════════════════════════════════════${plain}"
             echo -e "${green}$(xui_box_title 'Database Selection')${plain}"
             echo -e "${green}═══════════════════════════════════════════${plain}"
-            echo -e "  1) SQLite     (default — recommended for < 500 clients)"
-            echo -e "  2) PostgreSQL (recommended for high client counts / many nodes)"
+            echo -e "$(xui_tr '  1) SQLite     (default — recommended for < 500 clients)')"
+            echo -e "$(xui_tr '  2) PostgreSQL (recommended for high client counts / many nodes)')"
             if [[ "$NONINTERACTIVE" == "1" ]]; then
                 if [[ "${XUI_DB_TYPE:-sqlite}" == "postgres" ]]; then
                     db_choice="2"
@@ -1610,7 +2009,7 @@ config_after_install() {
                             db_label="PostgreSQL (external)"
                             break
                         fi
-                        echo -e "${yellow}Installing PostgreSQL locally (non-interactive)...${plain}"
+                        echo -e "${yellow}$(xui_tr 'Installing PostgreSQL locally (non-interactive)...')${plain}"
                         local pg_cred_file
                         pg_cred_file=$(mktemp 2> /dev/null) || pg_cred_file=$(mktemp -t d3x-ui-pg-creds.XXXXXXXX)
                         if [[ -n "${pg_cred_file}" ]] && xui_dsn=$(PG_CRED_FILE="${pg_cred_file}" install_postgres_local); then
@@ -1624,13 +2023,13 @@ config_after_install() {
                             break
                         fi
                         rm -f "${pg_cred_file}"
-                        echo -e "${red}PostgreSQL installation failed in non-interactive mode; aborting.${plain}"
-                        echo -e "${yellow}Set XUI_DB_DSN to use an existing server, or XUI_DB_TYPE=sqlite.${plain}"
+                        echo -e "${red}$(xui_tr 'PostgreSQL installation failed in non-interactive mode; aborting.')${plain}"
+                        echo -e "${yellow}$(xui_tr 'Set XUI_DB_DSN to use an existing server, or XUI_DB_TYPE=sqlite.')${plain}"
                         exit 1
                     fi
                     echo ""
-                    echo -e "  1) Install PostgreSQL locally and create a dedicated user/db (recommended)"
-                    echo -e "  2) Use an existing PostgreSQL server (enter DSN)"
+                    echo -e "$(xui_tr '  1) Install PostgreSQL locally and create a dedicated user/db (recommended)')"
+                    echo -e "$(xui_tr '  2) Use an existing PostgreSQL server (enter DSN)')"
                     read -rp "$(xui_tr 'Choose [1]: ')" pg_mode
                     pg_mode="${pg_mode:-1}"
                     if [[ "$pg_mode" == "2" ]]; then
@@ -1640,11 +2039,11 @@ config_after_install() {
                         done
                         db_label="PostgreSQL (external)"
                     else
-                        echo -e "${yellow}Installing PostgreSQL — this may take a moment...${plain}"
+                        echo -e "${yellow}$(xui_tr 'Installing PostgreSQL — this may take a moment...')${plain}"
                         local pg_cred_file
                         pg_cred_file=$(mktemp 2> /dev/null) || pg_cred_file=$(mktemp -t d3x-ui-pg-creds.XXXXXXXX)
                         if [[ -z "${pg_cred_file}" ]]; then
-                            echo -e "${red}Failed to create temporary credentials file.${plain}"
+                            echo -e "${red}$(xui_tr 'Failed to create temporary credentials file.')${plain}"
                             xui_dsn=""
                             continue
                         fi
@@ -1659,17 +2058,17 @@ config_after_install() {
                         else
                             rm -f "${pg_cred_file}"
                             echo ""
-                            echo -e "${red}PostgreSQL installation failed.${plain}"
-                            echo -e "  1) Retry local install"
-                            echo -e "  2) Enter an external DSN instead"
-                            echo -e "  3) Abort install"
-                            echo -e "  4) Fall back to SQLite"
+                            echo -e "${red}$(xui_tr 'PostgreSQL installation failed.')${plain}"
+                            echo -e "$(xui_tr '  1) Retry local install')"
+                            echo -e "$(xui_tr '  2) Enter an external DSN instead')"
+                            echo -e "$(xui_tr '  3) Abort install')"
+                            echo -e "$(xui_tr '  4) Fall back to SQLite')"
                             read -rp "$(xui_tr 'Choose [1]: ')" pg_fail
                             pg_fail="${pg_fail:-1}"
                             case "$pg_fail" in
                                 2) pg_mode="2" ;;
                                 3)
-                                    echo -e "${red}Install aborted.${plain}"
+                                    echo -e "${red}$(xui_tr 'Install aborted.')${plain}"
                                     exit 1
                                     ;;
                                 4)
@@ -1697,11 +2096,11 @@ EOF
                 fi
             fi
 
-            config_port=$(select_panel_port) || exit 1
-
-            select_credentials || exit 1
+            select_panel_settings || exit 1
+            config_port="$SELECTED_PORT"
             config_username="$SELECTED_USERNAME"
             config_password="$SELECTED_PASSWORD"
+            config_webBasePath="$SELECTED_WEB_BASE_PATH"
 
             local settings_output settings_status=0
             settings_output=$("${xui_folder}/d3x-ui" setting -username "${config_username}" -password "${config_password}" -port "${config_port}" -webBasePath "${config_webBasePath}" 2>&1) || settings_status=$?
@@ -1720,9 +2119,9 @@ EOF
             echo -e "${green}═══════════════════════════════════════════${plain}"
             echo -e "${green}$(xui_box_title 'SSL Certificate Setup (RECOMMENDED)')${plain}"
             echo -e "${green}═══════════════════════════════════════════${plain}"
-            echo -e "${yellow}SSL is strongly recommended. Skip only if a reverse proxy${plain}"
-            echo -e "${yellow}or SSH tunnel handles TLS for you.${plain}"
-            echo -e "${yellow}Let's Encrypt now supports both domains and IP addresses!${plain}"
+            echo -e "${yellow}$(xui_tr 'SSL is strongly recommended. Skip only if a reverse proxy')${plain}"
+            echo -e "${yellow}$(xui_tr 'or SSH tunnel handles TLS for you.')${plain}"
+            echo -e "${yellow}$(xui_tr "Let's Encrypt now supports both domains and IP addresses!")${plain}"
             echo ""
 
             prompt_and_setup_ssl "${config_port}" "${config_webBasePath}" "${server_ip}"
@@ -1752,9 +2151,9 @@ EOF
 
             if [[ "$db_choice" == "2" ]]; then
                 echo ""
-                echo -e "${green}PostgreSQL backup & restore is built into the panel:${plain}"
-                echo -e "  ${blue}${SSL_SCHEME}://${SSL_HOST}:${config_port}/${config_webBasePath}${plain} → Backup & Restore"
-                echo -e "${yellow}  Back Up downloads a pg_dump .dump file; Restore reloads it via pg_restore.${plain}"
+                echo -e "${green}$(xui_tr 'PostgreSQL backup & restore is built into the panel:')${plain}"
+                echo -e "$(xui_tr '  %s%s://%s:%s/%s%s → Backup & Restore' "${blue}" "${SSL_SCHEME}" "${SSL_HOST}" "${config_port}" "${config_webBasePath}" "${plain}")"
+                echo -e "${yellow}$(xui_tr '  Back Up downloads a pg_dump .dump file; Restore reloads it via pg_restore.')${plain}"
             fi
 
             if [[ "$db_choice" == "2" && "$pg_local_installed" == "1" ]]; then
@@ -1762,20 +2161,20 @@ EOF
                 echo -e "${green}═══════════════════════════════════════════${plain}"
                 echo -e "${green}$(xui_box_title 'PostgreSQL Credentials')${plain}"
                 echo -e "${green}═══════════════════════════════════════════${plain}"
-                echo -e "${green}DB Name:    ${PG_DB}${plain}"
-                echo -e "${green}Username:   ${PG_USER}${plain}"
-                echo -e "${green}Password:   ${PG_PASS}${plain}"
-                echo -e "${green}Host:       ${PG_HOST}${plain}"
-                echo -e "${green}Port:       ${PG_PORT}${plain}"
-                echo -e "${green}DSN:        ${xui_dsn}${plain}"
-                echo -e "${green}Env file:   ${xui_env_file}${plain}"
+                echo -e "${green}$(xui_tr 'DB Name:    ' "${PG_DB}")${plain}"
+                echo -e "${green}$(xui_tr 'Username:   ' "${PG_USER}")${plain}"
+                echo -e "${green}$(xui_tr 'Password:   ' "${PG_PASS}")${plain}"
+                echo -e "${green}$(xui_tr 'Host:       ' "${PG_HOST}")${plain}"
+                echo -e "${green}$(xui_tr 'Port:       ' "${PG_PORT}")${plain}"
+                echo -e "${green}$(xui_tr 'DSN:        ' "${xui_dsn}")${plain}"
+                echo -e "${green}$(xui_tr 'Env file:   ' "${xui_env_file}")${plain}"
                 echo -e "${green}-------------------------------------------${plain}"
-                echo -e "${green}Connect from this server:${plain}"
-                echo -e "  ${blue}sudo -u postgres psql -d ${PG_DB}${plain}      (as the postgres superuser)"
+                echo -e "${green}$(xui_tr 'Connect from this server:')${plain}"
+                echo -e "$(xui_tr '  %ssudo -u postgres psql -d %s%s      (as the postgres superuser)' "${blue}" "${PG_DB}" "${plain}")"
                 echo -e "  ${blue}PGPASSWORD='${PG_PASS}' psql -h ${PG_HOST} -p ${PG_PORT} -U ${PG_USER} -d ${PG_DB}${plain}"
                 echo -e "${green}═══════════════════════════════════════════${plain}"
-                echo -e "${yellow}⚠ The panel reads these credentials from ${xui_env_file}.${plain}"
-                echo -e "${yellow}⚠ Save the password — it is not stored anywhere else in plain text.${plain}"
+                echo -e "${yellow}$(xui_tr '⚠ The panel reads these credentials from %s.' "${xui_env_file}")${plain}"
+                echo -e "${yellow}$(xui_tr '⚠ Save the password — it is not stored anywhere else in plain text.')${plain}"
                 unset PG_USER PG_PASS PG_HOST PG_PORT PG_DB
             fi
 
@@ -1787,8 +2186,10 @@ EOF
             write_install_result "${config_username}" "${config_password}" "${config_port}" \
                 "${config_webBasePath}" "${SSL_SCHEME}" "${SSL_HOST}" "${config_apiToken}" "${db_type_out}"
         else
-            local config_webBasePath=$(gen_random_string 18)
-            echo -e "${yellow}WebBasePath is missing or set to root. Generating a new one...${plain}"
+            local config_webBasePath=""
+            echo -e "${yellow}$(xui_tr 'WebBasePath is missing or set to root. Generating a new one...')${plain}"
+            select_web_base_path || exit 1
+            config_webBasePath="$SELECTED_WEB_BASE_PATH"
             ${xui_folder}/d3x-ui setting -webBasePath "${config_webBasePath}"
             echo -e "${green}$(xui_tr 'New WebBasePath: ')${config_webBasePath}${plain}"
 
@@ -1798,13 +2199,13 @@ EOF
                 echo -e "${green}═══════════════════════════════════════════${plain}"
                 echo -e "${green}$(xui_box_title 'SSL Certificate Setup (RECOMMENDED)')${plain}"
                 echo -e "${green}═══════════════════════════════════════════${plain}"
-                echo -e "${yellow}Let's Encrypt now supports both domains and IP addresses!${plain}"
+                echo -e "${yellow}$(xui_tr "Let's Encrypt now supports both domains and IP addresses!")${plain}"
                 echo ""
                 prompt_and_setup_ssl "${existing_port}" "${config_webBasePath}" "${server_ip}"
-                echo -e "${green}Access URL:  ${SSL_SCHEME}://${SSL_HOST}:${existing_port}/${config_webBasePath}${plain}"
+                echo -e "${green}$(xui_tr 'Access URL:  %s://%s:%s/' "${SSL_SCHEME}" "${SSL_HOST}" "${existing_port}" "${config_webBasePath}")${plain}"
             else
                 # If a cert already exists, just show the access URL
-                echo -e "${green}Access URL: https://${server_ip}:${existing_port}/${config_webBasePath}${plain}"
+                echo -e "${green}$(xui_tr 'Access URL: https://%s:%s/' "${server_ip}" "${existing_port}" "${config_webBasePath}")${plain}"
             fi
         fi
     else
@@ -1817,9 +2218,19 @@ EOF
             ${xui_folder}/d3x-ui setting -username "${config_username}" -password "${config_password}"
             echo -e "$(xui_tr 'Generated new random login credentials:')"
             echo -e "###############################################"
-            echo -e "${green}Username: ${config_username}${plain}"
-            echo -e "${green}Password: ${config_password}${plain}"
+            echo -e "${green}$(xui_tr 'Username: ' "${config_username}")${plain}"
+            echo -e "${green}$(xui_tr 'Password: ' "${config_password}")${plain}"
             echo -e "###############################################"
+
+            # The access path of an existing panel can still be replaced here;
+            # a fresh random one is generated when the operator declines.
+            local config_webBasePath="$existing_webBasePath"
+            select_web_base_path || exit 1
+            if [[ "$SELECTED_WEB_BASE_PATH" != "$existing_webBasePath" ]]; then
+                ${xui_folder}/d3x-ui setting -webBasePath "${SELECTED_WEB_BASE_PATH}"
+                config_webBasePath="$SELECTED_WEB_BASE_PATH"
+                echo -e "${green}$(xui_tr 'New WebBasePath: ')${config_webBasePath}${plain}"
+            fi
 
             # Persist a machine-parseable credentials file for cloud-init / MOTD.
             local config_apiToken
@@ -1827,9 +2238,9 @@ EOF
             : "${SSL_SCHEME:=https}"
             : "${SSL_HOST:=${server_ip}}"
             write_install_result "${config_username}" "${config_password}" "${existing_port}" \
-                "${existing_webBasePath}" "${SSL_SCHEME}" "${SSL_HOST}" "${config_apiToken}" "${XUI_DB_TYPE:-sqlite}"
+                "${config_webBasePath}" "${SSL_SCHEME}" "${SSL_HOST}" "${config_apiToken}" "${XUI_DB_TYPE:-sqlite}"
         else
-            echo -e "${green}Username, Password, and WebBasePath are properly set.${plain}"
+            echo -e "${green}$(xui_tr 'Username, Password, and WebBasePath are properly set.')${plain}"
         fi
 
         # Existing install: if no cert configured, prompt user for SSL setup
@@ -1840,12 +2251,12 @@ EOF
             echo -e "${green}═══════════════════════════════════════════${plain}"
             echo -e "${green}$(xui_box_title 'SSL Certificate Setup (RECOMMENDED)')${plain}"
             echo -e "${green}═══════════════════════════════════════════${plain}"
-            echo -e "${yellow}Let's Encrypt now supports both domains and IP addresses!${plain}"
+            echo -e "${yellow}$(xui_tr "Let's Encrypt now supports both domains and IP addresses!")${plain}"
             echo ""
             prompt_and_setup_ssl "${existing_port}" "${existing_webBasePath}" "${server_ip}"
-            echo -e "${green}Access URL:  ${SSL_SCHEME}://${SSL_HOST}:${existing_port}/${existing_webBasePath}${plain}"
+            echo -e "${green}$(xui_tr 'Access URL:  %s://%s:%s/' "${SSL_SCHEME}" "${SSL_HOST}" "${existing_port}" "${existing_webBasePath}")${plain}"
         else
-            echo -e "${green}SSL certificate already configured. No action needed.${plain}"
+            echo -e "${green}$(xui_tr 'SSL certificate already configured. No action needed.')${plain}"
         fi
     fi
 
@@ -1860,27 +2271,27 @@ EOF
 # abort the panel install.
 setup_fail2ban() {
     if [[ -n "${XUI_ENABLE_FAIL2BAN+x}" && "${XUI_ENABLE_FAIL2BAN}" != "true" ]]; then
-        echo -e "${yellow}XUI_ENABLE_FAIL2BAN=${XUI_ENABLE_FAIL2BAN}, skipping Fail2ban auto-setup.${plain}"
+        echo -e "${yellow}$(xui_tr 'XUI_ENABLE_FAIL2BAN=%s, skipping Fail2ban auto-setup.' "${XUI_ENABLE_FAIL2BAN}")${plain}"
         return 0
     fi
 
     if [[ ! -x /usr/bin/d3x-ui ]]; then
-        echo -e "${yellow}d3x-ui CLI not found; skipping Fail2ban auto-setup.${plain}"
+        echo -e "${yellow}$(xui_tr 'd3x-ui CLI not found; skipping Fail2ban auto-setup.')${plain}"
         return 0
     fi
 
     # Scripts older than v3.4.0 have no setup-fail2ban and exit 0 from the
     # usage banner, which would read as success here.
     if ! grep -q '"setup-fail2ban")' /usr/bin/d3x-ui; then
-        echo -e "${yellow}This d3x-ui.sh predates 'd3x-ui setup-fail2ban'; skipping Fail2ban auto-setup.${plain}"
+        echo -e "${yellow}$(xui_tr "This d3x-ui.sh predates 'd3x-ui setup-fail2ban'; skipping Fail2ban auto-setup.")${plain}"
         return 0
     fi
 
-    echo -e "${green}Setting up Fail2ban for the IP Limit feature...${plain}"
+    echo -e "${green}$(xui_tr 'Setting up Fail2ban for the IP Limit feature...')${plain}"
     if /usr/bin/d3x-ui setup-fail2ban; then
-        echo -e "${green}Fail2ban setup complete.${plain}"
+        echo -e "${green}$(xui_tr 'Fail2ban setup complete.')${plain}"
     else
-        echo -e "${yellow}Fail2ban setup did not finish; IP Limit stays disabled until you run 'd3x-ui' and open the IP Limit menu. Continuing.${plain}"
+        echo -e "${yellow}$(xui_tr "Fail2ban setup did not finish; IP Limit stays disabled until you run 'd3x-ui' and open the IP Limit menu. Continuing.")${plain}"
     fi
     return 0
 }
@@ -1921,7 +2332,7 @@ _xui_warn_unsupported_hardening() {
         fi
     done
     [[ -n "$missing" ]] || return 0
-    echo -e "${yellow}Note: systemd ${version} ignores part of the hardening in d3x-ui.service; the panel still starts.${plain}"
+    echo -e "${yellow}$(xui_tr 'Note: systemd %s ignores part of the hardening in d3x-ui.service; the panel still starts.' "${version}")${plain}"
     echo "      Not applied, needs a newer systemd: ${missing}."
     if [[ "$version" -lt 231 ]]; then
         echo "      The panel's folders stay writable through ReadWriteDirectories=, the alias this script installs."
@@ -2080,8 +2491,8 @@ _install_xui_service_unit() {
         return 1
     fi
     if ! _xui_service_write_paths_dropin; then
-        echo -e "${yellow}Warning: could not refresh ${xui_service}/d3x-ui.service.d/10-xui-sandbox.conf.${plain}"
-        echo -e "${yellow}If XUI_DB_FOLDER or XUI_LOG_FOLDER points outside /etc/d3x-ui and /var/log/d3x-ui, the panel may not be able to write to it under ProtectSystem=full.${plain}"
+        echo -e "${yellow}$(xui_tr 'Warning: could not refresh %s/d3x-ui.service.d/10-xui-sandbox.conf.' "${xui_service}")${plain}"
+        echo -e "${yellow}$(xui_tr 'If XUI_DB_FOLDER or XUI_LOG_FOLDER points outside /etc/d3x-ui and /var/log/d3x-ui, the panel may not be able to write to it under ProtectSystem=full.')${plain}"
     fi
     _xui_warn_unsupported_hardening
     return 0
@@ -2111,12 +2522,12 @@ verify_release_checksum() {
     code=$(curl -sL --retry 3 --retry-delay 3 --connect-timeout 15 --max-time 60 -o "${sums}" -w '%{http_code}' "${url}.sha256")
     if [[ "${code}" == "404" ]]; then
         rm -f "${sums}"
-        echo -e "${yellow}No checksum published for this release, skipping verification${plain}"
+        echo -e "${yellow}$(xui_tr 'No checksum published for this release, skipping verification')${plain}"
         return 0
     fi
     if [[ "${code}" != "200" ]]; then
         rm -f "${sums}" "${file}"
-        echo -e "${red}Failed to download the checksum for $(basename "${file}") (HTTP ${code})${plain}"
+        echo -e "${red}$(xui_tr 'Failed to download the checksum for %s (HTTP %s)' "$(basename "${file}")" "${code}")${plain}"
         exit 1
     fi
     expected=$(awk 'NR == 1 {print $1}' "${sums}")
@@ -2124,10 +2535,12 @@ verify_release_checksum() {
     rm -f "${sums}"
     if [[ ! "${expected}" =~ ^[0-9a-f]{64}$ || "${expected}" != "${actual}" ]]; then
         rm -f "${file}"
-        echo -e "${red}Checksum mismatch for $(basename "${file}"): expected ${expected:-<none>}, got ${actual}${plain}"
+        # The file name is interpolated outside the lookup key: the key carries
+        # the printf placeholders, so a %s inside it would be consumed as one.
+        echo -e "${red}$(xui_tr 'Checksum mismatch for %s: expected %s, got %s' "$(basename "${file}")" "${expected:-<none>}" "${actual}")${plain}"
         exit 1
     fi
-    echo -e "${green}Checksum verified: ${actual}${plain}"
+    echo -e "${green}$(xui_tr 'Checksum verified: ' "${actual}")${plain}"
 }
 
 # Older tags predate some of these files (d3x-ui.rc arrived in v2.8.4). Serving
@@ -2140,8 +2553,8 @@ require_repo_files() {
     for name in "$@"; do
         status=$(curl -sIL --retry 3 --connect-timeout 15 -o /dev/null -w '%{http_code}' "https://raw.githubusercontent.com/mekkhalawang/d3x-ui/${ref}/${name}")
         if [[ "${status}" != "200" ]]; then
-            echo -e "${red}${name} is not available for ${ref} (HTTP ${status})${plain}"
-            echo -e "${red}Install a release that ships it, or 'dev' for the rolling build. Your existing installation has not been touched.${plain}"
+            echo -e "${red}$(xui_tr '%s is not available for %s (HTTP %s)' "${name}" "${ref}" "${status}")${plain}"
+            echo -e "${red}$(xui_tr "Install a release that ships it, or 'dev' for the rolling build. Your existing installation has not been touched.")${plain}"
             exit 1
         fi
     done
@@ -2154,18 +2567,18 @@ install_d3x-ui() {
     if [ $# == 0 ]; then
         tag_version=$(resolve_latest_tag)
         if [[ ! -n "$tag_version" ]]; then
-            echo -e "${red}Failed to fetch d3x-ui version, it may be due to GitHub API restrictions, please try it later${plain}"
+            echo -e "${red}$(xui_tr 'Failed to fetch d3x-ui version, it may be due to GitHub API restrictions, please try it later')${plain}"
             exit 1
         fi
-        echo -e "Got d3x-ui latest version: ${tag_version}, beginning the installation..."
+        echo -e "$(xui_tr 'Got d3x-ui latest version: %s, beginning the installation...' "${tag_version}")"
         curl -fLR --retry 5 --retry-delay 3 --connect-timeout 15 --speed-limit 1 --speed-time 300 -o ${xui_folder}-linux-$(arch).tar.gz https://github.com/mekkhalawang/d3x-ui/releases/download/${tag_version}/d3x-ui-linux-$(arch).tar.gz
         if [[ $? -ne 0 ]]; then
-            echo -e "${red}Downloading d3x-ui failed, please be sure that your server can access GitHub ${plain}"
+            echo -e "${red}$(xui_tr 'Downloading d3x-ui failed, please be sure that your server can access GitHub ')${plain}"
             exit 1
         fi
         if [[ ! -s ${xui_folder}-linux-$(arch).tar.gz ]]; then
             rm ${xui_folder}-linux-$(arch).tar.gz -f
-            echo -e "${red}Downloaded d3x-ui release archive is empty${plain}"
+            echo -e "${red}$(xui_tr 'Downloaded d3x-ui release archive is empty')${plain}"
             exit 1
         fi
         verify_release_checksum "https://github.com/mekkhalawang/d3x-ui/releases/download/${tag_version}/d3x-ui-linux-$(arch).tar.gz" "${xui_folder}-linux-$(arch).tar.gz"
@@ -2176,27 +2589,31 @@ install_d3x-ui() {
         # convenient alias and skip the numeric floor check for it.
         if [[ "$tag_version" == "dev" || "$tag_version" == "dev-latest" ]]; then
             tag_version="dev-latest"
-            echo -e "${yellow}Installing the rolling dev build (tag: dev-latest). This is a per-commit pre-release, not a stable version.${plain}"
+            echo -e "${yellow}$(xui_tr 'Installing the rolling dev build (tag: dev-latest). This is a per-commit pre-release, not a stable version.')${plain}"
         else
             tag_version_numeric=${tag_version#v}
-            min_version="2.3.5"
-
-            if [[ "$(printf '%s\n' "$min_version" "$tag_version_numeric" | sort -V | head -n1)" != "$min_version" ]]; then
-                echo -e "${red}Please use a newer version (at least v2.3.5). Exiting installation.${plain}"
+            # The floor applies to the upstream line, which this fork tracks
+            # with a 3.11.0-dX.Y suffix. D3X-UI's own 1.x line is a separate
+            # release train that starts below the upstream number, so it is
+            # exempt: the floor exists to reject an archive that predates the
+            # d3x-ui.sh / service files the installer relies on, and the 1.x
+            # releases ship all of them.
+            if [[ "$tag_version_numeric" != 1.* ]] && ! version_at_least "$tag_version_numeric" "2.3.5"; then
+                echo -e "${red}$(xui_tr 'Please use a newer version (at least v2.3.5). Exiting installation.')${plain}"
                 exit 1
             fi
         fi
 
         url="https://github.com/mekkhalawang/d3x-ui/releases/download/${tag_version}/d3x-ui-linux-$(arch).tar.gz"
-        echo -e "Beginning to install d3x-ui ${tag_version}"
+        echo -e "$(xui_tr 'Beginning to install d3x-ui ' "${tag_version}")"
         curl -fLR --retry 5 --retry-delay 3 --connect-timeout 15 --speed-limit 1 --speed-time 300 -o ${xui_folder}-linux-$(arch).tar.gz ${url}
         if [[ $? -ne 0 ]]; then
-            echo -e "${red}Download d3x-ui ${tag_version} failed, please check if the version exists ${plain}"
+            echo -e "${red}$(xui_tr 'Download d3x-ui %s failed, please check if the version exists ' "${tag_version}")${plain}"
             exit 1
         fi
         if [[ ! -s ${xui_folder}-linux-$(arch).tar.gz ]]; then
             rm ${xui_folder}-linux-$(arch).tar.gz -f
-            echo -e "${red}Downloaded d3x-ui release archive is empty${plain}"
+            echo -e "${red}$(xui_tr 'Downloaded d3x-ui release archive is empty')${plain}"
             exit 1
         fi
         verify_release_checksum "${url}" "${xui_folder}-linux-$(arch).tar.gz"
@@ -2217,12 +2634,12 @@ install_d3x-ui() {
     curl -fLRo "${xui_script_temp}" "https://raw.githubusercontent.com/mekkhalawang/d3x-ui/${script_ref}/d3x-ui.sh"
     if [[ $? -ne 0 ]]; then
         rm -f "${xui_script_temp}"
-        echo -e "${red}Failed to download d3x-ui.sh${plain}"
+        echo -e "${red}$(xui_tr 'Failed to download d3x-ui.sh')${plain}"
         exit 1
     fi
     if [[ ! -s "${xui_script_temp}" ]]; then
         rm -f "${xui_script_temp}"
-        echo -e "${red}Downloaded d3x-ui.sh is empty${plain}"
+        echo -e "${red}$(xui_tr 'Downloaded d3x-ui.sh is empty')${plain}"
         exit 1
     fi
 
@@ -2257,7 +2674,7 @@ install_d3x-ui() {
             rm -rf "${custom_bin_backup}"
             if ! mv "${xui_folder}/bin" "${custom_bin_backup}"; then
                 custom_bin_backup=""
-                echo -e "${yellow}Could not back up bin/ -- custom files there will not be preserved across this update${plain}"
+                echo -e "${yellow}$(xui_tr 'Could not back up bin/ -- custom files there will not be preserved across this update')${plain}"
             fi
         fi
         # Sole cleanup path for the backup from here on -- covers both the
@@ -2273,7 +2690,7 @@ install_d3x-ui() {
     if [[ $? -ne 0 ]]; then
         rm d3x-ui-linux-$(arch).tar.gz -f
         rm -f "${xui_script_temp}"
-        echo -e "${red}Failed to extract the d3x-ui release archive -- the previous installation has already been removed, so the panel will not start until this is fixed; try running the installer again${plain}"
+        echo -e "${red}$(xui_tr 'Failed to extract the d3x-ui release archive -- the previous installation has already been removed, so the panel will not start until this is fixed; try running the installer again')${plain}"
         exit 1
     fi
     rm d3x-ui-linux-$(arch).tar.gz -f
@@ -2281,7 +2698,7 @@ install_d3x-ui() {
     cd d3x-ui
     if [[ $? -ne 0 || ! -s d3x-ui ]]; then
         rm -f "${xui_script_temp}"
-        echo -e "${red}Extracted d3x-ui archive is missing the d3x-ui binary -- the previous installation has already been removed, so the panel will not start until this is fixed; try running the installer again${plain}"
+        echo -e "${red}$(xui_tr 'Extracted d3x-ui archive is missing the d3x-ui binary -- the previous installation has already been removed, so the panel will not start until this is fixed; try running the installer again')${plain}"
         exit 1
     fi
     chmod +x d3x-ui
@@ -2333,7 +2750,7 @@ install_d3x-ui() {
         rm -rf "${custom_bin_backup}"
         custom_bin_backup=""
         if [[ ${#restored_custom_bin[@]} -gt 0 ]]; then
-            echo -e "${green}Restored custom file(s) in bin/ not shipped by this release: ${restored_custom_bin[*]}${plain}"
+            echo -e "${green}$(xui_tr 'Restored custom file(s) in bin/ not shipped by this release: ' "${restored_custom_bin[*]}")${plain}"
         fi
     fi
     trap - EXIT INT TERM
@@ -2345,7 +2762,7 @@ install_d3x-ui() {
     mv -f "${xui_script_temp}" /usr/bin/d3x-ui
     if [[ $? -ne 0 ]]; then
         rm -f "${xui_script_temp}"
-        echo -e "${red}Failed to install d3x-ui.sh${plain}"
+        echo -e "${red}$(xui_tr 'Failed to install d3x-ui.sh')${plain}"
         exit 1
     fi
     chmod +x /usr/bin/d3x-ui
@@ -2358,11 +2775,11 @@ install_d3x-ui() {
             if ! grep -q "d3x-ui/d3x-ui.db" "/etc/.gitignore"; then
                 echo "" >> "/etc/.gitignore"
                 echo "d3x-ui/d3x-ui.db" >> "/etc/.gitignore"
-                echo -e "${green}Added d3x-ui.db to /etc/.gitignore for etckeeper${plain}"
+                echo -e "${green}$(xui_tr 'Added d3x-ui.db to /etc/.gitignore for etckeeper')${plain}"
             fi
         else
             echo "d3x-ui/d3x-ui.db" > "/etc/.gitignore"
-            echo -e "${green}Created /etc/.gitignore and added d3x-ui.db for etckeeper${plain}"
+            echo -e "${green}$(xui_tr 'Created /etc/.gitignore and added d3x-ui.db for etckeeper')${plain}"
         fi
     fi
 
@@ -2372,18 +2789,18 @@ install_d3x-ui() {
         curl -fLRo "${xui_rc_temp}" "https://raw.githubusercontent.com/mekkhalawang/d3x-ui/${script_ref}/d3x-ui.rc"
         if [[ $? -ne 0 ]]; then
             rm -f "${xui_rc_temp}"
-            echo -e "${red}Failed to download d3x-ui.rc${plain}"
+            echo -e "${red}$(xui_tr 'Failed to download d3x-ui.rc')${plain}"
             exit 1
         fi
         if [[ ! -s "${xui_rc_temp}" ]]; then
             rm -f "${xui_rc_temp}"
-            echo -e "${red}Downloaded d3x-ui.rc is empty${plain}"
+            echo -e "${red}$(xui_tr 'Downloaded d3x-ui.rc is empty')${plain}"
             exit 1
         fi
         mv -f "${xui_rc_temp}" /etc/init.d/d3x-ui
         if [[ $? -ne 0 ]]; then
             rm -f "${xui_rc_temp}"
-            echo -e "${red}Failed to install d3x-ui.rc${plain}"
+            echo -e "${red}$(xui_tr 'Failed to install d3x-ui.rc')${plain}"
             exit 1
         fi
         chmod +x /etc/init.d/d3x-ui
@@ -2394,7 +2811,7 @@ install_d3x-ui() {
         service_installed=false
 
         if [ -f "d3x-ui.service" ]; then
-            echo -e "${green}Found d3x-ui.service in extracted files, installing...${plain}"
+            echo -e "${green}$(xui_tr 'Found d3x-ui.service in extracted files, installing...')${plain}"
             if _install_xui_service_unit "d3x-ui.service" "false"; then
                 service_installed=true
             fi
@@ -2404,7 +2821,7 @@ install_d3x-ui() {
             case "${release}" in
                 ubuntu | debian | armbian)
                     if [ -f "d3x-ui.service.debian" ]; then
-                        echo -e "${green}Found d3x-ui.service.debian in extracted files, installing...${plain}"
+                        echo -e "${green}$(xui_tr 'Found d3x-ui.service.debian in extracted files, installing...')${plain}"
                         if _install_xui_service_unit "d3x-ui.service.debian" "false"; then
                             service_installed=true
                         fi
@@ -2412,7 +2829,7 @@ install_d3x-ui() {
                     ;;
                 arch | manjaro | parch)
                     if [ -f "d3x-ui.service.arch" ]; then
-                        echo -e "${green}Found d3x-ui.service.arch in extracted files, installing...${plain}"
+                        echo -e "${green}$(xui_tr 'Found d3x-ui.service.arch in extracted files, installing...')${plain}"
                         if _install_xui_service_unit "d3x-ui.service.arch" "false"; then
                             service_installed=true
                         fi
@@ -2420,7 +2837,7 @@ install_d3x-ui() {
                     ;;
                 *)
                     if [ -f "d3x-ui.service.rhel" ]; then
-                        echo -e "${green}Found d3x-ui.service.rhel in extracted files, installing...${plain}"
+                        echo -e "${green}$(xui_tr 'Found d3x-ui.service.rhel in extracted files, installing...')${plain}"
                         if _install_xui_service_unit "d3x-ui.service.rhel" "false"; then
                             service_installed=true
                         fi
@@ -2431,7 +2848,7 @@ install_d3x-ui() {
 
         # If service file not found in tar.gz, download from GitHub
         if [ "$service_installed" = false ]; then
-            echo -e "${yellow}Service files not found in tar.gz, downloading from GitHub...${plain}"
+            echo -e "${yellow}$(xui_tr 'Service files not found in tar.gz, downloading from GitHub...')${plain}"
             case "${release}" in
                 ubuntu | debian | armbian)
                     service_unit_url="https://raw.githubusercontent.com/mekkhalawang/d3x-ui/${script_ref}/d3x-ui.service.debian"
@@ -2445,21 +2862,21 @@ install_d3x-ui() {
             esac
 
             if ! _install_xui_service_unit "$service_unit_url" "true"; then
-                echo -e "${red}Failed to install d3x-ui.service from GitHub (${script_ref}) -- the release tarball did not ship one either${plain}"
+                echo -e "${red}$(xui_tr 'Failed to install d3x-ui.service from GitHub (%s) -- the release tarball did not ship one either' "${script_ref}")${plain}"
                 exit 1
             fi
             service_installed=true
         fi
 
         if [ "$service_installed" = true ]; then
-            echo -e "${green}Setting up systemd unit...${plain}"
+            echo -e "${green}$(xui_tr 'Setting up systemd unit...')${plain}"
             chown root:root ${xui_service}/d3x-ui.service > /dev/null 2>&1
             chmod 644 ${xui_service}/d3x-ui.service > /dev/null 2>&1
             systemctl daemon-reload
             systemctl enable d3x-ui
             systemctl start d3x-ui
         else
-            echo -e "${red}Failed to install d3x-ui.service file${plain}"
+            echo -e "${red}$(xui_tr 'Failed to install d3x-ui.service file')${plain}"
             exit 1
         fi
     fi
@@ -2468,7 +2885,7 @@ install_d3x-ui() {
     # works out of the box (no-op when XUI_ENABLE_FAIL2BAN=false). Never fatal.
     setup_fail2ban
 
-    echo -e "${green}d3x-ui ${tag_version}${plain} installation finished, it is running now..."
+    echo -e "$(xui_tr '%sd3x-ui %s%s installation finished, it is running now...' "${green}" "${tag_version}" "${plain}")"
     echo -e ""
     echo -e "┌───────────────────────────────────────────────────────┐
 │  ${blue}d3x-ui control menu usages (subcommands):${plain}              │
@@ -2490,6 +2907,6 @@ install_d3x-ui() {
 └───────────────────────────────────────────────────────┘"
 }
 
-echo -e "${green}Running...${plain}"
+echo -e "${green}$(xui_tr 'Running...')${plain}"
 install_base
 install_d3x-ui $1

@@ -87,6 +87,11 @@ awk '/^case "\${XUI_LANG:-zh\}"/,/^xui_folder=/' "$SRC" | head -n -1 > "${TMP_PO
 extract gen_random_string > "${TMP_POSIX}/gen.sh"
 extract select_credentials > "${TMP_POSIX}/cred.sh"
 extract setup_self_signed_certificate > "${TMP_POSIX}/selfsigned.sh"
+extract select_panel_settings > "${TMP_POSIX}/settings.sh"
+extract select_web_base_path > "${TMP_POSIX}/path.sh"
+extract version_at_least > "${TMP_POSIX}/version.sh"
+extract normalize_panel_port > "${TMP_POSIX}/normport.sh"
+extract select_panel_port > "${TMP_POSIX}/port.sh"
 # The helper validates its address with is_ipv4(), so that has to be loaded
 # alongside it.
 extract is_ipv4 > "${TMP_POSIX}/is_ipv4.sh"
@@ -101,6 +106,16 @@ source "${TMP_POSIX}/cred.sh"
 source "${TMP_POSIX}/is_ipv4.sh"
 # shellcheck disable=SC1090
 source "${TMP_POSIX}/selfsigned.sh"
+# shellcheck disable=SC1090
+source "${TMP_POSIX}/settings.sh"
+# shellcheck disable=SC1090
+source "${TMP_POSIX}/path.sh"
+# shellcheck disable=SC1090
+source "${TMP_POSIX}/version.sh"
+# shellcheck disable=SC1090
+source "${TMP_POSIX}/normport.sh"
+# shellcheck disable=SC1090
+source "${TMP_POSIX}/port.sh"
 
 # Run select_credentials in a subshell so its globals cannot leak between
 # cases. The here-string feeds stdin; bash only renders the -p prompt when
@@ -224,6 +239,10 @@ case "$2" in
         done < "$1/used-keys.txt"
         printf 'untranslated=%s\n' "$untranslated"
         ;;
+    interp)
+        # fill-then-append: a %s takes the next arg, surplus args append
+        printf '%s\n' "$(xui_tr 'Hello %s!' 'world')" "$(xui_tr 'Value: ' 'v1')"
+        ;;
 esac
 PROBE
 
@@ -277,6 +296,19 @@ check 'every table key resolves to Chinese' \
 check 'every prompt used by the installer is translated' \
     '[[ "$(probe zh allused)" == "untranslated=0" ]]'
 
+# Interpolation contract: xui_tr fills each %s with the next arg and appends
+# any surplus args (the value after a label). A single-quoted '${var}' arg
+# would print the literal text instead of the value, so none may exist.
+check 'xui_tr interpolates a %s argument' \
+    '[[ "$(probe en interp)" == *"Hello world!"* ]]'
+check 'xui_tr appends a surplus argument after a label' \
+    '[[ "$(probe en interp)" == *"Value: v1"* ]]'
+# A single-quoted '${var}' argument is printed verbatim instead of expanding,
+# which silently drops the value from the output. grep must find none.
+sq_re="xui_tr.* '\\\$"
+check_fails 'no xui_tr call passes a single-quoted variable argument' \
+    grep -qE "$sq_re" "$SRC"
+
 echo
 echo '--- self-signed certificate ---'
 
@@ -307,6 +339,54 @@ check 'the self-signed mode maps to option 3' \
     'grep -q "selfsigned | self_signed | self-sign) ssl_choice=\"3\"" "$SRC"'
 check 'the IP prompt defaults to the detected address' \
     'grep -q "press Enter to use %s" "$SRC"'
+
+echo
+echo '--- panel settings ---'
+
+# The combined question drives the three values: the port, the credentials
+# and the access path. Answering it with "n" keeps every value random.
+run_settings() {
+    local input="$1"
+    (
+        unset XUI_USERNAME XUI_PASSWORD XUI_WEB_BASE_PATH XUI_PANEL_PORT
+        NONINTERACTIVE=0
+        select_panel_settings <<< "$input" > /dev/null 2>&1
+        printf 'port=%s user=%s pass=%s path=%s\n' \
+            "$SELECTED_PORT" "$SELECTED_USERNAME" "$SELECTED_PASSWORD" "$SELECTED_WEB_BASE_PATH"
+    )
+}
+
+out=$(run_settings $'\n8888\nadmin\npass123\npass123\nmypath123\n')
+check 'the combined question defaults to yes' 'grep -q "port=8888" <<< "$out"'
+check 'the port is taken from the answer' 'grep -q "user=admin" <<< "$out"'
+check 'the credentials are taken from the answer' 'grep -q "pass=pass123" <<< "$out"'
+check 'the access path is taken from the answer' 'grep -q "path=mypath123" <<< "$out"'
+
+out=$(run_settings $'y\n2053\nmyuser\nMyPass1!\nMyPass1!\nsecret99\n')
+check 'answering yes asks for every value' 'grep -q "port=2053 user=myuser pass=MyPass1! path=secret99" <<< "$out"'
+
+out=$(run_settings $'n\n')
+check 'answering no keeps a random port' 'grep -qE "port=[0-9]{4,5} " <<< "$out"'
+check 'answering no keeps a random username' 'grep -qE "user=[A-Za-z0-9]{10}" <<< "$out"'
+check 'answering no keeps a random password' 'grep -qE "pass=[A-Za-z0-9]{10}" <<< "$out"'
+check 'answering no keeps a random access path' 'grep -qE "path=[A-Za-z0-9]{18}" <<< "$out"'
+
+out=$(run_settings $'y\n2053\nu\np123456\np123456\nbad path!\ngood_path\n')
+check 'an access path with spaces is rejected' 'grep -q "path=good_path" <<< "$out"'
+
+out=$(run_settings $'y\n2053\nu\np123456\np123456\nabc\ngoodpath\n')
+check 'a too short access path is rejected' 'grep -q "path=goodpath" <<< "$out"'
+
+echo
+echo '--- version comparison ---'
+
+check 'the upstream floor accepts the floor itself' 'version_at_least "2.3.5" "2.3.5"'
+check 'the upstream floor rejects an older version' '! version_at_least "2.3.4" "2.3.5"'
+check 'the upstream floor accepts a newer version' 'version_at_least "2.3.6" "2.3.5"'
+check 'the upstream floor accepts the fork tag' 'version_at_least "3.11.0-d3.3" "2.3.5"'
+check 'the fork line is exempt from the floor' '! version_at_least "1.0.0" "2.3.5"'
+check 'the 1.x line is accepted by the installer' \
+    'grep -q "tag_version_numeric\" != 1.\*" install.sh 2>/dev/null || grep -q "1.\*" "$SRC"'
 
 printf '\n=== %d passed, %d failed ===\n' "$pass" "$fail"
 [[ "$fail" -eq 0 ]]
