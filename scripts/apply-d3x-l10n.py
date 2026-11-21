@@ -186,19 +186,19 @@ xui_width() {
 # Width-aware box rows. The menu frame is 48 columns wide, the usage frame 66.
 menu_title() {
     local t; t="$(xui_tr "$1")"
-    printf '\\u2502  %s%s%s%*s\\u2502\\n' "$green" "$t" "$plain" $((48 - 2 - $(xui_width "$t"))) ""
+    printf '\\u2502  %b%s%b%*s\\u2502\\n' "$green" "$t" "$plain" $((48 - 2 - $(xui_width "$t"))) ""
 }
 menu_line() {
     local t; t="$(xui_tr "$2")"
-    printf '\\u2502  %s%s.%s %s%*s\\u2502\\n' "$green" "$1" "$plain" "$t" $((44 - ${#1} - $(xui_width "$t"))) ""
+    printf '\\u2502  %b%s.%b %s%*s\\u2502\\n' "$green" "$1" "$plain" "$t" $((44 - ${#1} - $(xui_width "$t"))) ""
 }
 usage_title() {
     local t; t="$(xui_tr "$1")"
-    printf '\\u2502  %s%s%s%*s\\u2502\\n' "$blue" "$t" "$plain" $((66 - 2 - $(xui_width "$t"))) ""
+    printf '\\u2502  %b%s%b%*s\\u2502\\n' "$blue" "$t" "$plain" $((66 - 2 - $(xui_width "$t"))) ""
 }
 usage_line() {
     local t; t="$(xui_tr "$2")"
-    printf '\\u2502  %s%s%s%*s- %s%*s\\u2502\\n' "$blue" "$1" "$plain" $((29 - ${#1})) "" "$t" $((33 - $(xui_width "$t"))) ""
+    printf '\\u2502  %b%s%b%*s- %s%*s\\u2502\\n' "$blue" "$1" "$plain" $((29 - ${#1})) "" "$t" $((33 - $(xui_width "$t"))) ""
 }
 '''
 
