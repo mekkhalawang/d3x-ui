@@ -6,6 +6,138 @@ blue='\033[0;34m'
 yellow='\033[0;33m'
 plain='\033[0m'
 
+# ---------------------------------------------------------------------------
+# Localization
+#
+# The interactive prompts and the normal install output are bilingual. Chinese
+# is the default for D3X-UI; set XUI_LANG=en for the original English wording.
+#
+# The default deliberately does NOT follow the system locale: most overseas
+# cloud images ship LANG=en_US.UTF-8, so locale sniffing would silently drop
+# the user back to English and defeat the Chinese-first install experience.
+# The language is therefore an explicit opt-in (XUI_LANG=en) rather than an
+# automatic one.
+#
+# xui_tr <english-text> [printf-args...] echoes the localized wording. The
+# lookup key is the English string itself, so an unknown key silently falls
+# back to English rather than printing an empty prompt.
+# ---------------------------------------------------------------------------
+case "${XUI_LANG:-zh}" in
+    en | en_US | en_GB | en_US.* | en_GB.* | EN | EN_* | En | En_*) XUI_LANG_RESOLVED="en" ;;
+    *) XUI_LANG_RESOLVED="zh" ;;
+esac
+
+# xui_zh <english-text> echoes the Chinese wording for a known key, or the
+# English text itself when the key is unknown. A case statement is used on
+# purpose: an associative-array lookup misses keys that contain
+# parentheses, because bash re-parses the subscript as an expression.
+xui_zh() {
+    case "$1" in
+        "Would you like to customize the Panel Port settings? (If not, a random port will be applied) [y/N]: ") printf '%s' "是否自定义面板端口设置？（不自定义则随机分配端口）[y/N]: " ;;
+        "Please set up the panel port: ") printf '%s' "请设置面板端口: " ;;
+        "Would you like to set a custom panel username and password? (If not, random ones will be applied) [y/N]: ") printf '%s' "是否自定义面板用户名和密码？（不自定义则随机生成）[y/N]: " ;;
+        "Please enter the panel username: ") printf '%s' "请输入面板用户名: " ;;
+        "Please enter the panel password: ") printf '%s' "请输入面板密码: " ;;
+        "Please re-enter the panel password to confirm: ") printf '%s' "请再次输入面板密码以确认: " ;;
+        "Port to use for ACME HTTP-01 listener (default 80): ") printf '%s' "ACME HTTP-01 验证使用的端口（默认 80）: " ;;
+        "Enter another port for acme.sh standalone listener (leave empty to abort): ") printf '%s' "请输入 acme.sh 独立监听使用的其他端口（留空则中止）: " ;;
+        "Please enter your domain name: ") printf '%s' "请输入你的域名: " ;;
+        "Please choose which port to use (default is 80): ") printf '%s' "请选择要使用的端口（默认 80）: " ;;
+        "Would you like to modify --reloadcmd for ACME? (y/n): ") printf '%s' "是否为 ACME 修改 --reloadcmd？(y/n): " ;;
+        "Choose an option: ") printf '%s' "请选择一个选项: " ;;
+        "Please enter your custom reloadcmd: ") printf '%s' "请输入自定义 reloadcmd: " ;;
+        "Would you like to set this certificate for the panel? (y/n): ") printf '%s' "是否将该证书设置为面板证书？(y/n): " ;;
+        "Choose an option (default 2 for IP): ") printf '%s' "请选择一个选项（IP 证书默认选 2）: " ;;
+        "Is %s the correct incoming public IPv4 address for this server? [Default y]: ") printf '%s' "%s 是本服务器正确的入站公网 IPv4 地址吗？[默认 y]: " ;;
+        "Please enter your server's public IPv4 address: ") printf '%s' "请输入你的服务器公网 IPv4 地址: " ;;
+        "Do you have an IPv6 address to include? (leave empty to skip): ") printf '%s' "是否需要包含 IPv6 地址？（留空则跳过）: " ;;
+        "Please enter domain name certificate issued for: ") printf '%s' "请输入证书签发对应的域名: " ;;
+        "Input certificate path (keywords: .crt / fullchain): ") printf '%s' "输入证书路径（关键字：.crt / fullchain）: " ;;
+        "Input private key path (keywords: .key / privatekey): ") printf '%s' "输入私钥路径（关键字：.key / privatekey）: " ;;
+        "Bind the panel to 127.0.0.1 only? (recommended — forces SSH tunnel / reverse-proxy access) [y/N]: ") printf '%s' "是否只将面板绑定到 127.0.0.1？（推荐——强制通过 SSH 隧道或反向代理访问）[y/N]: " ;;
+        "Enter PostgreSQL DSN (postgres://user:pass@host:port/dbname?sslmode=disable): ") printf '%s' "请输入 PostgreSQL DSN（postgres://user:pass@host:port/dbname?sslmode=disable）: " ;;
+        "Choose [1]: ") printf '%s' "请选择 [1]: " ;;
+        "Please answer yes or no (Enter defaults to No).") printf '%s' "请回答 yes 或 no（直接回车默认为 No）。" ;;
+        "Invalid port. Enter a number between 1 and 65535.") printf '%s' "端口无效，请输入 1 到 65535 之间的数字。" ;;
+        "Username cannot be empty. Please try again.") printf '%s' "用户名不能为空，请重新输入。" ;;
+        "Username cannot be longer than 256 characters. Please try again.") printf '%s' "用户名不能超过 256 个字符，请重新输入。" ;;
+        "Password cannot be empty. Please try again.") printf '%s' "密码不能为空，请重新输入。" ;;
+        "The passwords do not match. Please try again.") printf '%s' "两次输入的密码不一致，请重新输入。" ;;
+        "Invalid IPv4 address. Please try again.") printf '%s' "IPv4 地址无效，请重新输入。" ;;
+        "Database Selection") printf '%s' "数据库选择" ;;
+        "SSL Certificate Setup (RECOMMENDED)") printf '%s' "SSL 证书配置（推荐）" ;;
+        "Panel Installation Complete!") printf '%s' "面板安装完成！" ;;
+        "PostgreSQL Credentials") printf '%s' "PostgreSQL 凭据" ;;
+        "Generated new random login credentials:") printf '%s' "已生成新的登录凭据:" ;;
+        "New WebBasePath: ") printf '%s' "新的 WebBasePath: " ;;
+        "Default credentials detected. Security update required...") printf '%s' "检测到仍在使用默认凭据，需要进行安全更新..." ;;
+        "Username:    ") printf '%s' "用户名:     " ;;
+        "Password:    ") printf '%s' "密码:       " ;;
+        "Port:        ") printf '%s' "端口:       " ;;
+        "WebBasePath: ") printf '%s' "访问路径:   " ;;
+        "Database:    ") printf '%s' "数据库:     " ;;
+        "Access URL:  ") printf '%s' "访问地址:   " ;;
+        "API Token:   ") printf '%s' "API 令牌:   " ;;
+        "⚠ IMPORTANT: Save these credentials securely!") printf '%s' "⚠ 重要：请妥善保存以上凭据！" ;;
+        "⚠ SSL Certificate: Enabled and configured") printf '%s' "⚠ SSL 证书：已启用并配置完成" ;;
+        "⚠ SSL Certificate: Skipped — panel is HTTP-only. Use a reverse proxy or SSH tunnel.") printf '%s' "⚠ SSL 证书：已跳过——面板仅支持 HTTP，请使用反向代理或 SSH 隧道。" ;;
+        *) printf '%s' "$1" ;;
+    esac
+}
+
+xui_tr() {
+    local key="$1"
+    shift
+    local out="$key"
+    if [[ "$XUI_LANG_RESOLVED" == "zh" ]]; then
+        out="$(xui_zh "$key")"
+    fi
+    if [[ $# -gt 0 && "$out" == *%* ]]; then
+        printf "$out" "$@"
+    else
+        printf '%s' "$out"
+    fi
+}
+
+# Terminal display width of a string in columns. Wide (CJK / fullwidth)
+# characters occupy two columns, everything else one. The string is walked
+# byte by byte under LC_ALL=C so the result does not depend on the locale
+# the installer happens to run under.
+xui_width() {
+    local LC_ALL=C
+    local s="$1" w=0 i=0 b
+    while (( i < ${#s} )); do
+        printf -v b '%d' "'${s:i:1}"
+        if (( b < 0x80 )); then
+            w=$((w + 1)); i=$((i + 1))
+        elif (( b < 0xC0 )); then
+            w=$((w + 1)); i=$((i + 1))
+        elif (( b < 0xE0 )); then
+            w=$((w + 1)); i=$((i + 2))
+        elif (( b < 0xF0 )); then
+            w=$((w + 2)); i=$((i + 3))
+        else
+            w=$((w + 2)); i=$((i + 4))
+        fi
+    done
+    printf '%d' "$w"
+}
+
+# xui_box_title <english-title>
+# Prints a section header padded to the width of the surrounding "═══" rule.
+# The English original is left-padded by five spaces; the Chinese wording is
+# padded by the same amount measured in display columns so both languages
+# line up inside the same frame.
+xui_box_title() {
+    local title
+    title="$(xui_tr "$1")"
+    local used
+    used=$(($(xui_width "$title") + 5))
+    local pad=$((43 - used))
+    (( pad < 1 )) && pad=1
+    printf '     %s%*s' "$title" "$pad" ""
+}
+
 xui_folder="${XUI_MAIN_FOLDER:=/usr/local/d3x-ui}"
 xui_service="${XUI_SERVICE:=/etc/systemd/system}"
 
@@ -111,7 +243,7 @@ select_panel_port() {
         [[ -z "${XUI_PANEL_PORT+x}" ]] || confirm=y
     else
         while true; do
-            if ! IFS= read -rp "Would you like to customize the Panel Port settings? (If not, a random port will be applied) [y/N]: " confirm; then
+            if ! IFS= read -rp "$(xui_tr 'Would you like to customize the Panel Port settings? (If not, a random port will be applied) [y/N]: ')" confirm; then
                 echo 'Cannot read the panel port confirmation; aborting.' >&2
                 return 1
             fi
@@ -120,7 +252,7 @@ select_panel_port() {
             case "${confirm,,}" in
                 y | yes) break ;;
                 n | no | '') confirm=n; break ;;
-                *) echo "Please answer yes or no (Enter defaults to No)." >&2 ;;
+                *) echo "$(xui_tr 'Please answer yes or no (Enter defaults to No).')" >&2 ;;
             esac
         done
     fi
@@ -144,12 +276,12 @@ select_panel_port() {
     while true; do
         if [[ "$NONINTERACTIVE" == 1 ]]; then
             port="$XUI_PANEL_PORT"
-        elif ! read -rp "Please set up the panel port: " port; then
+        elif ! read -rp "$(xui_tr 'Please set up the panel port: ')" port; then
             echo 'Cannot read the custom panel port; aborting.' >&2
             return 1
         fi
         if ! port=$(normalize_panel_port "$port"); then
-            echo "Invalid port. Enter a number between 1 and 65535." >&2
+            echo "$(xui_tr 'Invalid port. Enter a number between 1 and 65535.')" >&2
         elif is_port_in_use "$port"; then
             echo "Port $port is already in use. Choose another panel port." >&2
         else
@@ -181,7 +313,7 @@ select_credentials() {
 
     if [[ "$NONINTERACTIVE" != 1 ]]; then
         while true; do
-            if ! IFS= read -rp "Would you like to set a custom panel username and password? (If not, random ones will be applied) [y/N]: " confirm; then
+            if ! IFS= read -rp "$(xui_tr 'Would you like to set a custom panel username and password? (If not, random ones will be applied) [y/N]: ')" confirm; then
                 echo 'Cannot read the credential confirmation; aborting.' >&2
                 return 1
             fi
@@ -190,45 +322,45 @@ select_credentials() {
             case "${confirm,,}" in
                 y | yes) break ;;
                 n | no | '') confirm=n; break ;;
-                *) echo "Please answer yes or no (Enter defaults to No)." >&2 ;;
+                *) echo "$(xui_tr 'Please answer yes or no (Enter defaults to No).')" >&2 ;;
             esac
         done
     fi
 
     if [[ "$confirm" == y ]]; then
         while true; do
-            if ! IFS= read -rp "Please enter the panel username: " username; then
+            if ! IFS= read -rp "$(xui_tr 'Please enter the panel username: ')" username; then
                 echo 'Cannot read the username; aborting.' >&2
                 return 1
             fi
             username="${username#"${username%%[![:space:]]*}"}"
             username="${username%"${username##*[![:space:]]}"}"
             if [[ -z "$username" ]]; then
-                echo "Username cannot be empty. Please try again." >&2
+                echo "$(xui_tr 'Username cannot be empty. Please try again.')" >&2
             elif (( ${#username} > 256 )); then
-                echo "Username cannot be longer than 256 characters. Please try again." >&2
+                echo "$(xui_tr 'Username cannot be longer than 256 characters. Please try again.')" >&2
             else
                 break
             fi
         done
 
         while true; do
-            if ! IFS= read -rsp "Please enter the panel password: " password; then
+            if ! IFS= read -rsp "$(xui_tr 'Please enter the panel password: ')" password; then
                 echo 'Cannot read the password; aborting.' >&2
                 return 1
             fi
             echo >&2
             if [[ -z "$password" ]]; then
-                echo "Password cannot be empty. Please try again." >&2
+                echo "$(xui_tr 'Password cannot be empty. Please try again.')" >&2
                 continue
             fi
-            if ! IFS= read -rsp "Please re-enter the panel password to confirm: " password_confirm; then
+            if ! IFS= read -rsp "$(xui_tr 'Please re-enter the panel password to confirm: ')" password_confirm; then
                 echo 'Cannot read the password confirmation; aborting.' >&2
                 return 1
             fi
             echo >&2
             if [[ "$password" != "$password_confirm" ]]; then
-                echo "The passwords do not match. Please try again." >&2
+                echo "$(xui_tr 'The passwords do not match. Please try again.')" >&2
                 continue
             fi
             break
@@ -282,15 +414,16 @@ gen_random_string() {
 
 # prompt_or_default VARNAME "prompt text" "default" [ENV_NAME]
 # Interactive: read into VARNAME. Non-interactive: VARNAME = ${ENV_NAME:-default}.
-# ENV_NAME defaults to VARNAME when omitted. Keeps every interactive prompt
-# string byte-for-byte identical to the original `read -rp`.
+# ENV_NAME defaults to VARNAME when omitted. The prompt text is looked up in
+# the translation table (xui_tr), so callers keep passing the English wording
+# and each prompt renders in the active language.
 prompt_or_default() {
     local __var="$1" __prompt="$2" __default="$3" __env="${4:-$1}"
     if [[ "$NONINTERACTIVE" == "1" ]]; then
         printf -v "$__var" '%s' "${!__env:-$__default}"
     else
         # shellcheck disable=SC2229
-        read -rp "$__prompt" "$__var"
+        read -rp "$(xui_tr "$__prompt")" "$__var"
     fi
 }
 
@@ -711,7 +844,7 @@ setup_ip_certificate() {
                 echo -e "${red}Port ${WebPort} is busy; cannot proceed in non-interactive mode.${plain}"
                 return 1
             fi
-            read -rp "Enter another port for acme.sh standalone listener (leave empty to abort): " alt_port
+            read -rp "$(xui_tr 'Enter another port for acme.sh standalone listener (leave empty to abort): ')" alt_port
             alt_port="${alt_port// /}"
             if [[ -z "${alt_port}" ]]; then
                 echo -e "${red}Port ${WebPort} is busy; cannot proceed.${plain}"
@@ -829,7 +962,7 @@ ssl_cert_issue() {
         fi
     else
         while true; do
-            read -rp "Please enter your domain name: " domain
+            read -rp "$(xui_tr 'Please enter your domain name: ')" domain
             domain="${domain// /}" # Trim whitespace
 
             if [[ -z "$domain" ]]; then
@@ -923,13 +1056,13 @@ ssl_cert_issue() {
     if [[ "$NONINTERACTIVE" == "1" ]]; then
         setReloadcmd="n"
     else
-        read -rp "Would you like to modify --reloadcmd for ACME? (y/n): " setReloadcmd
+        read -rp "$(xui_tr 'Would you like to modify --reloadcmd for ACME? (y/n): ')" setReloadcmd
     fi
     if [[ "$setReloadcmd" == "y" || "$setReloadcmd" == "Y" ]]; then
         echo -e "\n${green}\t1.${plain} Preset: systemctl reload nginx ; systemctl restart d3x-ui"
         echo -e "${green}\t2.${plain} Input your own command"
         echo -e "${green}\t0.${plain} Keep default reloadcmd"
-        read -rp "Choose an option: " choice
+        read -rp "$(xui_tr 'Choose an option: ')" choice
         case "$choice" in
             1)
                 echo -e "${green}Reloadcmd is: systemctl reload nginx ; systemctl restart d3x-ui${plain}"
@@ -937,7 +1070,7 @@ ssl_cert_issue() {
                 ;;
             2)
                 echo -e "${yellow}It's recommended to put d3x-ui restart at the end${plain}"
-                read -rp "Please enter your custom reloadcmd: " reloadCmd
+                read -rp "$(xui_tr 'Please enter your custom reloadcmd: ')" reloadCmd
                 echo -e "${green}Reloadcmd is: ${reloadCmd}${plain}"
                 ;;
             *)
@@ -993,7 +1126,7 @@ ssl_cert_issue() {
     if [[ "$NONINTERACTIVE" == "1" ]]; then
         setPanel="y"
     else
-        read -rp "Would you like to set this certificate for the panel? (y/n): " setPanel
+        read -rp "$(xui_tr 'Would you like to set this certificate for the panel? (y/n): ')" setPanel
     fi
     if [[ "$setPanel" == "y" || "$setPanel" == "Y" ]]; then
         local webCertFile="/root/cert/${domain}/fullchain.pem"
@@ -1046,7 +1179,7 @@ prompt_and_setup_ssl() {
                 ;;
         esac
     else
-        read -rp "Choose an option (default 2 for IP): " ssl_choice
+        read -rp "$(xui_tr 'Choose an option (default 2 for IP): ')" ssl_choice
         ssl_choice="${ssl_choice// /}" # Trim whitespace
 
         # Default to 2 (IP cert) if input is empty or invalid (not 1, 3 or 4)
@@ -1085,14 +1218,14 @@ prompt_and_setup_ssl() {
             # routing / multi-WAN the echo services can return a transit address.
             if [[ "$NONINTERACTIVE" != "1" ]]; then
                 local ip_confirm=""
-                read -rp "Is ${server_ip} the correct incoming public IPv4 address for this server? [Default y]: " ip_confirm
+                read -rp "$(xui_tr 'Is %s the correct incoming public IPv4 address for this server? [Default y]: ' "$server_ip")" ip_confirm
                 if [[ -n "$ip_confirm" && "$ip_confirm" != "y" && "$ip_confirm" != "Y" ]]; then
                     server_ip=""
                     while [[ -z "$server_ip" ]]; do
-                        read -rp "Please enter your server's public IPv4 address: " server_ip
+                        read -rp "$(xui_tr "Please enter your server's public IPv4 address: ")" server_ip
                         server_ip="${server_ip// /}"
                         if [[ ! "$server_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-                            echo -e "${red}Invalid IPv4 address. Please try again.${plain}"
+                            echo -e "${red}$(xui_tr 'Invalid IPv4 address. Please try again.')${plain}"
                             server_ip=""
                         fi
                     done
@@ -1128,12 +1261,12 @@ prompt_and_setup_ssl() {
             local custom_domain=""
 
             # 3.1 Request Domain to compose Panel URL later
-            read -rp "Please enter domain name certificate issued for: " custom_domain
+            read -rp "$(xui_tr 'Please enter domain name certificate issued for: ')" custom_domain
             custom_domain="${custom_domain// /}" # Remove spaces
 
             # 3.2 Loop for Certificate Path
             while true; do
-                read -rp "Input certificate path (keywords: .crt / fullchain): " custom_cert
+                read -rp "$(xui_tr 'Input certificate path (keywords: .crt / fullchain): ')" custom_cert
                 # Strip quotes if present
                 custom_cert=$(echo "$custom_cert" | tr -d '"' | tr -d "'")
 
@@ -1150,7 +1283,7 @@ prompt_and_setup_ssl() {
 
             # 3.3 Loop for Private Key Path
             while true; do
-                read -rp "Input private key path (keywords: .key / privatekey): " custom_key
+                read -rp "$(xui_tr 'Input private key path (keywords: .key / privatekey): ')" custom_key
                 # Strip quotes if present
                 custom_key=$(echo "$custom_key" | tr -d '"' | tr -d "'")
 
@@ -1197,7 +1330,7 @@ prompt_and_setup_ssl() {
                 # Cloud images must stay reachable on their public interface.
                 bind_local="n"
             else
-                read -rp "Bind the panel to 127.0.0.1 only? (recommended — forces SSH tunnel / reverse-proxy access) [y/N]: " bind_local
+                read -rp "$(xui_tr 'Bind the panel to 127.0.0.1 only? (recommended — forces SSH tunnel / reverse-proxy access) [y/N]: ')" bind_local
             fi
             if [[ "$bind_local" == "y" || "$bind_local" == "Y" ]]; then
                 ${xui_folder}/d3x-ui setting -listenIP "127.0.0.1" > /dev/null 2>&1
@@ -1274,10 +1407,10 @@ config_after_install() {
         else
             echo -e "${yellow}Could not auto-detect server IP from any provider.${plain}"
             while [[ -z "$server_ip" ]]; do
-                read -rp "Please enter your server's public IPv4 address: " server_ip
+                read -rp "$(xui_tr "Please enter your server's public IPv4 address: ")" server_ip
                 server_ip="${server_ip// /}"
                 if [[ ! "$server_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-                    echo -e "${red}Invalid IPv4 address. Please try again.${plain}"
+                    echo -e "${red}$(xui_tr 'Invalid IPv4 address. Please try again.')${plain}"
                     server_ip=""
                 fi
             done
@@ -1294,7 +1427,7 @@ config_after_install() {
             local db_label="SQLite (/etc/d3x-ui/d3x-ui.db)"
             echo ""
             echo -e "${green}═══════════════════════════════════════════${plain}"
-            echo -e "${green}     Database Selection                    ${plain}"
+            echo -e "${green}$(xui_box_title 'Database Selection')${plain}"
             echo -e "${green}═══════════════════════════════════════════${plain}"
             echo -e "  1) SQLite     (default — recommended for < 500 clients)"
             echo -e "  2) PostgreSQL (recommended for high client counts / many nodes)"
@@ -1305,7 +1438,7 @@ config_after_install() {
                     db_choice="1"
                 fi
             else
-                read -rp "Choose [1]: " db_choice
+                read -rp "$(xui_tr 'Choose [1]: ')" db_choice
                 db_choice="${db_choice:-1}"
             fi
             if [[ "$db_choice" == "2" ]]; then
@@ -1353,11 +1486,11 @@ config_after_install() {
                     echo ""
                     echo -e "  1) Install PostgreSQL locally and create a dedicated user/db (recommended)"
                     echo -e "  2) Use an existing PostgreSQL server (enter DSN)"
-                    read -rp "Choose [1]: " pg_mode
+                    read -rp "$(xui_tr 'Choose [1]: ')" pg_mode
                     pg_mode="${pg_mode:-1}"
                     if [[ "$pg_mode" == "2" ]]; then
                         while [[ -z "$xui_dsn" ]]; do
-                            read -rp "Enter PostgreSQL DSN (postgres://user:pass@host:port/dbname?sslmode=disable): " xui_dsn
+                            read -rp "$(xui_tr 'Enter PostgreSQL DSN (postgres://user:pass@host:port/dbname?sslmode=disable): ')" xui_dsn
                             xui_dsn="${xui_dsn// /}"
                         done
                         db_label="PostgreSQL (external)"
@@ -1386,7 +1519,7 @@ config_after_install() {
                             echo -e "  2) Enter an external DSN instead"
                             echo -e "  3) Abort install"
                             echo -e "  4) Fall back to SQLite"
-                            read -rp "Choose [1]: " pg_fail
+                            read -rp "$(xui_tr 'Choose [1]: ')" pg_fail
                             pg_fail="${pg_fail:-1}"
                             case "$pg_fail" in
                                 2) pg_mode="2" ;;
@@ -1440,7 +1573,7 @@ EOF
 
             echo ""
             echo -e "${green}═══════════════════════════════════════════${plain}"
-            echo -e "${green}     SSL Certificate Setup (RECOMMENDED)   ${plain}"
+            echo -e "${green}$(xui_box_title 'SSL Certificate Setup (RECOMMENDED)')${plain}"
             echo -e "${green}═══════════════════════════════════════════${plain}"
             echo -e "${yellow}SSL is strongly recommended. Skip only if a reverse proxy${plain}"
             echo -e "${yellow}or SSH tunnel handles TLS for you.${plain}"
@@ -1455,21 +1588,21 @@ EOF
             # Display final credentials and access information
             echo ""
             echo -e "${green}═══════════════════════════════════════════${plain}"
-            echo -e "${green}     Panel Installation Complete!         ${plain}"
+            echo -e "${green}$(xui_box_title 'Panel Installation Complete!')${plain}"
             echo -e "${green}═══════════════════════════════════════════${plain}"
-            echo -e "${green}Username:    ${config_username}${plain}"
-            echo -e "${green}Password:    ${config_password}${plain}"
-            echo -e "${green}Port:        ${config_port}${plain}"
-            echo -e "${green}WebBasePath: ${config_webBasePath}${plain}"
-            echo -e "${green}Database:    ${db_label}${plain}"
-            echo -e "${green}Access URL:  ${SSL_SCHEME}://${SSL_HOST}:${config_port}/${config_webBasePath}${plain}"
-            echo -e "${green}API Token:   ${config_apiToken}${plain}"
+            echo -e "${green}$(xui_tr 'Username:    ')${config_username}${plain}"
+            echo -e "${green}$(xui_tr 'Password:    ')${config_password}${plain}"
+            echo -e "${green}$(xui_tr 'Port:        ')${config_port}${plain}"
+            echo -e "${green}$(xui_tr 'WebBasePath: ')${config_webBasePath}${plain}"
+            echo -e "${green}$(xui_tr 'Database:    ')${db_label}${plain}"
+            echo -e "${green}$(xui_tr 'Access URL:  ')${SSL_SCHEME}://${SSL_HOST}:${config_port}/${config_webBasePath}${plain}"
+            echo -e "${green}$(xui_tr 'API Token:   ')${config_apiToken}${plain}"
             echo -e "${green}═══════════════════════════════════════════${plain}"
-            echo -e "${yellow}⚠ IMPORTANT: Save these credentials securely!${plain}"
+            echo -e "${yellow}$(xui_tr '⚠ IMPORTANT: Save these credentials securely!')${plain}"
             if [[ "$SSL_SCHEME" == "https" ]]; then
-                echo -e "${yellow}⚠ SSL Certificate: Enabled and configured${plain}"
+                echo -e "${yellow}$(xui_tr '⚠ SSL Certificate: Enabled and configured')${plain}"
             else
-                echo -e "${yellow}⚠ SSL Certificate: Skipped — panel is HTTP-only. Use a reverse proxy or SSH tunnel.${plain}"
+                echo -e "${yellow}$(xui_tr '⚠ SSL Certificate: Skipped — panel is HTTP-only. Use a reverse proxy or SSH tunnel.')${plain}"
             fi
 
             if [[ "$db_choice" == "2" ]]; then
@@ -1482,7 +1615,7 @@ EOF
             if [[ "$db_choice" == "2" && "$pg_local_installed" == "1" ]]; then
                 echo ""
                 echo -e "${green}═══════════════════════════════════════════${plain}"
-                echo -e "${green}     PostgreSQL Credentials               ${plain}"
+                echo -e "${green}$(xui_box_title 'PostgreSQL Credentials')${plain}"
                 echo -e "${green}═══════════════════════════════════════════${plain}"
                 echo -e "${green}DB Name:    ${PG_DB}${plain}"
                 echo -e "${green}Username:   ${PG_USER}${plain}"
@@ -1512,13 +1645,13 @@ EOF
             local config_webBasePath=$(gen_random_string 18)
             echo -e "${yellow}WebBasePath is missing or set to root. Generating a new one...${plain}"
             ${xui_folder}/d3x-ui setting -webBasePath "${config_webBasePath}"
-            echo -e "${green}New WebBasePath: ${config_webBasePath}${plain}"
+            echo -e "${green}$(xui_tr 'New WebBasePath: ')${config_webBasePath}${plain}"
 
             # If the panel is already installed but no certificate is configured, prompt for SSL now
             if [[ -z "${existing_cert}" ]]; then
                 echo ""
                 echo -e "${green}═══════════════════════════════════════════${plain}"
-                echo -e "${green}     SSL Certificate Setup (RECOMMENDED)   ${plain}"
+                echo -e "${green}$(xui_box_title 'SSL Certificate Setup (RECOMMENDED)')${plain}"
                 echo -e "${green}═══════════════════════════════════════════${plain}"
                 echo -e "${yellow}Let's Encrypt now supports both domains and IP addresses!${plain}"
                 echo ""
@@ -1535,9 +1668,9 @@ EOF
             local config_username="$SELECTED_USERNAME"
             local config_password="$SELECTED_PASSWORD"
 
-            echo -e "${yellow}Default credentials detected. Security update required...${plain}"
+            echo -e "${yellow}$(xui_tr 'Default credentials detected. Security update required...')${plain}"
             ${xui_folder}/d3x-ui setting -username "${config_username}" -password "${config_password}"
-            echo -e "Generated new random login credentials:"
+            echo -e "$(xui_tr 'Generated new random login credentials:')"
             echo -e "###############################################"
             echo -e "${green}Username: ${config_username}${plain}"
             echo -e "${green}Password: ${config_password}${plain}"
@@ -1560,7 +1693,7 @@ EOF
         if [[ -z "$existing_cert" ]]; then
             echo ""
             echo -e "${green}═══════════════════════════════════════════${plain}"
-            echo -e "${green}     SSL Certificate Setup (RECOMMENDED)   ${plain}"
+            echo -e "${green}$(xui_box_title 'SSL Certificate Setup (RECOMMENDED)')${plain}"
             echo -e "${green}═══════════════════════════════════════════${plain}"
             echo -e "${yellow}Let's Encrypt now supports both domains and IP addresses!${plain}"
             echo ""

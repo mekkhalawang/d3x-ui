@@ -1,5 +1,7 @@
 # D3X-UI
 
+[English](README.md) | [简体中文](README.zh_CN.md)
+
 **D3X-UI** 是一个开源的 Xray 网络面板，用于部署、配置和监控多种代理协议——从单台 VPS 到多节点部署。项目基于 3x-ui v3.11.0 冻结二次开发，独立演进，面向多用户上网管理场景。
 
 > [!IMPORTANT]
@@ -49,6 +51,8 @@ bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/insta
 ```
 
 安装过程会生成随机的用户名、密码与访问路径。安装完成后运行 `d3x-ui` 打开管理菜单，可启停服务、查看或重置登录凭据、管理 SSL 证书等。
+
+安装脚本的交互提示默认使用中文；设置 `XUI_LANG=en` 可切换为英文。安装过程中会询问是否自定义面板用户名和密码——回答 `y` 则自行指定（密码需输入两次确认），直接回车或回答 `N` 则继续使用随机生成的凭据。
 
 每个发布产物均附带 `.sha256` 校验文件，`install.sh` 与更新器都会校验后再继续。
 
@@ -103,6 +107,7 @@ systemctl restart d3x-ui
 | `XUI_RATELIMIT_ENABLE` | 开启按客户端限速（面板写出限额表，由补丁版内核执行） | `false` |
 | `XUI_CLOUDFLARED_PATH` | 使用已安装的 `cloudflared` 二进制，而不是自动下载 | — |
 | `XUI_TUNNEL_HEALTH_MONITOR` | 启用隧道健康监控（探测某 URL，连续失败后重启 xray） | `false` |
+| `XUI_LANG` | 安装脚本提示语言：`zh`（默认）或 `en`。不跟随系统 locale | `zh` |
 
 完整列表参见[环境变量参考](https://github.com/mekkhalawang/d3x-ui#readme/docs/reference/env-vars)。
 

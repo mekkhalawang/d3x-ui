@@ -1,5 +1,7 @@
 # D3X-UI
 
+[English](README.md) | [简体中文](README.zh_CN.md)
+
 **D3X-UI** is an open-source Xray web panel for deploying, configuring, and monitoring a wide range of proxy protocols — from a single VPS to multi-node deployments. The project is a frozen secondary development of 3x-ui v3.11.0 and evolves independently, focused on multi-user internet access management.
 
 > [!IMPORTANT]
@@ -49,6 +51,8 @@ bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/insta
 ```
 
 During installation a random username, password, and access path are generated. After installation, run `d3x-ui` to open the management menu, where you can start/stop the service, view or reset your login credentials, manage SSL certificates, and more.
+
+The installer prompts are in Chinese by default. Set `XUI_LANG=en` to get the English wording instead. During the install you are asked whether to set a custom panel username and password — answer `y` to choose your own (the password is asked twice for confirmation), or leave it on `N` to keep the generated ones.
 
 Every release asset is published with a `.sha256` sum next to it. Both `install.sh` and the updater verify the archive against that sum and abort on a mismatch.
 
@@ -103,6 +107,7 @@ The default `docker compose up -d` keeps using SQLite. To run with the bundled P
 | `XUI_RATELIMIT_ENABLE` | Turn on per-client speed limits (the panel writes the limit table the patched core enforces) | `false` |
 | `XUI_CLOUDFLARED_PATH` | Use an existing `cloudflared` binary instead of the auto-downloaded one | — |
 | `XUI_TUNNEL_HEALTH_MONITOR` | Enable the tunnel health monitor (probes a URL and restarts xray after repeated failures) | `false` |
+| `XUI_LANG` | Installer prompt language: `zh` (default) or `en`. Does not follow the system locale | `zh` |
 
 The complete list is on the [environment variables reference](https://github.com/mekkhalawang/d3x-ui#readme/docs/reference/env-vars).
 
