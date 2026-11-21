@@ -38,10 +38,10 @@
 bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh)
 ```
 
-To install a specific version, append its tag (e.g. `v3.11.0-d3.1`):
+To install a specific version, append its tag (e.g. `v1.0.0`):
 
 ```bash
-bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh) v3.11.0-d3.1
+bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh) v1.0.0
 ```
 
 To install the rolling **dev** build (latest per-commit pre-release from `main`, not a stable release), pass `dev-latest`:
@@ -50,9 +50,15 @@ To install the rolling **dev** build (latest per-commit pre-release from `main`,
 bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh) dev-latest
 ```
 
-During installation a random username, password, and access path are generated. After installation, run `d3x-ui` to open the management menu, where you can start/stop the service, view or reset your login credentials, manage SSL certificates, and more.
+During installation the panel port, the login credentials and the URI path the panel is served under are generated at random. After installation, run `d3x-ui` to open the management menu, where you can start/stop the service, view or reset your login credentials, manage SSL certificates, and more.
 
-The installer prompts are in Chinese by default. Set `XUI_LANG=en` to get the English wording instead. During the install you are asked whether to set a custom panel username and password — answer `y` to choose your own (the password is asked twice for confirmation), or leave it on `N` to keep the generated ones.
+The installer prompts are in Chinese by default. Set `XUI_LANG=en` to get the English wording instead.
+
+One question covers the panel settings: **would you like to customize the panel settings (port, username, password, access path)?** — the default is **yes**, so pressing Enter walks you through each value. Answer `n` and all three are generated at random instead.
+
+- **Port** — a free port between 1024 and 62000.
+- **Username / password** — the password is asked twice for confirmation and is not echoed.
+- **Access path** — the URI segment the panel is served under (`https://host:port/<path>`). Letters, digits, hyphens and underscores, at least 6 characters. It hides the panel behind an unguessable URL, so keep it secret.
 
 The SSL step offers five methods. Option **3** mints a **self-signed certificate for the server's public IP** — it needs no port 80, no ACME account and no renewal, so it works on a locked-down VPS. The detected IP is the default; press Enter to accept it or type a different address. The certificate is valid for 10 years, and browsers will warn that it is not signed by a public CA (click *Advanced* to proceed). Options 1 and 2 use Let's Encrypt and require port 80 open.
 

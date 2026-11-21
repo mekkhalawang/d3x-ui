@@ -38,10 +38,10 @@
 bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh)
 ```
 
-安装指定版本，追加 tag（例如 `v3.11.0-d3.1`）：
+安装指定版本，追加 tag（例如 `v1.0.0`）：
 
 ```bash
-bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh) v3.11.0-d3.1
+bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh) v1.0.0
 ```
 
 安装滚动 **dev** 构建（`main` 分支每次提交的最新预发布，非稳定版）：
@@ -50,9 +50,15 @@ bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/insta
 bash <(curl -Ls https://raw.githubusercontent.com/mekkhalawang/d3x-ui/main/install.sh) dev-latest
 ```
 
-安装过程会生成随机的用户名、密码与访问路径。安装完成后运行 `d3x-ui` 打开管理菜单，可启停服务、查看或重置登录凭据、管理 SSL 证书等。
+安装过程会随机生成面板端口、登录凭据和面板的访问路径。安装完成后运行 `d3x-ui` 打开管理菜单，可启停服务、查看或重置登录凭据、管理 SSL 证书等。
 
-安装脚本的交互提示默认使用中文；设置 `XUI_LANG=en` 可切换为英文。安装过程中会询问是否自定义面板用户名和密码——回答 `y` 则自行指定（密码需输入两次确认），直接回车或回答 `N` 则继续使用随机生成的凭据。
+安装脚本的交互提示默认使用中文；设置 `XUI_LANG=en` 可切换为英文。
+
+面板设置只需一次询问：**是否自定义面板设置（端口、用户名、密码、访问路径）？** ——默认为**是**，直接回车就会逐项引导你填写；回答 `n` 则三项全部随机生成。
+
+- **端口** —— 1024 到 62000 之间的空闲端口。
+- **用户名 / 密码** —— 密码需输入两次确认，且输入时不回显。
+- **访问路径** —— 面板对外提供服务的 URI 片段（`https://主机:端口/<路径>`）。仅限字母、数字、连字符和下划线，至少 6 个字符。它用不可猜测的 URL 隐藏面板入口，请勿泄露。
 
 SSL 配置步骤提供五种方式。选项 **3** 会为服务器公网 IP **签发一张自签证书**——无需开放 80 端口、无需 ACME 账号、无需续期，在端口受限的 VPS 上也能一步到位。默认使用自动检测到的 IP，直接回车即采用，也可自行输入其他地址。证书有效期 10 年，浏览器会提示"证书不受信任"，点"高级 → 继续访问"即可。选项 1、2 走 Let's Encrypt，需要开放 80 端口。
 
