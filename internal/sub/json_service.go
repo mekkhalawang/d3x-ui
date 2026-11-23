@@ -906,12 +906,9 @@ func (s *SubJsonService) realityData(rData map[string]any, clientKey string) map
 	} else {
 		rltyData["shortId"] = ""
 	}
-	serverNames, ok := rData["serverNames"].([]any)
-	if ok && len(serverNames) > 0 {
-		rltyData["serverName"], _ = serverNames[random.Num(len(serverNames))].(string)
-	} else {
-		rltyData["serverName"] = ""
-	}
+	// SNI is deterministic (settings.serverName -> target host ->
+	// serverNames[0]); only shortId keeps the random pick.
+	rltyData["serverName"] = pickRealitySNI(rData)
 
 	return rltyData
 }

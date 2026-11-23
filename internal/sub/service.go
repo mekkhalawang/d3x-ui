@@ -2208,10 +2208,8 @@ func applyShareRealityParams(stream map[string]any, params map[string]string, cl
 	realitySetting, _ := stream["realitySettings"].(map[string]any)
 	realitySettings, _ := searchKey(realitySetting, "settings")
 	if realitySetting != nil {
-		if sniValue, ok := searchKey(realitySetting, "serverNames"); ok {
-			if sNames, _ := sniValue.([]any); len(sNames) > 0 {
-				params["sni"], _ = sNames[random.Num(len(sNames))].(string)
-			}
+		if sn := pickRealitySNI(realitySetting); sn != "" {
+			params["sni"] = sn
 		}
 		if pbkValue, ok := searchKey(realitySettings, "publicKey"); ok {
 			params["pbk"], _ = pbkValue.(string)

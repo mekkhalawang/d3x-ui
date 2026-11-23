@@ -1331,8 +1331,10 @@ func (s *SubClashService) realityData(rData map[string]any) map[string]any {
 	if fingerprint, ok := realityClientSettings["fingerprint"].(string); ok {
 		rDataOut["fingerprint"] = fingerprint
 	}
-	if serverNames, ok := rData["serverNames"].([]any); ok && len(serverNames) > 0 {
-		rDataOut["serverName"] = fmt.Sprint(serverNames[0])
+	// Deterministic SNI priority (settings.serverName -> target host ->
+	// serverNames[0]); the old serverNames[0] pick skipped the target host.
+	if sn := pickRealitySNI(rData); sn != "" {
+		rDataOut["serverName"] = sn
 	}
 	if shortIDs, ok := rData["shortIds"].([]any); ok && len(shortIDs) > 0 {
 		rDataOut["shortId"] = fmt.Sprint(shortIDs[0])

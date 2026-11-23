@@ -417,6 +417,36 @@ function applyExternalProxyTLSParams(
     params.set('cs', externalProxy.cipherSuites);
 }
 
+// Host part of a REALITY target/dest ("host:port"). Returns '' when the value
+// carries no usable host (":443", a bare port) so callers can fall through.
+function realityTargetHost(target: string): string {
+  const t = target.trim();
+  if (t.length === 0) return '';
+  if (t.startsWith('[')) {
+    const end = t.indexOf(']');
+    if (end > 0) return t.slice(1, end);
+  }
+  const idx = t.lastIndexOf(':');
+  if (idx >= 0) return t.slice(0, idx).trim();
+  return /^\d+$/.test(t) ? '' : t;
+}
+
+// Mirror of the Go pickRealitySNI (internal/sub/reality_sni.go): the SNI a
+// REALITY link presents is deterministic — settings.serverName (explicit
+// override) -> target host -> serverNames[0] — never a random serverNames
+// entry, which silently broke a share of the links whenever only the target
+// host answers the fallback handshake with the expected certificate.
+export function pickRealitySni(reality: {
+  settings: { serverName: string };
+  serverNames?: string[];
+  target?: string;
+}): string {
+  if (reality.settings.serverName.trim().length > 0) return reality.settings.serverName.trim();
+  const host = realityTargetHost(reality.target ?? '');
+  if (host.length > 0) return host;
+  return (reality.serverNames?.[0] ?? '').trim();
+}
+
 export interface GenVlessLinkInput {
   inbound: Inbound;
   address: string;
@@ -531,8 +561,7 @@ export function genVlessLink(input: GenVlessLinkInput): string {
       params.set('pbk', reality.settings.publicKey);
       params.set('fp', reality.settings.fingerprint);
 
-      const sni =
-        reality.settings.serverName || reality.serverNames?.[0] || reality.target?.split(':')[0];
+      const sni = pickRealitySni(reality);
 
       if (sni && sni.length > 0) params.set('sni', sni);
 
@@ -644,8 +673,7 @@ function writeRealityParams(
   params.set('pbk', reality.settings.publicKey);
   params.set('fp', reality.settings.fingerprint);
 
-  const sni =
-    reality.settings.serverName || reality.serverNames?.[0] || reality.target?.split(':')[0];
+  const sni = pickRealitySni(reality);
 
   if (sni && sni.length > 0) params.set('sni', sni);
 
