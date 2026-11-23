@@ -10,6 +10,7 @@ exports[`inbound security forms > RealityForm field structure is stable 1`] = `
   "Max Time Diff (ms)",
   "Min Client Ver",
   "Max Client Ver",
+  "Allow X25519-only clients",
   "Short IDs",
   "SpiderX",
   "Public Key",
