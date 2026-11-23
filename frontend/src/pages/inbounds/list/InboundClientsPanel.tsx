@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ComponentProps } from 'react';
 import {
-  App,
   Button,
   DatePicker,
   Empty,
@@ -11,6 +10,7 @@ import {
   Table,
   Tag,
   Tooltip,
+  message,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
@@ -52,7 +52,7 @@ type SaveFn = ComponentProps<typeof ClientFormModal>['save'];
 
 export default function InboundClientsPanel({ inbound, onChanged }: Props) {
   const { t } = useTranslation();
-  const { message } = App.useApp();
+  const [messageApi, messageContextHolder] = message.useMessage();
   const { create, setExternalLinks, inbounds, allGroups, tgBotEnable } = useClients();
   const [busy, setBusy] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
@@ -100,7 +100,7 @@ export default function InboundClientsPanel({ inbound, onChanged }: Props) {
         onChanged?.();
         return true;
       }
-      message.error(msg?.msg || t('somethingWentWrong'));
+      messageApi.error(msg?.msg || t('somethingWentWrong'));
       return false;
     } finally {
       setBusy(null);
@@ -258,6 +258,7 @@ export default function InboundClientsPanel({ inbound, onChanged }: Props) {
 
   return (
     <div className="inbound-clients-panel">
+      {messageContextHolder}
       <div className="panel-head">
         <span className="panel-title">
           {t('pages.inbounds.client')} · {clients.length}

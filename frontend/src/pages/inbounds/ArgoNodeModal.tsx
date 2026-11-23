@@ -46,6 +46,7 @@ interface FormValues {
 export default function ArgoNodeModal({ open, onOpenChange, onCreated }: Props) {
   const { t } = useTranslation();
   const [form] = Form.useForm<FormValues>();
+  const [messageApi, messageContextHolder] = message.useMessage();
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<ArgoCreateNodeResult | null>(null);
   const mode = Form.useWatch('mode', form) ?? 'quick';
@@ -61,14 +62,14 @@ export default function ArgoNodeModal({ open, onOpenChange, onCreated }: Props) 
         port: values.port ?? 0,
       });
       if (msg?.success) {
-        message.success(msg.msg);
+        messageApi.success(msg.msg);
         setResult(msg.obj as ArgoCreateNodeResult);
         onCreated();
       }
     } finally {
       setSubmitting(false);
     }
-  }, [form, onCreated]);
+  }, [form, messageApi, onCreated]);
 
   const close = useCallback(() => {
     setResult(null);
@@ -103,6 +104,7 @@ export default function ArgoNodeModal({ open, onOpenChange, onCreated }: Props) 
         )
       }
     >
+      {messageContextHolder}
       {result ? (
         <Space direction="vertical" style={{ width: '100%' }}>
           <Alert
