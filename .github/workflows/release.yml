@@ -306,7 +306,9 @@ jobs:
           Copy-Item -Recurse -Force $realityDir $realityPatched
           Get-ChildItem -Recurse $realityPatched | ForEach-Object { $_.IsReadOnly = $false }
           Push-Location $realityPatched
-          patch -p1 --forward -i "$env:GITHUB_WORKSPACE\patches\reality-legacy-keys.patch"
+          git init -q
+          git apply --unsafe-paths --directory=. "$env:GITHUB_WORKSPACE\patches\reality-legacy-keys.patch" 2>$null
+          if ($LASTEXITCODE -ne 0) { patch -p1 --forward -i "$env:GITHUB_WORKSPACE\patches\reality-legacy-keys.patch" }
           Pop-Location
           go mod edit -replace github.com/xtls/reality=$realityPatched
           $env:CGO_ENABLED = "0"
