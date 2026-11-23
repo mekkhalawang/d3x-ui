@@ -682,6 +682,8 @@
         "minClientVer": "Mín. versão cliente",
         "maxClientVer": "Máx. versão cliente",
         "minClientVerHint": "No Xray-core v26.9.8+ vazio significa sem mínimo: qualquer versão de cliente é aceita, incluindo núcleos de terceiros como Mihomo e sing-box. Já os núcleos v26.7.11 a v26.9.7 aplicam um mínimo embutido de 26.3.27 quando vazio; defina 1.0.0 neles para aceitar esses clientes. Defina uma versão para rejeitar clientes que informem uma mais antiga.",
+        "allowX25519Only": "Permitir clientes apenas-X25519",
+        "allowX25519OnlyHint": "Aceita clientes REALITY cujo ClientHello traz uma chave X25519 simples, sem a chave híbrida X25519MLKEM768 (NekoBox, Shadowrocket e outros clientes de terceiros). O Xray-core 26.9.8+ rejeita esses hellos por padrão; com esta opção eles ainda concluem o handshake REALITY. Segurança ligeiramente menor — habilite só se clientes antigos precisarem.",
         "maxClientVerHint": "Vazio significa sem limite superior. Se definido, não deve ser menor que a versão mínima do cliente; caso contrário, todos os clientes são rejeitados.",
         "clientVerInvalid": "A versão do cliente deve ter até três números separados por pontos, cada um 0-255 (ex.: 26.3.27)",
         "maxClientVerBelowMin": "A versão máxima do cliente não deve ser menor que a versão mínima",

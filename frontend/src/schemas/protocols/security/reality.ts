@@ -60,6 +60,12 @@ export const RealityStreamSettingsSchema = z.preprocess(
     privateKey: z.string().default(''),
     minClientVer: z.string().default(''),
     maxClientVer: z.string().default(''),
+    // D3X-UI kernel extension (xray-reality-compat patch): relax the
+    // post-26.9.8 MLKEM gate so ClientHellos carrying only a plain X25519 key
+    // share (NekoBox / Shadowrocket and other third-party uTLS fingerprints)
+    // still authenticate. Must live in this zod schema — z.object strips
+    // unknown keys, so a missing field would vanish on every form save.
+    allowX25519Only: z.boolean().default(false),
     maxTimediff: z.number().int().min(0).default(0),
     shortIds: z.array(z.string()).default([]),
     mldsa65Seed: z.string().default(''),

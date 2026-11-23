@@ -631,6 +631,8 @@
         "minClientVer": "Min. Kullanıcı Sürümü",
         "maxClientVer": "Maks. Kullanıcı Sürümü",
         "minClientVerHint": "Xray-core v26.9.8+ sürümünde boş bırakmak alt sınır yok demektir: Mihomo ve sing-box gibi üçüncü taraf çekirdekler dahil her istemci sürümü kabul edilir. v26.7.11 ile v26.9.7 arasındaki çekirdekler ise boşken yerleşik 26.3.27 alt sınırını uygular; bu istemcileri kabul etmek için orada 1.0.0 girin. Daha eski sürüm bildiren istemcileri reddetmek için bir sürüm girin.",
+        "allowX25519Only": "Yalnızca X25519 istemcilerine izin ver",
+        "allowX25519OnlyHint": "ClientHello'sında X25519MLKEM768 hibrit anahtarı olmadan yalnızca düz X25519 anahtarı taşıyan REALITY istemcilerini (NekoBox, Shadowrocket ve diğer üçüncü taraf istemciler) kabul eder. Xray-core 26.9.8+ bu tür hello'ları varsayılan olarak reddeder; bu seçenekle REALITY el sıkışmasını tamamlayabilirler. Güvenlik biraz azalır — yalnızca eski istemciler gerekiyorsa etkinleştirin.",
         "maxClientVerHint": "Boş, üst sınır yok demektir. Ayarlanırsa Min. İstemci Sürümü'nden düşük olmamalıdır; aksi halde tüm istemciler reddedilir.",
         "clientVerInvalid": "İstemci sürümü noktayla ayrılmış en fazla üç sayıdan oluşmalıdır, her biri 0-255 (örn. 26.3.27)",
         "maxClientVerBelowMin": "Maks. istemci sürümü, en düşük istemci sürümünün altında olamaz",

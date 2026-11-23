@@ -682,6 +682,8 @@
         "minClientVer": "Phiên bản client tối thiểu",
         "maxClientVer": "Phiên bản client tối đa",
         "minClientVerHint": "Trên Xray-core v26.9.8+, để trống nghĩa là không có mức tối thiểu: mọi phiên bản client đều được chấp nhận, kể cả các core bên thứ ba như Mihomo và sing-box. Các core từ v26.7.11 đến v26.9.7 thì áp dụng mức tối thiểu tích hợp 26.3.27 khi để trống; hãy đặt 1.0.0 để chấp nhận các client đó. Đặt một phiên bản để từ chối các client báo phiên bản cũ hơn.",
+        "allowX25519Only": "Cho phép client chỉ dùng X25519",
+        "allowX25519OnlyHint": "Chấp nhận các client REALITY mà ClientHello chỉ có khóa X25519 thuần, không có khóa lai X25519MLKEM768 (NekoBox, Shadowrocket và các client bên thứ ba khác). Xray-core 26.9.8+ mặc định từ chối các hello như vậy; bật tùy chọn này để chúng vẫn hoàn tất bắt tay REALITY. Bảo mật giảm nhẹ — chỉ bật khi có client cũ cần dùng.",
         "maxClientVerHint": "Để trống nghĩa là không có giới hạn trên. Nếu đặt, không được thấp hơn phiên bản client tối thiểu — nếu không mọi client đều bị từ chối.",
         "clientVerInvalid": "Phiên bản client phải gồm tối đa ba số cách nhau bằng dấu chấm, mỗi số 0-255 (ví dụ 26.3.27)",
         "maxClientVerBelowMin": "Phiên bản client tối đa không được thấp hơn phiên bản client tối thiểu",

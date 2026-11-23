@@ -254,6 +254,14 @@ export default function RealityForm({
       >
         <Input placeholder="x.y.z" />
       </FormField>
+      <FormField
+        name={['streamSettings', 'realitySettings', 'allowX25519Only']}
+        label={t('pages.inbounds.form.allowX25519Only')}
+        tooltip={t('pages.inbounds.form.allowX25519OnlyHint')}
+        valueProp="checked"
+      >
+        <Switch />
+      </FormField>
       <Form.Item htmlFor={`${uid}-shortIds`} label={t('pages.inbounds.form.shortIds')}>
         <Space.Compact block style={{ display: 'flex' }}>
           <FormField name={['streamSettings', 'realitySettings', 'shortIds']} noStyle>

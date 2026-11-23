@@ -675,6 +675,8 @@
         "minClientVer": "Najnižšia verzia klienta",
         "maxClientVer": "Najvyššia verzia klienta",
         "minClientVerHint": "V Xray-core v26.9.8+ prázdne pole znamená bez dolného limitu: prijímajú sa všetky verzie klientov vrátane Mihomo a sing-box. Verzie jadra v26.7.11 až v26.9.7 pri prázdnom poli vyžadujú aspoň 26.3.27. V nich nastavte 1.0.0, ak chcete prijať aj tieto klienty. Zadaná verzia odmietne klientov, ktorí hlásia staršiu verziu.",
+        "allowX25519Only": "Povoliť klientov iba s X25519",
+        "allowX25519OnlyHint": "Prijíma REALITY klientov, ktorých ClientHello obsahuje bežný X25519 kľúč bez hybridného X25519MLKEM768 (NekoBox, Shadowrocket a ďalší klienti tretích strán). Xray-core 26.9.8+ takéto hello odmieta; s touto voľbou môžu dokončiť REALITY handshake. Bezpečnosť je mierne nižšia — povoľte, iba ak to starí klienti potrebujú.",
         "maxClientVerHint": "Prázdne pole znamená bez horného limitu. Zadaná hodnota nesmie byť nižšia ako najnižšia verzia klienta, inak sa odmietnu všetci klienti.",
         "clientVerInvalid": "Verzia klienta môže mať najviac tri čísla od 0 do 255 oddelené bodkou (napr. 26.3.27)",
         "maxClientVerBelowMin": "Najvyššia verzia klienta nesmie byť nižšia ako najnižšia",

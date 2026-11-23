@@ -675,6 +675,8 @@
         "minClientVer": "Min Client Ver",
         "maxClientVer": "Max Client Ver",
         "minClientVerHint": "On Xray-core v26.9.8+ empty means no minimum: every client version is accepted, including third-party cores such as Mihomo and sing-box. Cores v26.7.11 to v26.9.7 instead enforce a built-in 26.3.27 minimum when empty; set 1.0.0 there to accept those clients. Set a version to reject clients that report an older one.",
+        "allowX25519Only": "Allow X25519-only clients",
+        "allowX25519OnlyHint": "Accepts REALITY clients whose ClientHello carries a plain X25519 key share but no X25519MLKEM768 hybrid share (NekoBox, Shadowrocket and other third-party clients). Xray-core 26.9.8+ rejects such hellos by default; with this on they can still complete the REALITY handshake. Slightly weaker security — enable only when old clients need it.",
         "maxClientVerHint": "Empty means no upper limit. If set, it must not be lower than Min Client Ver — otherwise every client is rejected.",
         "clientVerInvalid": "Client version must be up to three dot-separated numbers, each 0-255 (e.g. 26.3.27)",
         "maxClientVerBelowMin": "Max Client Ver must not be lower than Min Client Ver",
