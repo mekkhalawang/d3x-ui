@@ -304,7 +304,9 @@ jobs:
           $realityDir = (go list -m -f '{{.Dir}}' github.com/xtls/reality) -replace '\\','/'
           $realityPatched = Join-Path $env:RUNNER_TEMP 'xtls-reality'
           Copy-Item -Recurse -Force $realityDir $realityPatched
-          Get-ChildItem -Recurse $realityPatched | ForEach-Object { $_.IsReadOnly = $false }
+          # -File matters: DirectoryInfo has no IsReadOnly property, and the
+          # runner's pwsh stops the step on the first directory otherwise.
+          Get-ChildItem -Recurse -File $realityPatched | ForEach-Object { $_.IsReadOnly = $false }
           Push-Location $realityPatched
           git init -q
           git apply --unsafe-paths --directory=. "$env:GITHUB_WORKSPACE\patches\reality-legacy-keys.patch" 2>$null
