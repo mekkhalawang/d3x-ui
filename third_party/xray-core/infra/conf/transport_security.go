@@ -42,6 +42,8 @@ type REALITYConfig struct {
 	LimitFallbackUpload   LimitFallback `json:"limitFallbackUpload"`
 	LimitFallbackDownload LimitFallback `json:"limitFallbackDownload"`
 
+	AllowX25519Only bool `json:"allowX25519Only"`
+
 	Fingerprint   string `json:"fingerprint"`
 	ServerName    string `json:"serverName"`
 	Password      string `json:"password"`
@@ -100,6 +102,7 @@ func (c *REALITYConfig) Build() (proto.Message, error) {
 		if config.PrivateKey, err = base64.RawURLEncoding.DecodeString(c.PrivateKey); err != nil || len(config.PrivateKey) != 32 {
 			return nil, errors.New(`invalid "privateKey": `, c.PrivateKey)
 		}
+		reality.RegisterAllowX25519Only(config.PrivateKey, c.AllowX25519Only)
 		if c.MinClientVer != "" {
 			config.MinClientVer = make([]byte, 3)
 			var u uint64

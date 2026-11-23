@@ -135,6 +135,15 @@ jobs:
           tar -xzf /tmp/xray-core.tar.gz -C /tmp/xray-core-src --strip-components=1
           cd /tmp/xray-core-src
           patch -p1 --forward < "$GITHUB_WORKSPACE/patches/xray-ratelimit.patch"
+          patch -p1 --forward < "$GITHUB_WORKSPACE/patches/xray-reality-compat.patch"
+          # The MLKEM gate lives in github.com/xtls/reality — a module dependency
+          # pulled from the proxy, not part of this tarball. Copy it out of the
+          # module cache, patch the gate, and point go.mod at the copy.
+          go mod download github.com/xtls/reality
+          cp -r "$(go list -m -f '{{.Dir}}' github.com/xtls/reality)" /tmp/xtls-reality
+          chmod -R u+w /tmp/xtls-reality
+          patch -p1 --forward -d /tmp/xtls-reality < "$GITHUB_WORKSPACE/patches/reality-legacy-keys.patch"
+          go mod edit -replace github.com/xtls/reality=/tmp/xtls-reality
           CGO_ENABLED=0 GOOS=linux GOARCH="$GOARCH" GOARM="$GOARM" \
             go build -trimpath -ldflags "-s -w" -o "$GITHUB_WORKSPACE/d3x-ui/bin/xray" ./main
           cd "$GITHUB_WORKSPACE/d3x-ui/bin"
@@ -287,6 +296,19 @@ jobs:
           git init -q
           git apply --unsafe-paths --directory=. "$env:GITHUB_WORKSPACE\patches\xray-ratelimit.patch" 2>$null
           if ($LASTEXITCODE -ne 0) { patch -p1 -i "$env:GITHUB_WORKSPACE\patches\xray-ratelimit.patch" }
+          git apply --unsafe-paths --directory=. "$env:GITHUB_WORKSPACE\patches\xray-reality-compat.patch" 2>$null
+          if ($LASTEXITCODE -ne 0) { patch -p1 -i "$env:GITHUB_WORKSPACE\patches\xray-reality-compat.patch" }
+          # github.com/xtls/reality is a module dependency (not in the tarball);
+          # patch its MLKEM gate out-of-tree and replace the module with the copy.
+          go mod download github.com/xtls/reality
+          $realityDir = (go list -m -f '{{.Dir}}' github.com/xtls/reality) -replace '\\','/'
+          $realityPatched = Join-Path $env:RUNNER_TEMP 'xtls-reality'
+          Copy-Item -Recurse -Force $realityDir $realityPatched
+          Get-ChildItem -Recurse $realityPatched | ForEach-Object { $_.IsReadOnly = $false }
+          Push-Location $realityPatched
+          patch -p1 --forward -i "$env:GITHUB_WORKSPACE\patches\reality-legacy-keys.patch"
+          Pop-Location
+          go mod edit -replace github.com/xtls/reality=$realityPatched
           $env:CGO_ENABLED = "0"
           $env:GOOS = "windows"
           $env:GOARCH = "amd64"

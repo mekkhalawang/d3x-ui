@@ -66,6 +66,12 @@ curl -sfL -o /tmp/xray-core.tar.gz "https://github.com/XTLS/Xray-core/archive/${
 mkdir -p /tmp/xray-core-src
 tar -xzf /tmp/xray-core.tar.gz -C /tmp/xray-core-src --strip-components=1
 ( cd /tmp/xray-core-src && patch -p1 --forward < /app/patches/xray-ratelimit.patch && \
+    patch -p1 --forward < /app/patches/xray-reality-compat.patch && \
+    go mod download github.com/xtls/reality && \
+    cp -r "$(go list -m -f '{{.Dir}}' github.com/xtls/reality)" /tmp/xtls-reality && \
+    chmod -R u+w /tmp/xtls-reality && \
+    patch -p1 --forward -d /tmp/xtls-reality < /app/patches/reality-legacy-keys.patch && \
+    go mod edit -replace github.com/xtls/reality=/tmp/xtls-reality && \
     CGO_ENABLED=0 GOOS=linux GOARCH="$GOARCH" GOARM="$GOARM" \
     go build -trimpath -ldflags "-s -w" -o "/app/build/bin/${XRAY_BIN}" ./main )
 rm -f geoip.dat geosite.dat

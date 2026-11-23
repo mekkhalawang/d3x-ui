@@ -7,12 +7,38 @@ import (
 	"io"
 	"net"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/xtls/reality"
 	"github.com/xtls/xray-core/common/errors"
 	"github.com/xtls/xray-core/transport/internet"
 )
+
+// allowX25519Only remembers which REALITY inbounds opted into accepting client
+// hellos that carry a plain X25519 key share but no X25519MLKEM768 hybrid share
+// (third-party clients such as Shadowrocket / NekoBox). Keyed by the inbound's
+// private key. The JSON conf layer (infra/conf/transport_security.go,
+// REALITYConfig.Build) records the choice while parsing config.json; this
+// package reads it back when the hub starts, in the same process.
+//
+// Why a side registry instead of a proto field: reality.Config is a protobuf
+// message round-tripped through serial.TypedMessage, so a new field would mean
+// regenerating config.pb.go on every kernel upgrade — the maintenance cost the
+// ratelimit patch deliberately avoided (docs/d3x-xray-ratelimit.md).
+var allowX25519Only sync.Map // string(privateKey) -> bool
+
+// RegisterAllowX25519Only records whether the inbound owning privateKey accepts
+// X25519-only REALITY key shares. Called from REALITYConfig.Build at parse time
+// — always, so a config re-parse overwrites a stale value for the same key.
+func RegisterAllowX25519Only(privateKey []byte, allow bool) {
+	allowX25519Only.Store(string(privateKey), allow)
+}
+
+func isAllowX25519Only(privateKey []byte) bool {
+	v, ok := allowX25519Only.Load(string(privateKey))
+	return ok && v.(bool)
+}
 
 func (c *Config) GetREALITYConfig() *reality.Config {
 	var dialer net.Dialer
@@ -52,6 +78,7 @@ func (c *Config) GetREALITYConfig() *reality.Config {
 		config.LimitFallbackDownload.BytesPerSec = c.LimitFallbackDownload.BytesPerSec
 		config.LimitFallbackDownload.BurstBytesPerSec = c.LimitFallbackDownload.BurstBytesPerSec
 	}
+	config.AllowX25519Only = isAllowX25519Only(c.PrivateKey)
 	config.ServerNames = make(map[string]bool)
 	for _, serverName := range c.ServerNames {
 		config.ServerNames[serverName] = true
