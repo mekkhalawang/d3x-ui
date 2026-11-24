@@ -65,7 +65,12 @@ export const RealityStreamSettingsSchema = z.preprocess(
     // share (NekoBox / Shadowrocket and other third-party uTLS fingerprints)
     // still authenticate. Must live in this zod schema — z.object strips
     // unknown keys, so a missing field would vanish on every form save.
-    allowX25519Only: z.boolean().default(false),
+    //
+    // Defaults to on: the gate only rejects third-party clients, so a new
+    // inbound that leaves it off looks broken to every phone until someone
+    // finds the switch. The kernel treats an absent field the same way, which
+    // is what makes gRPC hot-loaded inbounds work without a restart.
+    allowX25519Only: z.boolean().default(true),
     maxTimediff: z.number().int().min(0).default(0),
     shortIds: z.array(z.string()).default([]),
     mldsa65Seed: z.string().default(''),

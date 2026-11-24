@@ -682,7 +682,7 @@
         "maxClientVer": "最大客户端版本",
         "minClientVerHint": "在 Xray-core v26.9.8 及以上版本中，留空表示不设下限：接受任何客户端版本，包括 Mihomo、sing-box 等第三方内核。v26.7.11 至 v26.9.7 的内核在留空时会改用内置最低值 26.3.27；在这些内核上填 1.0.0 即可放行这类客户端。填写版本可拒绝自报版本更低的客户端。",
         "allowX25519Only": "允许纯 X25519 客户端",
-        "allowX25519OnlyHint": "接受 ClientHello 仅带 X25519 密钥、不带 X25519MLKEM768 混合密钥的 REALITY 客户端（NekoBox、小火箭等第三方客户端）。Xray-core 26.9.8+ 默认拒绝这类握手；开启后它们仍可完成 REALITY 握手。安全性略降，仅在确有旧客户端需求时开启。",
+        "allowX25519OnlyHint": "接受 ClientHello 仅带 X25519 密钥、不带 X25519MLKEM768 混合密钥的 REALITY 客户端（NekoBox、小火箭等第三方客户端）。Xray-core 26.9.8+ 默认拒绝这类握手，把它们降级转发到伪装站。新建入站默认开启；只有在确实要求所有客户端都使用混合密钥时才关闭。",
         "maxClientVerHint": "留空表示无上限。若填写，不得低于最小客户端版本，否则所有客户端都会被拒绝。",
         "clientVerInvalid": "客户端版本须为最多三段以点分隔的数字，每段 0-255（例如 26.3.27）",
         "maxClientVerBelowMin": "最大客户端版本不得低于最小客户端版本",

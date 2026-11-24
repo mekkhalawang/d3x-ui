@@ -9,7 +9,7 @@ exports[`SecuritySettingsSchema fixtures > parses none byte-stably 1`] = `
 exports[`SecuritySettingsSchema fixtures > parses reality-basic byte-stably 1`] = `
 {
   "realitySettings": {
-    "allowX25519Only": false,
+    "allowX25519Only": true,
     "maxClientVer": "",
     "maxTimediff": 0,
     "minClientVer": "",
