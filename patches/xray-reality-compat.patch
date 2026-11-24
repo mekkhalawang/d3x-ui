@@ -59,8 +59,8 @@
 +var allowX25519Only sync.Map // string(privateKey) -> bool
 +
 +// RegisterAllowX25519Only records whether the inbound owning privateKey accepts
-+// X25519-only REALITY key shares. Called from REALITYConfig.Build at parse time
-+// — always, so a config re-parse overwrites a stale value for the same key.
++// X25519-only REALITY key shares. Called from REALITYConfig.Build only when the
++// JSON carried the field, so an update in either direction sticks per process.
 +func RegisterAllowX25519Only(privateKey []byte, allow bool) {
 +	allowX25519Only.Store(string(privateKey), allow)
 +}
