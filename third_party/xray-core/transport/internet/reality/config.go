@@ -18,9 +18,16 @@ import (
 // allowX25519Only remembers which REALITY inbounds opted into accepting client
 // hellos that carry a plain X25519 key share but no X25519MLKEM768 hybrid share
 // (third-party clients such as Shadowrocket / NekoBox). Keyed by the inbound's
-// private key. The JSON conf layer (infra/conf/transport_security.go,
-// REALITYConfig.Build) records the choice while parsing config.json; this
-// package reads it back when the hub starts, in the same process.
+// private key.
+//
+// Only the JSON conf layer can populate this: infra/conf/transport_security.go
+// records the choice while parsing config.json, in this very process. The same
+// core also takes inbounds over the gRPC API, where the config arrives as a
+// protobuf message with no such field — the panel's hot-load path. Those
+// inbounds are never registered, so isAllowX25519Only falls back to true and
+// they behave exactly like the panel's default. An inbound that explicitly
+// opts out is registered as false when the core starts from config.json, and
+// keeps that value for the lifetime of the process.
 //
 // Why a side registry instead of a proto field: reality.Config is a protobuf
 // message round-tripped through serial.TypedMessage, so a new field would mean
@@ -35,9 +42,15 @@ func RegisterAllowX25519Only(privateKey []byte, allow bool) {
 	allowX25519Only.Store(string(privateKey), allow)
 }
 
+// isAllowX25519Only reports whether this inbound accepts X25519-only key shares.
+// An unregistered private key is an inbound that arrived over the gRPC API and
+// therefore carries no opinion: accept, matching the panel default.
 func isAllowX25519Only(privateKey []byte) bool {
 	v, ok := allowX25519Only.Load(string(privateKey))
-	return ok && v.(bool)
+	if !ok {
+		return true
+	}
+	return v.(bool)
 }
 
 func (c *Config) GetREALITYConfig() *reality.Config {

@@ -42,7 +42,12 @@ type REALITYConfig struct {
 	LimitFallbackUpload   LimitFallback `json:"limitFallbackUpload"`
 	LimitFallbackDownload LimitFallback `json:"limitFallbackDownload"`
 
-	AllowX25519Only bool `json:"allowX25519Only"`
+	// AllowX25519Only accepts REALITY clients whose ClientHello carries a plain
+	// X25519 key share but no X25519MLKEM768 hybrid share. D3X-UI extension.
+	// Pointer so an absent field (configs written before this option, and
+	// the gRPC hot-load path, which cannot carry it) is distinguishable from
+	// an explicit false.
+	AllowX25519Only *bool `json:"allowX25519Only"`
 
 	Fingerprint   string `json:"fingerprint"`
 	ServerName    string `json:"serverName"`
@@ -102,7 +107,9 @@ func (c *REALITYConfig) Build() (proto.Message, error) {
 		if config.PrivateKey, err = base64.RawURLEncoding.DecodeString(c.PrivateKey); err != nil || len(config.PrivateKey) != 32 {
 			return nil, errors.New(`invalid "privateKey": `, c.PrivateKey)
 		}
-		reality.RegisterAllowX25519Only(config.PrivateKey, c.AllowX25519Only)
+		if c.AllowX25519Only != nil {
+			reality.RegisterAllowX25519Only(config.PrivateKey, *c.AllowX25519Only)
+		}
 		if c.MinClientVer != "" {
 			config.MinClientVer = make([]byte, 3)
 			var u uint64
