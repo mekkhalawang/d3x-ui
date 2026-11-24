@@ -208,6 +208,16 @@ func diffInbounds(oldCfg, newCfg *Config, diff *HotDiff) bool {
 			logger.Debug("hot diff: new inbound [", newIb.Tag, "] is a password-auth SOCKS5 inbound (e.g. TUIC or AmneziaWG relay); forcing a full restart instead of a hot add, same reasoning as the existing-inbound case above")
 			return false
 		}
+		// A new REALITY inbound hot-adds fine, with one exception: allowX25519Only
+		// rides a side registry the core only fills while parsing config.json, so
+		// the gRPC path cannot carry it. The core defaults an unregistered inbound
+		// to accepting X25519-only clients, which matches the panel default — but
+		// an operator who explicitly turned the option off would silently get it
+		// back on. Restart for that case only; the common one stays a hot add.
+		if inboundRealityRejectsX25519(newIb) {
+			logger.Debug("hot diff: new inbound [", newIb.Tag, "] is REALITY with allowX25519Only off; a gRPC add cannot carry that flag, forcing a full restart so the opt-out takes effect")
+			return false
+		}
 		raw, err := json.Marshal(newIb)
 		if err != nil {
 			return false
@@ -379,6 +389,30 @@ func inboundUsesReality(ib *InboundConfig) bool {
 		return false
 	}
 	return stream.Security == "reality"
+}
+
+// inboundRealityRejectsX25519 reports whether the inbound is REALITY and
+// explicitly opted out of accepting X25519-only client hellos. Only an explicit
+// false counts: a missing field means the default (accept), which a hot add can
+// reproduce on its own because the core falls back to the same default.
+func inboundRealityRejectsX25519(ib *InboundConfig) bool {
+	if ib == nil || len(ib.StreamSettings) == 0 {
+		return false
+	}
+	var stream struct {
+		Security        string `json:"security"`
+		RealitySettings struct {
+			AllowX25519Only *bool `json:"allowX25519Only"`
+		} `json:"realitySettings"`
+	}
+	if err := json.Unmarshal(ib.StreamSettings, &stream); err != nil {
+		return false
+	}
+	if stream.Security != "reality" {
+		return false
+	}
+	flag := stream.RealitySettings.AllowX25519Only
+	return flag != nil && !*flag
 }
 
 // inboundUsesTproxy: a sockopt.tproxy inbound (the tunnel protocol's TProxy

@@ -600,3 +600,55 @@ func TestInboundUserOps_ShadowsocksAddedUserBuildsTheInboundAccount(t *testing.T
 		})
 	}
 }
+
+// A brand-new REALITY inbound hot-adds fine because the core falls back to
+// accepting X25519-only client hellos when nothing registered the opposite.
+// The panel's default is exactly that, so importing an inbound must not need a
+// restart. See patches/xray-reality-compat.patch (isAllowX25519Only).
+func TestComputeHotDiff_NewRealityInboundStaysHotWhenCompatibleDefault(t *testing.T) {
+	for name, stream := range map[string]string{
+		"field absent":  `{"network":"tcp","security":"reality","realitySettings":{"privateKey":"k","serverNames":["a.example"]}}`,
+		"explicitly on": `{"network":"tcp","security":"reality","realitySettings":{"privateKey":"k","serverNames":["a.example"],"allowX25519Only":true}}`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			oldCfg := makeHotConfig()
+			newCfg := makeHotConfig()
+			newCfg.InboundConfigs = append(newCfg.InboundConfigs, InboundConfig{
+				Port:           20573,
+				Protocol:       "vless",
+				Tag:            "in-20573-tcp",
+				Listen:         json_util.RawMessage(`"0.0.0.0"`),
+				Settings:       json_util.RawMessage(`{"clients":[{"email":"a","id":"uuid-a","flow":"xtls-rprx-vision"}],"decryption":"none"}`),
+				StreamSettings: json_util.RawMessage(stream),
+			})
+
+			diff, ok := ComputeHotDiff(oldCfg, newCfg)
+			if !ok {
+				t.Fatal("a new REALITY inbound must hot-add when the X25519 fallback is available")
+			}
+			if len(diff.AddedInbounds) != 1 {
+				t.Fatalf("expected exactly one hot-added inbound, got %d", len(diff.AddedInbounds))
+			}
+		})
+	}
+}
+
+// Turning the compatibility switch off cannot ride the gRPC add: the flag only
+// lives in the core's config.json parse path. Staying hot would silently put the
+// inbound back on the permissive default, so this one case must restart.
+func TestComputeHotDiff_NewRealityInboundOptingOutNeedsRestart(t *testing.T) {
+	oldCfg := makeHotConfig()
+	newCfg := makeHotConfig()
+	newCfg.InboundConfigs = append(newCfg.InboundConfigs, InboundConfig{
+		Port:           20573,
+		Protocol:       "vless",
+		Tag:            "in-20573-tcp",
+		Listen:         json_util.RawMessage(`"0.0.0.0"`),
+		Settings:       json_util.RawMessage(`{"clients":[{"email":"a","id":"uuid-a"}],"decryption":"none"}`),
+		StreamSettings: json_util.RawMessage(`{"network":"tcp","security":"reality","realitySettings":{"privateKey":"k","serverNames":["a.example"],"allowX25519Only":false}}`),
+	})
+
+	if _, ok := ComputeHotDiff(oldCfg, newCfg); ok {
+		t.Fatal("a new REALITY inbound with allowX25519Only off must force a restart")
+	}
+}
